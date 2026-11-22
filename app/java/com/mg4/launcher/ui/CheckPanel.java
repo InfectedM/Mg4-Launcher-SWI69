@@ -74,7 +74,8 @@ public final class CheckPanel {
             send.setText(L.s(R.string.check_log_sent));
             send.setEnabled(false);
         });
-        btns.addView(send, Ui.lp(-2, Ui.tp(c, 60)));
+        // fork: sem envio de registos, o botão "Enviar registo" não aparece
+        if (!com.mg4.launcher.svc.LogUploader.DISABLED_IN_FORK) btns.addView(send, Ui.lp(-2, Ui.tp(c, 60)));
         TextView close = button(c, t, L.s(R.string.close), true);
         close.setOnClickListener(v -> ((ViewGroup) dim.getParent()).removeView(dim));
         btns.addView(close, Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));

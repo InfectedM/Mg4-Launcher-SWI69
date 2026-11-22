@@ -1246,10 +1246,13 @@ public final class SettingsView extends FrameLayout {
 
         col.addView(label(c, L.s(R.string.set_diag_section)), top(30));
         card = card(c);
-        LinearLayout lr = row(c, L.s(R.string.log_upload_on), "", toggle(c, host.logs().enabled(), on -> host.logs().setEnabled(on)), false);
-        if (!LogUploader.configured()) lr.getChildAt(1).setEnabled(false);
-        logUploadSub = (TextView) ((ViewGroup) lr.getChildAt(0)).getChildAt(1);
-        card.addView(lr);
+        // fork: o envio de registos está desligado de forma permanente, por isso a opção não aparece
+        if (!LogUploader.DISABLED_IN_FORK) {
+            LinearLayout lr = row(c, L.s(R.string.log_upload_on), "", toggle(c, host.logs().enabled(), on -> host.logs().setEnabled(on)), false);
+            if (!LogUploader.configured()) lr.getChildAt(1).setEnabled(false);
+            logUploadSub = (TextView) ((ViewGroup) lr.getChildAt(0)).getChildAt(1);
+            card.addView(lr);
+        }
         logSaveBtn = button(c, L.s(R.string.btn_save), v -> saveLog());
         LinearLayout sr = row(c, L.s(R.string.save_log), L.s(R.string.save_log_sub), logSaveBtn, false);
         logSaveSub = (TextView) ((ViewGroup) sr.getChildAt(0)).getChildAt(1);

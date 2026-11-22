@@ -2,5 +2,5 @@
   "version": "0.4.6",
   "apk": "releases/MG4Launcher-SWI69-0.4.6.apk",
   "size": 1100473,
-  "notes": "Vidros: fecho automático ao sair do carro e fecho manual (baseado no WinClose). Aquecimento inteligente da bateria no grupo Condução (baseado no MG4Control). Atalho para as definições do launcher no separador Apps. Atualizações a partir do fork InfectedM."
+  "notes": "Vidros: fecho automático ao sair do carro e fecho manual (baseado no WinClose). Aquecimento inteligente da bateria no grupo Condução (baseado no MG4Control). Atalho para as definições do launcher no separador Apps. Atualizações a partir do fork InfectedM. Envio de registos desligado."
 }

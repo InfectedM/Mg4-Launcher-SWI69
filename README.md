@@ -156,7 +156,7 @@ Substitui o ecrã inicial original mantendo as suas funções, com o mesmo grafi
 **Versões do carro:** de momento a compatibilidade está **garantida no MG4 standard MY23 com software R45**
 (`SWI69-29958-1100R45`), onde o launcher foi testado. Como usa os mesmos dados e serviços da **FICM**
 original (a unidade de infoentretenimento), deverá funcionar em **todas as versões com o rádio Color Radio**.
-Se o experimentares noutra versão, os relatos são bem-vindos: com o envio de registos ativo chegam sozinhos.
+Se o experimentares noutra versão, os relatos são bem-vindos: abre um *issue* com o registo guardado (ver [Reportar um problema](#reportar-um-problema)).
 
 **Índice:** [O que faz](#o-que-faz) · [Instalação](#instalação) · [Atualizações](#atualizações) · [Voltar ao ecrã inicial MG original](#voltar-ao-ecrã-inicial-mg-original) · [Comandos úteis](#comandos-úteis) · [Reportar um problema](#reportar-um-problema) · [Apoiar o projeto](#apoiar-o-projeto) · [Versões](#versões)
 
@@ -211,7 +211,7 @@ Se o experimentares noutra versão, os relatos são bem-vindos: com o envio de r
   mostram sempre o indicador de luzes do sistema no canto superior esquerdo, esse canto fica livre.
 - **Definições** (toque longo no carro), divididas em secções com um menu lateral: **Carro** (cor, tejadilho preto),
   **Início** (casas decimais, pressão dos pneus), **Aspeto** (tema, tamanho dos comandos, idioma),
-  **Condução** (lado de condução, ecrã inicial MG original), **Sistema** (atualizações, envio e gravação de registos,
+  **Condução** (lado de condução, ecrã inicial MG original), **Sistema** (atualizações, gravação de registos,
   diagnóstico). A versão e, quando disponível, uma nova versão com **Instalar** aparecem sempre no fundo do menu.
   Também acessíveis pela roda dentada em cima à direita da página Apps.
 - **Ecrã inteiro**: barra de estado e dock MG escondidas (desliza a partir da margem para as fazer voltar).
@@ -220,9 +220,9 @@ Se o experimentares noutra versão, os relatos são bem-vindos: com o envio de r
   espera um dia).
 - **Música que retoma sozinha**: se uma notificação do telemóvel fizer a música Bluetooth (ou USB / online) passar para
   o rádio, o launcher retoma a tua música após alguns segundos. Não faz nada se foste tu a escolher o rádio.
-- **Envio de registos**: o launcher envia automaticamente o seu diagnóstico ao programador (ao arrancar,
-  a cada 30 minutos e com **Guardar registo**). Apenas a versão, os valores lidos dos serviços do carro e os erros: sem
-  localização, VIN ou dados do telemóvel. Pode ser desligado nas definições (**Envio de registos**).
+- **Sem envio de registos**: nesta versão (fork) o envio automático de registos está **desligado de forma permanente**.
+  O launcher não envia diagnósticos para nenhum servidor; **Guardar registo** grava o registo apenas no carro (e na pen
+  USB), para o anexares tu a um *issue* se quiseres.
 - **Arranque ao ligar**: o launcher volta sozinho para a frente se o sistema abrir o ecrã inicial MG; além disso, a opção
   **Premir Início sozinho após ligar** (desligada, 5, 10, 15, 20 ou 30 segundos), apenas uma vez e só por cima do ecrã
   inicial MG.
@@ -341,7 +341,10 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 - **Atalho Definições do launcher** no separador Apps (secção Carro).
 - **Atualizações** passam a vir deste fork (InfectedM/Mg4-Launcher-SWI69).
 - Segurança: o código das bibliotecas SAIC usadas pelos Vidros só é carregado a partir de apps de sistema do carro.
-- Textos novos nos 8 idiomas. Esta versão não inclui o MG4 Store integrado nem o envio automático de registos.
+- Textos novos nos 8 idiomas. Esta versão não inclui o MG4 Store integrado.
+- **Envio de registos desligado de forma permanente**: nada é enviado para nenhum servidor (a opção e o botão "Enviar
+  registo" foram retirados; registos que tenham ficado em fila de uma versão anterior são apagados). **Guardar registo**
+  continua a gravar o registo apenas no carro.
 
 #### 0.4.5
 - **Animação de carregamento**: agora arranca também com o ecrã ligado e o carro estacionado em P. A versão 0.4.4

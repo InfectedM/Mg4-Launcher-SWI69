@@ -50,13 +50,19 @@ public final class LogUploader {
         instance = this;
     }
 
+    /**
+     * Fork InfectedM: o envio de registos está DESLIGADO de forma permanente, mesmo que o APK seja compilado com um token.
+     * Nada é enviado para nenhum servidor; "Guardar registo" continua a gravar o registo só no carro.
+     */
+    public static final boolean DISABLED_IN_FORK = true;
+
     /** true se questa versione è stata compilata con il token del repository dei log. */
     public static boolean configured() {
-        return LogConfig.token().length() > 10;
+        return !DISABLED_IN_FORK && LogConfig.token().length() > 10;
     }
 
     public boolean enabled() {
-        return sp.getBoolean("log_invio", true);
+        return !DISABLED_IN_FORK && sp.getBoolean("log_invio", true);
     }
 
     public void setEnabled(boolean on) {
@@ -83,6 +89,17 @@ public final class LogUploader {
         if (bg != null) return;
         thread.start();
         bg = new Handler(thread.getLooper());
+        if (DISABLED_IN_FORK) {
+            // registos que tenham ficado em fila de uma versão anterior também não saem: apagam-se
+            bg.post(() -> {
+                File[] q = queueDir().listFiles();
+                if (q != null) for (File f : q) //noinspection ResultOfMethodCallIgnored
+                    f.delete();
+            });
+            status = "desativado";
+            Diag.put("log.invio", "desativado nesta versão (fork): nenhum registo é enviado");
+            return;
+        }
         if (!configured()) {
             status = "non configurato";
             Diag.put("log.invio", "non configurato in questa versione");
@@ -98,6 +115,7 @@ public final class LogUploader {
 
     /** Invia subito un log (es. dopo "Salva log"). */
     public static void requestNow() {
+        if (DISABLED_IN_FORK) return;
         LogUploader u = instance;
         if (u != null && u.bg != null) u.bg.post(u::uploadOnce);
     }
@@ -136,7 +154,7 @@ public final class LogUploader {
     }
 
     private void uploadOnce() {
-        if (!configured() || !enabled() || notCar()) return;
+        if (DISABLED_IN_FORK || !configured() || !enabled() || notCar()) return;
         String day = new SimpleDateFormat("yyyy-MM-dd", Locale.ROOT).format(new Date());
         String time = new SimpleDateFormat("HH-mm-ss", Locale.ROOT).format(new Date());
         String text = Diag.buildLog(ctx);

@@ -397,6 +397,10 @@ public final class SelfCheck {
                 break;
             }
             case "log": {
+                if (LogUploader.DISABLED_IN_FORK) {
+                    set(it, ABSENT, "invio disattivato in questa versione (fork)", "");
+                    break;
+                }
                 if (!LogUploader.configured()) {
                     set(it, FAIL, "invio non configurato in questa versione", "");
                     break;
