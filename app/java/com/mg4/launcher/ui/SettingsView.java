@@ -56,15 +56,16 @@ public final class SettingsView extends FrameLayout {
     }
 
     // 0.4.0 (punto 11): impostazioni riorganizzate come nella SWI68 - stesse 7 sezioni, ordine e testi
-    public static final int SEC_CAR = 0, SEC_HOME = 1, SEC_BAR = 2, SEC_LOGOS = 3, SEC_LOOK = 4, SEC_LAUNCH = 5, SEC_SYSTEM = 6;
+    // Vidros (fork): secção nova logo a seguir a Carro
+    public static final int SEC_CAR = 0, SEC_WINDOWS = 1, SEC_HOME = 2, SEC_BAR = 3, SEC_LOGOS = 4, SEC_LOOK = 5, SEC_LAUNCH = 6, SEC_SYSTEM = 7;
 
     /** Sezione da mostrare alla prossima apertura (es. Sistema dal popup degli aggiornamenti). */
     public static void openAt(int s) {
         section = s;
     }
-    private static final int[] SEC_ICON = {R.drawable.ic_car, R.drawable.ic_home, R.drawable.ic_buttons, R.drawable.ic_radio, R.drawable.ic_palette, R.drawable.ic_play, R.drawable.ic_gear};
-    private static final int[] SEC_NAME = {R.string.sec_car, R.string.sec_home, R.string.sec_bar, R.string.sec_logos, R.string.sec_look, R.string.sec_launch, R.string.sec_system};
-    private static final int[] SEC_SUB = {R.string.sec_car_sub, R.string.sec_home_sub, R.string.sec_bar_sub, R.string.sec_logos_sub, R.string.sec_look_sub, R.string.sec_launch_sub, R.string.sec_system_sub};
+    private static final int[] SEC_ICON = {R.drawable.ic_car, R.drawable.ic_window, R.drawable.ic_home, R.drawable.ic_buttons, R.drawable.ic_radio, R.drawable.ic_palette, R.drawable.ic_play, R.drawable.ic_gear};
+    private static final int[] SEC_NAME = {R.string.sec_car, R.string.sec_windows, R.string.sec_home, R.string.sec_bar, R.string.sec_logos, R.string.sec_look, R.string.sec_launch, R.string.sec_system};
+    private static final int[] SEC_SUB = {R.string.sec_car_sub, R.string.sec_windows_sub, R.string.sec_home_sub, R.string.sec_bar_sub, R.string.sec_logos_sub, R.string.sec_look_sub, R.string.sec_launch_sub, R.string.sec_system_sub};
     /** Spazio in alto a sinistra per la spia luci del sistema (come nella home). */
     private final int SYSTEM_LIGHT_INSET;
     private static final long QUIET_CHECK_MS = 30 * 60_000L;
@@ -339,6 +340,7 @@ public final class SettingsView extends FrameLayout {
 
         switch (s) {
             case SEC_CAR: buildCar(c, col); break;
+            case SEC_WINDOWS: buildWindows(c, col); break;
             case SEC_HOME: buildHome(c, col); break;
             case SEC_BAR: buildBar(c, col); break;
             case SEC_LOGOS: buildLogos(c, col); break;
@@ -425,6 +427,110 @@ public final class SettingsView extends FrameLayout {
         }
         col.addView(fd, topFull(14));
         col.addView(Ui.text(c, L.s(R.string.drive_hint), 17, t.sub, Ui.REGULAR), top(14));
+    }
+
+    /** Vidros: fecho automático ao sair do carro (funções do WinClose) e fecho manual. */
+    private void buildWindows(Context c, LinearLayout col) {
+        com.mg4.launcher.svc.Windows w = com.mg4.launcher.svc.Windows.get(c);
+        LinearLayout main = card(c);
+        main.addView(row(c, L.s(R.string.win_auto), L.s(R.string.win_auto_sub), toggle(c, prefs.winAuto(), on -> {
+            prefs.setWinAuto(on);
+            showSection(SEC_WINDOWS);
+        }), false));
+        TextView status = Ui.text(c, w.statusText(), 17, t.sub, Ui.REGULAR);
+        main.addView(row(c, L.s(R.string.win_status_title), "", status, false));
+        main.addView(row(c, L.s(R.string.win_close_now), L.s(R.string.win_close_now_sub), button(c, L.s(R.string.win_close_btn), v -> {
+            if (!w.closeNow()) android.widget.Toast.makeText(c, L.s(R.string.win_status_off), android.widget.Toast.LENGTH_LONG).show();
+            status.setText(w.statusText());
+        }), true));
+        col.addView(main, topFull(0));
+        // estado atualizado enquanto a secção está aberta
+        Runnable upd = new Runnable() {
+            @Override
+            public void run() {
+                if (!status.isAttachedToWindow()) return;
+                status.setText(w.statusText());
+                status.postDelayed(this, 1000);
+            }
+        };
+        status.postDelayed(upd, 1000);
+
+        col.addView(label(c, L.s(R.string.win_arm_label)), top(30));
+        col.addView(Ui.text(c, L.s(R.string.win_speed), 18, t.text, Ui.REGULAR), top(14));
+        col.addView(numberChoices(c, Prefs.WIN_SPEEDS, prefs.winSpeed(), " km/h", v -> prefs.setWinSpeed(v)), topFull(10));
+        col.addView(Ui.text(c, L.s(R.string.win_time), 18, t.text, Ui.REGULAR), top(20));
+        col.addView(numberChoices(c, Prefs.WIN_MINUTES, prefs.winMinutes(), " min", v -> prefs.setWinMinutes(v)), topFull(10));
+
+        col.addView(label(c, L.s(R.string.win_trigger_label)), top(30));
+        col.addView(Ui.text(c, L.s(R.string.win_trigger), 18, t.text, Ui.REGULAR), top(14));
+        Flow ft = new Flow(c);
+        ft.addView(choice(c, L.s(R.string.win_trigger_open), prefs.winOnDoorOpen(), v -> {
+            prefs.setWinOnDoorOpen(true);
+            showSection(SEC_WINDOWS);
+        }));
+        ft.addView(choice(c, L.s(R.string.win_trigger_close), !prefs.winOnDoorOpen(), v -> {
+            prefs.setWinOnDoorOpen(false);
+            showSection(SEC_WINDOWS);
+        }));
+        col.addView(ft, topFull(10));
+        col.addView(Ui.text(c, L.s(R.string.win_delay), 18, t.text, Ui.REGULAR), top(20));
+        col.addView(numberChoices(c, Prefs.WIN_DELAYS, prefs.winDelay(), " s", v -> prefs.setWinDelay(v)), topFull(10));
+        LinearLayout beep = card(c);
+        beep.addView(row(c, L.s(R.string.win_beep), L.s(R.string.win_beep_sub), toggle(c, prefs.winBeep(), on -> {
+            prefs.setWinBeep(on);
+            showSection(SEC_WINDOWS);
+        }), !prefs.winBeep()));
+        if (prefs.winBeep()) {
+            beep.addView(row(c, L.s(R.string.win_beep_volume), "", numberChoicesInCard(c, Prefs.WIN_VOLUMES, prefs.winBeepVolume(), " %",
+                    v -> prefs.setWinBeepVolume(v)), true));
+        }
+        col.addView(beep, topFull(20));
+
+        col.addView(label(c, L.s(R.string.win_modes_label)), top(30));
+        int[] names = {R.string.win_fl, R.string.win_fr, R.string.win_rl, R.string.win_rr};
+        String[] modes = {L.s(R.string.win_mode_auto), L.s(R.string.win_mode_pulse), L.s(R.string.win_mode_off)};
+        LinearLayout mc = card(c);
+        for (int a = 0; a < 4; a++) {
+            final int area = a;
+            mc.addView(row(c, L.s(names[a]), "", choices(c, modes, prefs.winMode(a), idx -> {
+                prefs.setWinMode(area, idx);
+                showSection(SEC_WINDOWS);
+            }), a == 3));
+        }
+        col.addView(mc, topFull(14));
+        col.addView(Ui.text(c, L.s(R.string.win_modes_hint), 17, t.sub, Ui.REGULAR), top(14));
+        col.addView(Ui.text(c, L.s(R.string.win_cancel_hint), 17, t.sub, Ui.REGULAR), top(10));
+    }
+
+    private interface OnNumber {
+        void chosen(int value);
+    }
+
+    /** Escolha de um número de uma lista (velocidade, minutos, segundos): botões como os do Tema, fora das fichas. */
+    private View numberChoices(Context c, int[] values, int sel, String unit, OnNumber l) {
+        Flow f = new Flow(c);
+        for (int v : values) {
+            f.addView(choice(c, v + unit, v == sel, x -> {
+                if (v == sel) return;
+                l.chosen(v);
+                showSection(SEC_WINDOWS);
+            }));
+        }
+        return f;
+    }
+
+    /** Igual, dentro de uma ficha (volume do bip). */
+    private LinearLayout numberChoicesInCard(Context c, int[] values, int sel, String unit, OnNumber l) {
+        String[] names = new String[values.length];
+        int idx = -1;
+        for (int i = 0; i < values.length; i++) {
+            names[i] = values[i] + unit;
+            if (values[i] == sel) idx = i;
+        }
+        return choices(c, names, idx, i -> {
+            l.chosen(values[i]);
+            showSection(SEC_WINDOWS);
+        });
     }
 
     private void buildHome(Context c, LinearLayout col) {

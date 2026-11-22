@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Animação de carregamento: arranca também com o ecrã ligado e o carro parado em P; para só em READY, em movimento ou fora de P</string>
     <string name="news_v045_2" formatted="false">Cabo de carregamento detetado melhor; novo teste «READY lido» na Verificação de funções</string>
     <string name="chk_ready" formatted="false">READY lido</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Vidros</string>
+    <string name="sec_windows_sub" formatted="false">Fecho automático, modo por vidro</string>
+    <string name="win_auto" formatted="false">Fechar ao sair do carro</string>
+    <string name="win_auto_sub" formatted="false">Depois de uma viagem, com o carro em P: fecha os vidros quando sais</string>
+    <string name="win_status_title" formatted="false">Estado</string>
+    <string name="win_status_off" formatted="false">Controlo dos vidros indisponível (à espera do carro)</string>
+    <string name="win_status_ok" formatted="false">Controlo dos vidros pronto</string>
+    <string name="win_status_armed" formatted="false">Armado: os vidros fecham quando saíres</string>
+    <string name="win_status_not_armed">Ainda não armado: conduz acima de %1$d km/h ou durante %2$d min</string>
+    <string name="win_status_counting">A fechar dentro de %1$d s</string>
+    <string name="win_closing" formatted="false">A fechar os vidros…</string>
+    <string name="win_close_now" formatted="false">Fechar os vidros agora</string>
+    <string name="win_close_now_sub" formatted="false">Fecha todos os vidros que não estão em Desligado</string>
+    <string name="win_close_btn" formatted="false">Fechar</string>
+    <string name="win_arm_label" formatted="false">Armar</string>
+    <string name="win_speed" formatted="false">Velocidade mínima</string>
+    <string name="win_time" formatted="false">Ou tempo mínimo de condução</string>
+    <string name="win_trigger_label" formatted="false">Fecho</string>
+    <string name="win_trigger" formatted="false">Começar a contagem</string>
+    <string name="win_trigger_open" formatted="false">Quando a porta do condutor abre</string>
+    <string name="win_trigger_close" formatted="false">Quando a porta do condutor fecha</string>
+    <string name="win_delay" formatted="false">Atraso antes de fechar</string>
+    <string name="win_beep" formatted="false">Bip de aviso</string>
+    <string name="win_beep_sub" formatted="false">Um bip por segundo durante a contagem</string>
+    <string name="win_beep_volume" formatted="false">Volume do bip</string>
+    <string name="win_modes_label" formatted="false">Modo de cada vidro</string>
+    <string name="win_fl" formatted="false">Frente esquerda</string>
+    <string name="win_fr" formatted="false">Frente direita</string>
+    <string name="win_rl" formatted="false">Trás esquerda</string>
+    <string name="win_rr" formatted="false">Trás direita</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Pulso</string>
+    <string name="win_mode_off" formatted="false">Desligado</string>
+    <string name="win_modes_hint" formatted="false">Auto: o fecho automático do próprio carro (vidros com sensor de posição). Pulso: mantém o comando de fechar durante 5 s, funciona em todas as versões. Desligado: o launcher nunca o fecha.</string>
+    <string name="win_cancel_hint" formatted="false">Voltar a abrir a porta, sair de P, ligar o carro ou mexer num vidro cancela o fecho.</string>
+    <string name="win_toast_countdown">Vidros a fechar dentro de %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Fecho dos vidros cancelado</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Aquecer bateria</string>
+    <string name="bat_heat_on_hint" formatted="false">Aquecimento da bateria ligado: carregamento rápido melhor, mas menos autonomia. Não se desliga sozinho: desliga-o aqui quando já não precisares.</string>
 </resources>

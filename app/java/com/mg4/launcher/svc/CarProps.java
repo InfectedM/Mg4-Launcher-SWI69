@@ -154,6 +154,32 @@ public final class CarProps {
         }
     }
 
+    /** Inteiro numa área fixa (ex.: 0 para propriedades globais), Integer.MIN_VALUE se não se lê. Sem erros na diagnóstica. */
+    public int getIntAt(int prop, int area) {
+        try {
+            Object p = pm();
+            if (p == null) return Integer.MIN_VALUE;
+            Method m = p.getClass().getMethod("getIntProperty", int.class, int.class);
+            return (Integer) m.invoke(p, prop, area);
+        } catch (Throwable e) {
+            return Integer.MIN_VALUE;
+        }
+    }
+
+    /** Escreve um inteiro numa área fixa; falso se não foi possível. */
+    public boolean setIntAt(int prop, int area, int value) {
+        try {
+            Object p = pm();
+            if (p == null) return false;
+            Method m = p.getClass().getMethod("setIntProperty", int.class, int.class, int.class);
+            m.invoke(p, prop, area, value);
+            return true;
+        } catch (Throwable e) {
+            error("escrita " + prop, e);
+            return false;
+        }
+    }
+
     /** Come getInt, ma senza scrivere errori nella diagnostica (proprietà che potrebbero non esistere). */
     public int getIntQuiet(int prop) {
         try {

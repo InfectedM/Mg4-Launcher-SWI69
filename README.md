@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.5.apk"><img alt="Transferir 0.4.5" src="https://img.shields.io/badge/Transferir-0.4.5-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.6.apk"><img alt="Transferir 0.4.6" src="https://img.shields.io/badge/Transferir-0.4.6-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -18,6 +18,7 @@
 <a href="#que-versão-instalar">Que versão instalar?</a> ·
 <a href="#o-que-faz">O que faz</a> ·
 <a href="#instalação">Instalação</a> ·
+<a href="#sobre-este-fork">Sobre este fork</a> ·
 <a href="#versões">Novidades</a>
 </p>
 
@@ -28,6 +29,31 @@
 > **SWI68 SAIC 1.0+** → [Mg4-Launcher-SWI68](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68) ·
 > **SWI132 (MG4 MY24)** → [Mg4-Launcher-SWI132](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI132) ·
 > **SWI133 (MG4 Luxury MY24)** → [Mg4-Launcher-SWI133](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI133)
+
+---
+
+## Sobre este fork
+
+Este repositório é um **fork** do [MG4 Launcher SWI69](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69) de
+**Ernesto Micco** ([ernestomicco2026-cell](https://github.com/ernestomicco2026-cell)), autor do launcher original.
+A partir da **0.4.6** acrescenta funções novas, baseadas no trabalho de outros projetos da comunidade MG4:
+
+| Função | Onde fica no launcher | Proveniente de |
+|---|---|---|
+| **Vidros**: fecho automático ao sair do carro (velocidade/tempo para armar, atraso, bip, modo por vidro) e fecho manual | Definições → **Vidros** | [**WinClose**](https://github.com/Skittle6938/winclose), de [Skittle6938](https://github.com/Skittle6938) |
+| **Aquecimento inteligente da bateria** (ligar/desligar) | Barra de baixo → grupo **Condução** | [**MG4Control**](https://github.com/SliDeeN/MG4Control), de [SliDeeN](https://github.com/SliDeeN) |
+| Atalho **Definições do launcher** | Separador **Apps** → secção Carro | este fork |
+
+As funções foram **reescritas em Java** para o launcher, com o grafismo do launcher: não incluem código copiado desses
+projetos. O mérito da descoberta de como o carro funciona (serviços SAIC, comandos dos vidros, sensor da porta,
+propriedade do aquecimento da bateria) é dos respetivos criadores. Se gostas destas funções, visita e apoia os
+repositórios originais.
+
+> ⚠️ As funções novas foram testadas no emulador (interface e lógica); o comando dos vidros e o aquecimento da bateria
+> precisam de confirmação no carro. Se algo não funcionar, abre um *issue* neste repositório com o texto de
+> **Definições → Sistema → Diagnóstico** (linhas `vidros.*` e `bateria.aquecimento`).
+
+As atualizações automáticas desta versão vêm **deste fork** (não da versão original).
 
 ---
 
@@ -73,6 +99,12 @@
 <tr>
 <td width="50%" valign="top"><img src="screenshots/mg4clima.png" alt="MG4 Clima aberto a partir do botão da climatização" width="100%"><br>
 <sub><a href="https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4">MG4 Clima</a> aberto a partir do botão da climatização</sub></td>
+<td width="50%" valign="top"><img src="screenshots/MG4Launcher-SWI69-0.4.6-vidros.png" alt="Definições, secção Vidros: fecho automático ao sair do carro" width="100%"><br>
+<sub><b>Vidros</b> (0.4.6, fork): fecho automático ao sair do carro, baseado no <a href="https://github.com/Skittle6938/winclose">WinClose</a></sub></td>
+</tr>
+<tr>
+<td width="50%" valign="top"><img src="screenshots/MG4Launcher-SWI69-0.4.6-apps.png" alt="Separador Apps com o atalho Definições do launcher" width="100%"><br>
+<sub>Separador <b>Apps</b> (0.4.6, fork): atalho <b>Definições do launcher</b></sub></td>
 <td width="50%" valign="top"></td>
 </tr>
 </table>
@@ -130,6 +162,14 @@ Se o experimentares noutra versão, os relatos são bem-vindos: com o envio de r
 
 ### O que faz
 
+- **Vidros** (0.4.6, fork, baseado no [WinClose](https://github.com/Skittle6938/winclose)): depois de uma viagem, com o
+  carro em P, fecha os vidros quando o condutor sai (ao abrir ou ao fechar a porta, com atraso e bip configuráveis);
+  arma-se acima de uma velocidade ou depois de um tempo de condução; cada vidro em Auto, Pulso ou Desligado; botão
+  **Fechar os vidros agora**. A contagem cancela-se ao reabrir a porta, sair de P, ligar o carro ou mexer num vidro.
+  Vem desligado: ativa-se em Definições → Vidros.
+- **Aquecimento inteligente da bateria** (0.4.6, fork, baseado no [MG4Control](https://github.com/SliDeeN/MG4Control)):
+  botão no grupo **Condução** da barra. Melhora o carregamento rápido mas reduz a autonomia e não se desliga sozinho.
+- **Atalho Definições do launcher** (0.4.6, fork) no separador Apps, além da pressão longa sobre o carro.
 - **Carro e bateria** (à esquerda): autonomia e **relógio** em grande, barra da bateria com a percentagem ao lado e
   marca do limite de carga, temperatura exterior; o estado só aparece durante o carregamento ou com V2L (tipo, potência,
   tempo restante). Nas definições ativam-se a **data** ao lado da hora, a percentagem com uma casa decimal, a pressão
@@ -202,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.5.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.6.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -218,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.5.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.6.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -290,6 +330,18 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 [![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versões
+
+#### 0.4.6 (fork InfectedM)
+- **Vidros** (novo, baseado no [WinClose](https://github.com/Skittle6938/winclose) de Skittle6938): nova secção
+  Definições → Vidros com fecho automático ao sair do carro (velocidade 5–40 km/h ou tempo 1–15 min para armar; contagem
+  ao abrir ou ao fechar a porta do condutor; atraso 0–30 s; bip com volume; modo Auto / Pulso / Desligado por vidro) e
+  botão **Fechar os vidros agora**. Funciona também com o launcher em segundo plano. Vem desligado.
+- **Aquecimento inteligente da bateria** (novo, baseado no [MG4Control](https://github.com/SliDeeN/MG4Control) de
+  SliDeeN): botão no grupo Condução da barra, com aviso ao ligar (não se desliga sozinho).
+- **Atalho Definições do launcher** no separador Apps (secção Carro).
+- **Atualizações** passam a vir deste fork (InfectedM/Mg4-Launcher-SWI69).
+- Segurança: o código das bibliotecas SAIC usadas pelos Vidros só é carregado a partir de apps de sistema do carro.
+- Textos novos nos 8 idiomas. Esta versão não inclui o MG4 Store integrado nem o envio automático de registos.
 
 #### 0.4.5
 - **Animação de carregamento**: agora arranca também com o ecrã ligado e o carro estacionado em P. A versão 0.4.4
@@ -675,7 +727,10 @@ no repositório e têm de ser adicionadas a `tools/`. A versão está em `versio
 
 O launcher usa os mesmos serviços de sistema do ecrã inicial original **SWI69 Color Radio**: veículo e bateria,
 climatização, luzes, multimédia, rádio e CarPlay / Android Auto. Lê os dados e envia ao carro apenas os comandos em que
-tocas (climatização, faróis de nevoeiro, fontes e faixas); não altera nada no sistema.
+tocas (climatização, faróis de nevoeiro, fontes e faixas, vidros, aquecimento da bateria); não altera nada no sistema.
+Os Vidros usam as bibliotecas carapi da SAIC presentes no carro (CarVehicleSettingClient e CarStateClient, como o
+[WinClose](https://github.com/Skittle6938/winclose)); o aquecimento da bateria usa a propriedade `DRVNG_PTC_HEAT`
+(`0x2140F429`), documentada pelo [MG4Control](https://github.com/SliDeeN/MG4Control).
 
 O mapa do CarPlay / Android Auto não pode ser mostrado dentro do launcher:
 o painel Mapa mostra as indicações do telemóvel e abre o CarPlay / Android Auto em ecrã inteiro.
@@ -683,6 +738,9 @@ o painel Mapa mostra as indicações do telemóvel e abre o CarPlay / Android Au
 #### Notas
 
 - A imagem do carro deriva de uma fotografia oficial MG; as marcas e imagens pertencem aos respetivos proprietários.
+- Launcher original: [Ernesto Micco](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69). Vidros: baseado no
+  [WinClose](https://github.com/Skittle6938/winclose) (Skittle6938). Aquecimento da bateria: baseado no
+  [MG4Control](https://github.com/SliDeeN/MG4Control) (SliDeeN).
 - Os logótipos das estações FM vêm de [radio-browser.info](https://www.radio-browser.info), uma base de dados pública
   e gratuita.
 

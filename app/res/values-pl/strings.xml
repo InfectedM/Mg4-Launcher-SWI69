@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Animacja ładowania: startuje też przy włączonym ekranie i aucie stojącym na P; zatrzymuje się tylko w READY, w ruchu lub poza P</string>
     <string name="news_v045_2" formatted="false">Kabel ładowania wykrywany lepiej; nowy test „READY odczytany” w Kontroli funkcji</string>
     <string name="chk_ready" formatted="false">READY odczytany</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Szyby</string>
+    <string name="sec_windows_sub" formatted="false">Automatyczne zamykanie, tryb każdej szyby</string>
+    <string name="win_auto" formatted="false">Zamykaj po wyjściu z auta</string>
+    <string name="win_auto_sub" formatted="false">Po jeździe, z autem na P: zamyka szyby, gdy wysiadasz</string>
+    <string name="win_status_title" formatted="false">Stan</string>
+    <string name="win_status_off" formatted="false">Sterowanie szybami niedostępne (czekam na auto)</string>
+    <string name="win_status_ok" formatted="false">Sterowanie szybami gotowe</string>
+    <string name="win_status_armed" formatted="false">Uzbrojone: szyby zamkną się po wyjściu</string>
+    <string name="win_status_not_armed">Jeszcze nieuzbrojone: jedź powyżej %1$d km/h lub przez %2$d min</string>
+    <string name="win_status_counting">Zamykanie za %1$d s</string>
+    <string name="win_closing" formatted="false">Zamykanie szyb…</string>
+    <string name="win_close_now" formatted="false">Zamknij szyby teraz</string>
+    <string name="win_close_now_sub" formatted="false">Zamyka wszystkie szyby, które nie są ustawione na Wył.</string>
+    <string name="win_close_btn" formatted="false">Zamknij</string>
+    <string name="win_arm_label" formatted="false">Uzbrajanie</string>
+    <string name="win_speed" formatted="false">Minimalna prędkość</string>
+    <string name="win_time" formatted="false">Lub minimalny czas jazdy</string>
+    <string name="win_trigger_label" formatted="false">Zamykanie</string>
+    <string name="win_trigger" formatted="false">Rozpocznij odliczanie</string>
+    <string name="win_trigger_open" formatted="false">Gdy otwierają się drzwi kierowcy</string>
+    <string name="win_trigger_close" formatted="false">Gdy zamykają się drzwi kierowcy</string>
+    <string name="win_delay" formatted="false">Opóźnienie przed zamknięciem</string>
+    <string name="win_beep" formatted="false">Sygnał ostrzegawczy</string>
+    <string name="win_beep_sub" formatted="false">Jeden sygnał na sekundę podczas odliczania</string>
+    <string name="win_beep_volume" formatted="false">Głośność sygnału</string>
+    <string name="win_modes_label" formatted="false">Tryb każdej szyby</string>
+    <string name="win_fl" formatted="false">Przód lewa</string>
+    <string name="win_fr" formatted="false">Przód prawa</string>
+    <string name="win_rl" formatted="false">Tył lewa</string>
+    <string name="win_rr" formatted="false">Tył prawa</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Impuls</string>
+    <string name="win_mode_off" formatted="false">Wył.</string>
+    <string name="win_modes_hint" formatted="false">Auto: automatyczne zamykanie samego auta (szyby z czujnikiem położenia). Impuls: przytrzymuje polecenie zamknięcia przez 5 s, działa w każdej wersji. Wył.: launcher nigdy jej nie zamyka.</string>
+    <string name="win_cancel_hint" formatted="false">Ponowne otwarcie drzwi, wyjście z P, włączenie auta lub ruszenie szyby anuluje zamykanie.</string>
+    <string name="win_toast_countdown">Szyby zamkną się za %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Zamykanie szyb anulowane</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Grzanie baterii</string>
+    <string name="bat_heat_on_hint" formatted="false">Grzanie baterii włączone: szybsze ładowanie DC, ale mniejszy zasięg. Nie wyłącza się samo: wyłącz je tutaj, gdy nie jest już potrzebne.</string>
 </resources>

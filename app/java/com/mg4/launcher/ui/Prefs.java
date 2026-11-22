@@ -58,6 +58,81 @@ public final class Prefs {
         sp.edit().putInt("cerchi", i).apply();
     }
 
+    // --- Vidros: fecho automático ao sair do carro ---
+    /** Modo de cada vidro: AUTO = fecho automático do carro, PULSE = comando "subir" mantido, OFF = nunca. */
+    public static final int WIN_AUTO = 0, WIN_PULSE = 1, WIN_OFF = 2;
+    public static final int[] WIN_SPEEDS = {5, 10, 20, 30, 40};
+    public static final int[] WIN_MINUTES = {1, 3, 5, 10, 15};
+    public static final int[] WIN_DELAYS = {0, 3, 5, 10, 20, 30};
+    public static final int[] WIN_VOLUMES = {25, 50, 75, 100};
+
+    public boolean winAuto() {
+        return sp.getBoolean("vidros.auto", false);
+    }
+
+    public void setWinAuto(boolean on) {
+        sp.edit().putBoolean("vidros.auto", on).apply();
+    }
+
+    public int winSpeed() {
+        return sp.getInt("vidros.velocidade", 20);
+    }
+
+    public void setWinSpeed(int kmh) {
+        sp.edit().putInt("vidros.velocidade", kmh).apply();
+    }
+
+    public int winMinutes() {
+        return sp.getInt("vidros.minutos", 5);
+    }
+
+    public void setWinMinutes(int m) {
+        sp.edit().putInt("vidros.minutos", m).apply();
+    }
+
+    public int winDelay() {
+        return sp.getInt("vidros.atraso", 5);
+    }
+
+    public void setWinDelay(int s) {
+        sp.edit().putInt("vidros.atraso", s).apply();
+    }
+
+    /** true = a contagem começa quando a porta abre; false = quando fecha. */
+    public boolean winOnDoorOpen() {
+        return sp.getBoolean("vidros.portaAbre", true);
+    }
+
+    public void setWinOnDoorOpen(boolean open) {
+        sp.edit().putBoolean("vidros.portaAbre", open).apply();
+    }
+
+    public boolean winBeep() {
+        return sp.getBoolean("vidros.bip", false);
+    }
+
+    public void setWinBeep(boolean on) {
+        sp.edit().putBoolean("vidros.bip", on).apply();
+    }
+
+    public int winBeepVolume() {
+        return sp.getInt("vidros.bipVolume", 50);
+    }
+
+    public void setWinBeepVolume(int v) {
+        sp.edit().putInt("vidros.bipVolume", v).apply();
+    }
+
+    /** area: 0 frente esquerda, 1 frente direita, 2 trás esquerda, 3 trás direita. */
+    public int winMode(int area) {
+        int m = sp.getInt("vidros.modo" + area, WIN_PULSE);
+        return m < WIN_AUTO || m > WIN_OFF ? WIN_PULSE : m;
+    }
+
+    public void setWinMode(int area, int mode) {
+        sp.edit().putInt("vidros.modo" + area, mode).apply();
+    }
+
     public boolean blackRoof() {
         return sp.getBoolean("blackRoof", true);
     }
@@ -88,9 +163,10 @@ public final class Prefs {
     }
 
     // --- aggiornamenti da GitHub ---
-    public static final String DEFAULT_REPO = "ernestomicco2026-cell/Mg4-Launcher-SWI69";
+    public static final String DEFAULT_REPO = "InfectedM/Mg4-Launcher-SWI69";
     /** Nomi precedenti del repository (rinominato): si passa da soli al nuovo. */
-    private static final String[] OLD_REPOS = {"ernestomicco2026-cell/Mg4-Launcher-SW169"};
+    // fork: quem vinha da versão original com o repositório guardado passa para o do fork
+    private static final String[] OLD_REPOS = {"ernestomicco2026-cell/Mg4-Launcher-SW169", "ernestomicco2026-cell/Mg4-Launcher-SWI69"};
 
     public String updateRepo() {
         String r = sp.getString("ghRepo", DEFAULT_REPO);

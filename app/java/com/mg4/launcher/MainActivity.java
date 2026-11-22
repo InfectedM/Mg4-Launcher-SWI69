@@ -177,6 +177,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             // SWI69: nessun navigatore MG (si naviga con CarPlay / Android Auto): il servizio di navigazione non si usa
             logs.start();
             com.mg4.launcher.svc.DongleWatch.get(this, media).start();
+            // Vidros (fork): fecho automático ao sair do carro, corre sempre em segundo plano
+            com.mg4.launcher.svc.Windows.get(this).start();
             com.mg4.launcher.svc.EmbedCheck.log(this);
             // 0.4.2 (punto 11a): all'accensione dell'auto si riprende l'ultima sorgente audio usata davvero
             if (android.os.SystemClock.elapsedRealtime() < 5 * 60_000L) media.resumeLastSource("accensione");

@@ -120,17 +120,23 @@ public final class AppsView extends LinearLayout {
         for (AppCatalog.App a : catalog.carApps(host.navPackageHint())) {
             if (editing || !hidden.contains(key(a))) car.add(a);
         }
-        if (!car.isEmpty()) {
-            content.addView(section(c, L.s(R.string.section_car), note));
-            addGrid(c, car, hidden);
-        }
+        // atalho fixo para as definições do launcher (o mesmo menu da pressão longa sobre o carro), sempre o primeiro
+        List<View> carTiles = new ArrayList<>();
+        carTiles.add(settingsTile(c));
+        for (AppCatalog.App a : car) carTiles.add(tile(c, a, hidden));
+        content.addView(section(c, L.s(R.string.section_car), note));
+        addGrid(c, carTiles);
         List<AppCatalog.App> all = catalog.userApps();
         List<AppCatalog.App> mine = new ArrayList<>();
         for (AppCatalog.App a : all) {
             if (editing || !hidden.contains(key(a))) mine.add(a);
         }
-        content.addView(section(c, L.s(R.string.section_mine), note), Ui.margins(new LayoutParams(-1, -2), car.isEmpty() ? 0 : dp(10), 0, 0, 0));
-        if (!mine.isEmpty()) addGrid(c, mine, hidden);
+        content.addView(section(c, L.s(R.string.section_mine), note), Ui.margins(new LayoutParams(-1, -2), dp(10), 0, 0, 0));
+        if (!mine.isEmpty()) {
+            List<View> mineTiles = new ArrayList<>();
+            for (AppCatalog.App a : mine) mineTiles.add(tile(c, a, hidden));
+            addGrid(c, mineTiles);
+        }
     }
 
     private View section(Context c, String title, String note) {
@@ -145,18 +151,45 @@ public final class AppsView extends LinearLayout {
     }
 
     /** editable: elenco delle app nascoste; in modalità Modifica ogni app (dell'auto o installata) si può nascondere. */
-    private void addGrid(Context c, List<AppCatalog.App> apps, Set<String> editable) {
+    private void addGrid(Context c, List<View> tiles) {
         LinearLayout row = null;
-        for (int i = 0; i < apps.size(); i++) {
+        for (int i = 0; i < tiles.size(); i++) {
             if (i % COLUMNS == 0) {
                 row = Ui.row(c);
                 content.addView(row, new LayoutParams(-1, dp(124 * k)));
             }
-            row.addView(tile(c, apps.get(i), editable), Ui.lpWeight(0, -1, 1));
+            row.addView(tiles.get(i), Ui.lpWeight(0, -1, 1));
         }
         if (row != null) {
-            for (int k = apps.size() % COLUMNS; k != 0 && k < COLUMNS; k++) row.addView(new View(c), Ui.lpWeight(0, -1, 1));
+            for (int k = tiles.size() % COLUMNS; k != 0 && k < COLUMNS; k++) row.addView(new View(c), Ui.lpWeight(0, -1, 1));
         }
+    }
+
+    /** Atalho "Definições do launcher": abre o mesmo menu da pressão longa sobre o carro. Não se pode esconder em Editar. */
+    private View settingsTile(Context c) {
+        LinearLayout col = Ui.column(c);
+        col.setGravity(Gravity.CENTER);
+        col.setBackground(Ui.pressable(c, 0, 20, t));
+        String name = L.s(R.string.settings_desc);
+        col.setContentDescription(name);
+        if (editing) {
+            col.setAlpha(0.3f);
+        } else {
+            col.setClickable(true);
+            col.setOnClickListener(v -> host.openSettings());
+        }
+        FrameLayout box = new FrameLayout(c);
+        box.setBackground(Ui.round(t.chip, dp(22 * k)));
+        ImageView iv = new ImageView(c);
+        iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
+        iv.setImageResource(R.drawable.ic_home);
+        iv.setColorFilter(t.text);
+        box.addView(iv, new FrameLayout.LayoutParams(dp(34 * k), dp(34 * k), Gravity.CENTER));
+        col.addView(box, new LayoutParams(dp(72 * k), dp(72 * k)));
+        TextView label = Ui.oneLine(Ui.text(c, name, 16 * k, t.text, Ui.MEDIUM));
+        label.setGravity(Gravity.CENTER);
+        col.addView(label, Ui.margins(new LayoutParams(-1, -2), dp(4), dp(10), dp(4), 0));
+        return col;
     }
 
     /** App della telecamera 360: quella originale e MG4 360 (com.mg4.* con "360" nel nome o nell'etichetta). */

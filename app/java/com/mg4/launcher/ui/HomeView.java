@@ -2336,7 +2336,7 @@ public final class HomeView extends LinearLayout {
         f.addView(Ui.icon(c, R.drawable.ic_lanes, t.text, 28), cl);
         guidaDots = Ui.row(c);
         guidaDots.setGravity(Gravity.CENTER);
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 4; i++) {
             View d = new View(c);
             d.setBackground(Ui.round(t.text, dp(3)));
             d.setVisibility(GONE);
@@ -2350,9 +2350,9 @@ public final class HomeView extends LinearLayout {
     }
 
     private void styleGuida(VehicleClient.State s) {
-        boolean any = s.lka >= 0 || s.opd >= 0 || s.accTja >= 0 || s.pedal >= 0;
+        boolean any = s.lka >= 0 || s.opd >= 0 || s.accTja >= 0 || s.pedal >= 0 || s.batHeat >= 0;
         guidaGroup.setVisibility(prefs.showAssist() && any ? VISIBLE : GONE);
-        showDots(guidaDots, (s.lka == 1 ? 1 : 0) + (s.opd == 1 ? 1 : 0) + (s.accTja == 1 || s.accTja == 2 ? 1 : 0));
+        showDots(guidaDots, (s.lka == 1 ? 1 : 0) + (s.opd == 1 ? 1 : 0) + (s.accTja == 1 || s.accTja == 2 ? 1 : 0) + (s.batHeat == 1 ? 1 : 0));
     }
 
     /** Pedale: Comfort 1 tacca, Medium 2, Sport 3 (valori dell'auto 1, 0, 2). */
@@ -2627,6 +2627,10 @@ public final class HomeView extends LinearLayout {
                 });
                 if (s.accTja >= 0) addTile(c, "acc", accName(s.accTja), 0, L.s(R.string.tile_acc), v -> guidaTap(false));
                 if (s.pedal >= 0) addTile(c, "pedal", null, R.drawable.ic_pedal, L.s(R.string.tile_pedal), v -> guidaTap(true));
+                if (s.batHeat >= 0) addTile(c, "bheat", null, R.drawable.ic_battery_heat, L.s(R.string.tile_bat_heat), v -> {
+                    if (vehicle.toggleBatteryHeat() == 1)
+                        android.widget.Toast.makeText(getContext(), L.s(R.string.bat_heat_on_hint), android.widget.Toast.LENGTH_LONG).show();
+                });
             } else if (clima) {
                 addTile(c, "ac", "A/C", 0, L.s(R.string.ac_desc), v -> vehicle.toggleAc());
                 addTile(c, "auto", "AUTO", 0, L.s(R.string.tile_auto), v -> vehicle.toggleAuto());
@@ -2703,6 +2707,7 @@ public final class HomeView extends LinearLayout {
                     case "opd": state = s.opd; break;
                     case "acc": state = s.accTja < 0 ? -1 : s.accTja == 4 ? 0 : 1; break;
                     case "pedal": state = s.pedal < 0 ? -1 : 0; level = pedalNotches(s.pedal); break;
+                    case "bheat": state = s.batHeat; break;
                     case "wheel": state = s.wheelHeat; level = s.wheelHeat > 0 ? 1 : 0; break;
                     default:
                         level = id.equals("seatL") ? s.seatLeft : s.seatRight;

@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Animation de recharge : elle démarre aussi écran allumé et voiture à l\'arrêt en P ; elle s\'arrête seulement en READY, en roulant ou hors de P</string>
     <string name="news_v045_2" formatted="false">Câble de recharge mieux détecté ; nouveau test « READY lu » dans le Contrôle des fonctions</string>
     <string name="chk_ready" formatted="false">READY lu</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Vitres</string>
+    <string name="sec_windows_sub" formatted="false">Fermeture automatique, mode par vitre</string>
+    <string name="win_auto" formatted="false">Fermer en quittant la voiture</string>
+    <string name="win_auto_sub" formatted="false">Après un trajet, voiture en P : ferme les vitres quand vous sortez</string>
+    <string name="win_status_title" formatted="false">État</string>
+    <string name="win_status_off" formatted="false">Commande des vitres indisponible (en attente de la voiture)</string>
+    <string name="win_status_ok" formatted="false">Commande des vitres prête</string>
+    <string name="win_status_armed" formatted="false">Armé : les vitres se fermeront à votre sortie</string>
+    <string name="win_status_not_armed">Pas encore armé : roulez au-dessus de %1$d km/h ou pendant %2$d min</string>
+    <string name="win_status_counting">Fermeture dans %1$d s</string>
+    <string name="win_closing" formatted="false">Fermeture des vitres…</string>
+    <string name="win_close_now" formatted="false">Fermer les vitres maintenant</string>
+    <string name="win_close_now_sub" formatted="false">Ferme toutes les vitres qui ne sont pas sur Désactivé</string>
+    <string name="win_close_btn" formatted="false">Fermer</string>
+    <string name="win_arm_label" formatted="false">Armement</string>
+    <string name="win_speed" formatted="false">Vitesse minimale</string>
+    <string name="win_time" formatted="false">Ou durée de conduite minimale</string>
+    <string name="win_trigger_label" formatted="false">Fermeture</string>
+    <string name="win_trigger" formatted="false">Démarrer le délai</string>
+    <string name="win_trigger_open" formatted="false">À l\'ouverture de la porte conducteur</string>
+    <string name="win_trigger_close" formatted="false">À la fermeture de la porte conducteur</string>
+    <string name="win_delay" formatted="false">Délai avant fermeture</string>
+    <string name="win_beep" formatted="false">Bip d\'avertissement</string>
+    <string name="win_beep_sub" formatted="false">Un bip par seconde pendant le délai</string>
+    <string name="win_beep_volume" formatted="false">Volume du bip</string>
+    <string name="win_modes_label" formatted="false">Mode de chaque vitre</string>
+    <string name="win_fl" formatted="false">Avant gauche</string>
+    <string name="win_fr" formatted="false">Avant droite</string>
+    <string name="win_rl" formatted="false">Arrière gauche</string>
+    <string name="win_rr" formatted="false">Arrière droite</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Impulsion</string>
+    <string name="win_mode_off" formatted="false">Désactivé</string>
+    <string name="win_modes_hint" formatted="false">Auto : la fermeture automatique de la voiture (vitres avec capteur de position). Impulsion : maintient la commande de fermeture 5 s, fonctionne sur toutes les finitions. Désactivé : jamais fermée par le launcher.</string>
+    <string name="win_cancel_hint" formatted="false">Rouvrir la porte, quitter P, démarrer la voiture ou bouger une vitre annule la fermeture.</string>
+    <string name="win_toast_countdown">Fermeture des vitres dans %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Fermeture des vitres annulée</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Chauffe batterie</string>
+    <string name="bat_heat_on_hint" formatted="false">Chauffage de la batterie activé : recharge rapide meilleure, mais moins d\'autonomie. Il ne s\'arrête pas tout seul : désactivez-le ici quand vous n\'en avez plus besoin.</string>
 </resources>

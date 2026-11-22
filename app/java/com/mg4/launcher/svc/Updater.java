@@ -514,7 +514,8 @@ public final class Updater {
     // ---- 0.4.2 (punto 12): controllo automatico, aggiornamento forzato e avvisi da remoto --------------------------
     // Solo indirizzi HTTPS del repository del launcher (raw.githubusercontent.com/<repo>/main/releases/...).
 
-    public static final String OWN_REPO = "ernestomicco2026-cell/Mg4-Launcher-SWI69";
+    // fork: as atualizações vêm do repositório InfectedM (a versão original do Ernesto não substitui esta)
+    public static final String OWN_REPO = "InfectedM/Mg4-Launcher-SWI69";
     private static final String RAW = "https://raw.githubusercontent.com/" + OWN_REPO + "/main/";
     /** 0.4.4: indirizzo dei file del proprio repository (animazioni.json, pacchetti dell'animazione). */
     public static final String OWN_RAW = RAW;

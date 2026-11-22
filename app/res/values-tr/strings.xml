@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Şarj animasyonu: ekran açıkken ve araç P\'de dururken de başlar; yalnızca READY\'de, hareket halinde veya P dışında durur</string>
     <string name="news_v045_2" formatted="false">Şarj kablosu daha iyi algılanıyor; İşlev kontrolünde yeni “READY okundu” testi</string>
     <string name="chk_ready" formatted="false">READY okundu</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Camlar</string>
+    <string name="sec_windows_sub" formatted="false">Otomatik kapatma, cam başına mod</string>
+    <string name="win_auto" formatted="false">Araçtan inince kapat</string>
+    <string name="win_auto_sub" formatted="false">Sürüşten sonra, araç P\'deyken: indiğinizde camları kapatır</string>
+    <string name="win_status_title" formatted="false">Durum</string>
+    <string name="win_status_off" formatted="false">Cam kontrolü kullanılamıyor (araç bekleniyor)</string>
+    <string name="win_status_ok" formatted="false">Cam kontrolü hazır</string>
+    <string name="win_status_armed" formatted="false">Kurulu: indiğinizde camlar kapanacak</string>
+    <string name="win_status_not_armed">Henüz kurulu değil: %1$d km/s üzerinde veya %2$d dk sürün</string>
+    <string name="win_status_counting">%1$d sn içinde kapanıyor</string>
+    <string name="win_closing" formatted="false">Camlar kapatılıyor…</string>
+    <string name="win_close_now" formatted="false">Camları şimdi kapat</string>
+    <string name="win_close_now_sub" formatted="false">Kapalı olarak ayarlanmamış tüm camları kapatır</string>
+    <string name="win_close_btn" formatted="false">Kapat</string>
+    <string name="win_arm_label" formatted="false">Kurma</string>
+    <string name="win_speed" formatted="false">Minimum hız</string>
+    <string name="win_time" formatted="false">Veya minimum sürüş süresi</string>
+    <string name="win_trigger_label" formatted="false">Kapatma</string>
+    <string name="win_trigger" formatted="false">Geri sayımı başlat</string>
+    <string name="win_trigger_open" formatted="false">Sürücü kapısı açıldığında</string>
+    <string name="win_trigger_close" formatted="false">Sürücü kapısı kapandığında</string>
+    <string name="win_delay" formatted="false">Kapatmadan önce bekleme</string>
+    <string name="win_beep" formatted="false">Uyarı sesi</string>
+    <string name="win_beep_sub" formatted="false">Bekleme sırasında saniyede bir bip</string>
+    <string name="win_beep_volume" formatted="false">Bip sesi düzeyi</string>
+    <string name="win_modes_label" formatted="false">Her camın modu</string>
+    <string name="win_fl" formatted="false">Ön sol</string>
+    <string name="win_fr" formatted="false">Ön sağ</string>
+    <string name="win_rl" formatted="false">Arka sol</string>
+    <string name="win_rr" formatted="false">Arka sağ</string>
+    <string name="win_mode_auto" formatted="false">Otomatik</string>
+    <string name="win_mode_pulse" formatted="false">Darbe</string>
+    <string name="win_mode_off" formatted="false">Kapalı</string>
+    <string name="win_modes_hint" formatted="false">Otomatik: aracın kendi tek dokunuşla kapatması (konum sensörlü camlar). Darbe: kapatma komutunu 5 sn tutar, tüm donanımlarda çalışır. Kapalı: launcher asla kapatmaz.</string>
+    <string name="win_cancel_hint" formatted="false">Kapıyı yeniden açmak, P\'den çıkmak, aracı çalıştırmak veya bir camı hareket ettirmek kapatmayı iptal eder.</string>
+    <string name="win_toast_countdown">Camlar %1$d sn içinde kapanıyor</string>
+    <string name="win_toast_cancel" formatted="false">Cam kapatma iptal edildi</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Batarya ısıtma</string>
+    <string name="bat_heat_on_hint" formatted="false">Batarya ısıtma açık: hızlı şarj daha iyi, ancak menzil azalır. Kendiliğinden kapanmaz: artık gerekmediğinde buradan kapatın.</string>
 </resources>

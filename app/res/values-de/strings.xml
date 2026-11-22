@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Lade-Animation: startet auch bei eingeschaltetem Bildschirm und Auto in P; stoppt nur bei READY, während der Fahrt oder außerhalb von P</string>
     <string name="news_v045_2" formatted="false">Ladekabel wird zuverlässiger erkannt; neuer Test „READY gelesen“ in der Funktionsprüfung</string>
     <string name="chk_ready" formatted="false">READY gelesen</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Fenster</string>
+    <string name="sec_windows_sub" formatted="false">Automatisch schließen, Modus je Fenster</string>
+    <string name="win_auto" formatted="false">Beim Aussteigen schließen</string>
+    <string name="win_auto_sub" formatted="false">Nach einer Fahrt, Auto in P: schließt die Fenster, wenn Sie aussteigen</string>
+    <string name="win_status_title" formatted="false">Status</string>
+    <string name="win_status_off" formatted="false">Fenstersteuerung nicht verfügbar (warte auf das Auto)</string>
+    <string name="win_status_ok" formatted="false">Fenstersteuerung bereit</string>
+    <string name="win_status_armed" formatted="false">Scharf: die Fenster schließen beim Aussteigen</string>
+    <string name="win_status_not_armed">Noch nicht scharf: über %1$d km/h oder %2$d min fahren</string>
+    <string name="win_status_counting">Schließen in %1$d s</string>
+    <string name="win_closing" formatted="false">Fenster werden geschlossen…</string>
+    <string name="win_close_now" formatted="false">Fenster jetzt schließen</string>
+    <string name="win_close_now_sub" formatted="false">Schließt alle Fenster, die nicht auf Aus stehen</string>
+    <string name="win_close_btn" formatted="false">Schließen</string>
+    <string name="win_arm_label" formatted="false">Scharfschalten</string>
+    <string name="win_speed" formatted="false">Mindestgeschwindigkeit</string>
+    <string name="win_time" formatted="false">Oder Mindestfahrzeit</string>
+    <string name="win_trigger_label" formatted="false">Schließen</string>
+    <string name="win_trigger" formatted="false">Verzögerung starten</string>
+    <string name="win_trigger_open" formatted="false">Wenn die Fahrertür öffnet</string>
+    <string name="win_trigger_close" formatted="false">Wenn die Fahrertür schließt</string>
+    <string name="win_delay" formatted="false">Verzögerung vor dem Schließen</string>
+    <string name="win_beep" formatted="false">Warnton</string>
+    <string name="win_beep_sub" formatted="false">Ein Ton pro Sekunde während der Verzögerung</string>
+    <string name="win_beep_volume" formatted="false">Lautstärke des Tons</string>
+    <string name="win_modes_label" formatted="false">Modus je Fenster</string>
+    <string name="win_fl" formatted="false">Vorne links</string>
+    <string name="win_fr" formatted="false">Vorne rechts</string>
+    <string name="win_rl" formatted="false">Hinten links</string>
+    <string name="win_rr" formatted="false">Hinten rechts</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Impuls</string>
+    <string name="win_mode_off" formatted="false">Aus</string>
+    <string name="win_modes_hint" formatted="false">Auto: die eigene Komfortschließung des Autos (Fenster mit Positionssensor). Impuls: hält den Schließbefehl 5 s, funktioniert bei jeder Ausstattung. Aus: wird vom Launcher nie geschlossen.</string>
+    <string name="win_cancel_hint" formatted="false">Erneutes Öffnen der Tür, Verlassen von P, Einschalten des Autos oder Bewegen eines Fensters bricht das Schließen ab.</string>
+    <string name="win_toast_countdown">Fenster schließen in %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Schließen der Fenster abgebrochen</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Akku heizen</string>
+    <string name="bat_heat_on_hint" formatted="false">Akkuheizung an: schnelleres DC-Laden, aber weniger Reichweite. Sie schaltet sich nicht selbst aus: hier ausschalten, wenn nicht mehr nötig.</string>
 </resources>

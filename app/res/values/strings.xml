@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Charging animation: it also starts with the screen on and the car parked in P; it stops only in READY, while moving or out of P</string>
     <string name="news_v045_2" formatted="false">Charging cable detected more reliably; new “READY read” test in the Feature check</string>
     <string name="chk_ready" formatted="false">READY read</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Windows</string>
+    <string name="sec_windows_sub" formatted="false">Auto close, per-window mode</string>
+    <string name="win_auto" formatted="false">Close when leaving the car</string>
+    <string name="win_auto_sub" formatted="false">After a drive, with the car in P: closes the windows when you get out</string>
+    <string name="win_status_title" formatted="false">Status</string>
+    <string name="win_status_off" formatted="false">Window control unavailable (waiting for the car)</string>
+    <string name="win_status_ok" formatted="false">Window control ready</string>
+    <string name="win_status_armed" formatted="false">Armed: the windows will close when you get out</string>
+    <string name="win_status_not_armed">Not armed yet: drive above %1$d km/h or for %2$d min</string>
+    <string name="win_status_counting">Closing in %1$d s</string>
+    <string name="win_closing" formatted="false">Closing the windows…</string>
+    <string name="win_close_now" formatted="false">Close windows now</string>
+    <string name="win_close_now_sub" formatted="false">Closes every window that is not set to Off</string>
+    <string name="win_close_btn" formatted="false">Close</string>
+    <string name="win_arm_label" formatted="false">Arming</string>
+    <string name="win_speed" formatted="false">Minimum speed</string>
+    <string name="win_time" formatted="false">Or minimum driving time</string>
+    <string name="win_trigger_label" formatted="false">Closing</string>
+    <string name="win_trigger" formatted="false">Start the delay</string>
+    <string name="win_trigger_open" formatted="false">When the driver\'s door opens</string>
+    <string name="win_trigger_close" formatted="false">When the driver\'s door closes</string>
+    <string name="win_delay" formatted="false">Delay before closing</string>
+    <string name="win_beep" formatted="false">Warning beep</string>
+    <string name="win_beep_sub" formatted="false">One beep per second during the delay</string>
+    <string name="win_beep_volume" formatted="false">Beep volume</string>
+    <string name="win_modes_label" formatted="false">Mode for each window</string>
+    <string name="win_fl" formatted="false">Front left</string>
+    <string name="win_fr" formatted="false">Front right</string>
+    <string name="win_rl" formatted="false">Rear left</string>
+    <string name="win_rr" formatted="false">Rear right</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Pulse</string>
+    <string name="win_mode_off" formatted="false">Off</string>
+    <string name="win_modes_hint" formatted="false">Auto: the car\'s own one-touch close (windows with a position sensor). Pulse: holds the close command for 5 s, works on every trim. Off: never closed by the launcher.</string>
+    <string name="win_cancel_hint" formatted="false">Opening the door again, leaving P, switching the car on or moving a window cancels the closing.</string>
+    <string name="win_toast_countdown">Windows closing in %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Window closing cancelled</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Battery heat</string>
+    <string name="bat_heat_on_hint" formatted="false">Battery heating on: faster DC charging, but less range. It does not switch itself off: switch it off here when you no longer need it.</string>
 </resources>

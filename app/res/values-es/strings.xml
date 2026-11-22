@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Animación de carga: también arranca con la pantalla encendida y el coche parado en P; se detiene solo en READY, en movimiento o fuera de P</string>
     <string name="news_v045_2" formatted="false">Cable de carga detectado mejor; nueva prueba «READY leído» en la Comprobación de funciones</string>
     <string name="chk_ready" formatted="false">READY leído</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Ventanillas</string>
+    <string name="sec_windows_sub" formatted="false">Cierre automático, modo por ventanilla</string>
+    <string name="win_auto" formatted="false">Cerrar al salir del coche</string>
+    <string name="win_auto_sub" formatted="false">Tras un viaje, con el coche en P: cierra las ventanillas cuando sales</string>
+    <string name="win_status_title" formatted="false">Estado</string>
+    <string name="win_status_off" formatted="false">Control de ventanillas no disponible (esperando al coche)</string>
+    <string name="win_status_ok" formatted="false">Control de ventanillas listo</string>
+    <string name="win_status_armed" formatted="false">Armado: las ventanillas se cerrarán al salir</string>
+    <string name="win_status_not_armed">Aún no armado: conduce a más de %1$d km/h o durante %2$d min</string>
+    <string name="win_status_counting">Cerrando en %1$d s</string>
+    <string name="win_closing" formatted="false">Cerrando las ventanillas…</string>
+    <string name="win_close_now" formatted="false">Cerrar las ventanillas ahora</string>
+    <string name="win_close_now_sub" formatted="false">Cierra todas las ventanillas que no están en Apagado</string>
+    <string name="win_close_btn" formatted="false">Cerrar</string>
+    <string name="win_arm_label" formatted="false">Armado</string>
+    <string name="win_speed" formatted="false">Velocidad mínima</string>
+    <string name="win_time" formatted="false">O tiempo mínimo de conducción</string>
+    <string name="win_trigger_label" formatted="false">Cierre</string>
+    <string name="win_trigger" formatted="false">Iniciar la cuenta atrás</string>
+    <string name="win_trigger_open" formatted="false">Al abrir la puerta del conductor</string>
+    <string name="win_trigger_close" formatted="false">Al cerrar la puerta del conductor</string>
+    <string name="win_delay" formatted="false">Espera antes de cerrar</string>
+    <string name="win_beep" formatted="false">Pitido de aviso</string>
+    <string name="win_beep_sub" formatted="false">Un pitido por segundo durante la espera</string>
+    <string name="win_beep_volume" formatted="false">Volumen del pitido</string>
+    <string name="win_modes_label" formatted="false">Modo de cada ventanilla</string>
+    <string name="win_fl" formatted="false">Delantera izquierda</string>
+    <string name="win_fr" formatted="false">Delantera derecha</string>
+    <string name="win_rl" formatted="false">Trasera izquierda</string>
+    <string name="win_rr" formatted="false">Trasera derecha</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Pulso</string>
+    <string name="win_mode_off" formatted="false">Apagado</string>
+    <string name="win_modes_hint" formatted="false">Auto: el cierre automático del propio coche (ventanillas con sensor de posición). Pulso: mantiene la orden de cierre 5 s, funciona en todas las versiones. Apagado: el launcher nunca la cierra.</string>
+    <string name="win_cancel_hint" formatted="false">Volver a abrir la puerta, salir de P, encender el coche o mover una ventanilla cancela el cierre.</string>
+    <string name="win_toast_countdown">Ventanillas cerrándose en %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Cierre de ventanillas cancelado</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Calentar batería</string>
+    <string name="bat_heat_on_hint" formatted="false">Calentamiento de batería activado: carga rápida mejor, pero menos autonomía. No se apaga solo: apágalo aquí cuando ya no lo necesites.</string>
 </resources>

@@ -515,4 +515,45 @@
     <string name="news_v045_1" formatted="false">Animazione di ricarica: parte anche con lo schermo acceso e l\'auto ferma in P; si ferma solo in READY, in movimento o fuori da P</string>
     <string name="news_v045_2" formatted="false">Cavo di ricarica riconosciuto meglio; nuova prova «READY letto» nel Controllo funzioni</string>
     <string name="chk_ready" formatted="false">READY letto</string>
+    <!-- Vidros (fork) -->
+    <string name="sec_windows" formatted="false">Finestrini</string>
+    <string name="sec_windows_sub" formatted="false">Chiusura automatica, modo per finestrino</string>
+    <string name="win_auto" formatted="false">Chiudi quando scendi dall\'auto</string>
+    <string name="win_auto_sub" formatted="false">Dopo un viaggio, con l\'auto in P: chiude i finestrini quando scendi</string>
+    <string name="win_status_title" formatted="false">Stato</string>
+    <string name="win_status_off" formatted="false">Controllo finestrini non disponibile (in attesa dell\'auto)</string>
+    <string name="win_status_ok" formatted="false">Controllo finestrini pronto</string>
+    <string name="win_status_armed" formatted="false">Armato: i finestrini si chiuderanno quando scendi</string>
+    <string name="win_status_not_armed">Non ancora armato: guida sopra %1$d km/h o per %2$d min</string>
+    <string name="win_status_counting">Chiusura tra %1$d s</string>
+    <string name="win_closing" formatted="false">Chiusura dei finestrini…</string>
+    <string name="win_close_now" formatted="false">Chiudi i finestrini ora</string>
+    <string name="win_close_now_sub" formatted="false">Chiude tutti i finestrini non impostati su Spento</string>
+    <string name="win_close_btn" formatted="false">Chiudi</string>
+    <string name="win_arm_label" formatted="false">Attivazione</string>
+    <string name="win_speed" formatted="false">Velocità minima</string>
+    <string name="win_time" formatted="false">Oppure tempo minimo di guida</string>
+    <string name="win_trigger_label" formatted="false">Chiusura</string>
+    <string name="win_trigger" formatted="false">Avvia il conto alla rovescia</string>
+    <string name="win_trigger_open" formatted="false">Quando si apre la porta del conducente</string>
+    <string name="win_trigger_close" formatted="false">Quando si chiude la porta del conducente</string>
+    <string name="win_delay" formatted="false">Attesa prima della chiusura</string>
+    <string name="win_beep" formatted="false">Bip di avviso</string>
+    <string name="win_beep_sub" formatted="false">Un bip al secondo durante l\'attesa</string>
+    <string name="win_beep_volume" formatted="false">Volume del bip</string>
+    <string name="win_modes_label" formatted="false">Modo di ogni finestrino</string>
+    <string name="win_fl" formatted="false">Anteriore sinistro</string>
+    <string name="win_fr" formatted="false">Anteriore destro</string>
+    <string name="win_rl" formatted="false">Posteriore sinistro</string>
+    <string name="win_rr" formatted="false">Posteriore destro</string>
+    <string name="win_mode_auto" formatted="false">Auto</string>
+    <string name="win_mode_pulse" formatted="false">Impulso</string>
+    <string name="win_mode_off" formatted="false">Spento</string>
+    <string name="win_modes_hint" formatted="false">Auto: la chiusura automatica dell\'auto (finestrini con sensore di posizione). Impulso: tiene premuto il comando di chiusura per 5 s, funziona su tutti gli allestimenti. Spento: il launcher non lo chiude mai.</string>
+    <string name="win_cancel_hint" formatted="false">Riaprire la porta, uscire da P, accendere l\'auto o muovere un finestrino annulla la chiusura.</string>
+    <string name="win_toast_countdown">Finestrini in chiusura tra %1$d s</string>
+    <string name="win_toast_cancel" formatted="false">Chiusura dei finestrini annullata</string>
+    <!-- Aquecimento da bateria (fork) -->
+    <string name="tile_bat_heat" formatted="false">Riscald. batteria</string>
+    <string name="bat_heat_on_hint" formatted="false">Riscaldamento batteria acceso: ricarica rapida migliore, ma meno autonomia. Non si spegne da solo: spegnilo qui quando non serve più.</string>
 </resources>

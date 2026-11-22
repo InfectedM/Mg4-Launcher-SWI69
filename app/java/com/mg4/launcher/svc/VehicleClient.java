@@ -161,6 +161,8 @@ public final class VehicleClient {
         /** Sensibilità del pedale del freno: 1 Comfort, 0 Medium, 2 Sport; -1 non disponibile. */
         public int pedal = -1;
         public int opd = -1;              // One Pedal Drive: 1 acceso, 0 spento, -1 non disponibile
+        /** Aquecimento inteligente da bateria (fork): 1 ligado, 0 desligado, -1 não disponível. */
+        public int batHeat = -1;
         public int opdInhibit;            // motivo del blocco OPD (1 in carica, 2 sistema, 3 condizioni), 0 nessuno
         public int fanLevel = -1;         // 0 spenta, 1..max, 15 auto
         public int fanMin = FAN_MIN, fanMax = FAN_MAX;
@@ -481,6 +483,7 @@ public final class VehicleClient {
             shared = props;
         }
         long now = android.os.SystemClock.uptimeMillis();
+        readBatteryHeat(s, now);
         if (props.ready() && now - propsAt > 5000) {
             propsAt = now;
             int[] ids = {CarProps.TIRE_FL, CarProps.TIRE_FR, CarProps.TIRE_RL, CarProps.TIRE_RR};
@@ -905,6 +908,42 @@ public final class VehicleClient {
             }
             poll();
         });
+    }
+
+    // ---- aquecimento inteligente da bateria (fork) -----------------------------------------------
+
+    /**
+     * Aquecimento inteligente da bateria (DRVNG_PTC_HEAT), a opção escondida no widget da bateria do carro: aquece a
+     * bateria em andamento (carregamento rápido melhor, menos autonomia) e não se desliga sozinho.
+     * Propriedade global (área 0) do CarService, como a app original A9 / MG4Control: leitura 0 = ligado, 1 = desligado;
+     * escrita 1 = ligar, 2 = desligar. O carro demora alguns segundos a refletir a mudança.
+     */
+    private static final int BAT_HEAT = 0x2140f429, K_BAT_HEAT = 90429;
+    private static final long BAT_HEAT_HOLD_MS = 15_000;
+
+    private void readBatteryHeat(State s, long now) {
+        if (props == null || !props.ready()) return;
+        int raw = props.getIntAt(BAT_HEAT, 0);
+        int on = raw == 0 ? 1 : raw == 1 ? 0 : -1;
+        s.batHeat = held(K_BAT_HEAT, on, now);
+        Diag.putQuiet("bateria.aquecimento", raw == Integer.MIN_VALUE ? "não legível" : "valor " + raw + " → " + (on == 1 ? "ligado" : on == 0 ? "desligado" : "?"));
+    }
+
+    /** Liga / desliga o aquecimento da bateria. Devolve o novo estado pedido (1 / 0) ou -1 se não está disponível. */
+    public int toggleBatteryHeat() {
+        if (bg == null || props == null) return -1;
+        int cur = predicted(K_BAT_HEAT, last.batHeat);
+        if (cur < 0) return -1;
+        int next = cur == 1 ? 0 : 1;
+        synchronized (holds) {
+            holds.put(K_BAT_HEAT, new long[]{next, android.os.SystemClock.uptimeMillis() + BAT_HEAT_HOLD_MS});
+        }
+        bg.post(() -> {
+            boolean ok = props.setIntAt(BAT_HEAT, 0, next == 1 ? 1 : 2);
+            Diag.put("comando.ultimo", "bateria.aquecimento · " + (next == 1 ? "ligar" : "desligar") + (ok ? "" : " · falhou"));
+            poll();
+        });
+        return next;
     }
 
     // ---- stati di ricarica ----------------------------------------------------------------------
