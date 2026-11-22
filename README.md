@@ -221,8 +221,8 @@ Se o experimentares noutra versão, os relatos são bem-vindos: abre um *issue* 
 - **Música que retoma sozinha**: se uma notificação do telemóvel fizer a música Bluetooth (ou USB / online) passar para
   o rádio, o launcher retoma a tua música após alguns segundos. Não faz nada se foste tu a escolher o rádio.
 - **Sem envio de registos**: nesta versão (fork) o envio automático de registos está **desligado de forma permanente**.
-  O launcher não envia diagnósticos para nenhum servidor; **Guardar registo** grava o registo apenas no carro (e na pen
-  USB), para o anexares tu a um *issue* se quiseres.
+  O launcher não envia diagnósticos para nenhum servidor; **Guardar registo** grava o registo apenas no carro, em
+  `Download/MG4Launcher/`, e na pen USB, em `MG4Launcher/registos/`, para o anexares tu a um *issue* se quiseres.
 - **Arranque ao ligar**: o launcher volta sozinho para a frente se o sistema abrir o ecrã inicial MG; além disso, a opção
   **Premir Início sozinho após ligar** (desligada, 5, 10, 15, 20 ou 30 segundos), apenas uma vez e só por cima do ecrã
   inicial MG.
@@ -316,7 +316,8 @@ adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostica.txt
 ### Reportar um problema
 
 Definições → **Diagnóstico dos serviços do carro** mostra os valores em bruto lidos de cada serviço do carro e os erros
-recentes; **Guardar registo** escreve um registo completo em `Android/data/com.mg4.launcher/files/`: é a forma mais
+recentes; **Guardar registo** escreve um registo completo em **`Download/MG4Launcher/`** (memória do carro, visível no
+gestor de ficheiros) e, com uma pen USB ligada, em **`MG4Launcher/registos/`** na raiz da pen: é a forma mais
 rápida de corrigir aquilo que não funciona.
 
 ### Apoiar o projeto
@@ -343,8 +344,10 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 - Segurança: o código das bibliotecas SAIC usadas pelos Vidros só é carregado a partir de apps de sistema do carro.
 - Textos novos nos 8 idiomas. Esta versão não inclui o MG4 Store integrado.
 - **Envio de registos desligado de forma permanente**: nada é enviado para nenhum servidor (a opção e o botão "Enviar
-  registo" foram retirados; registos que tenham ficado em fila de uma versão anterior são apagados). **Guardar registo**
-  continua a gravar o registo apenas no carro.
+  registo" foram retirados; registos que tenham ficado em fila de uma versão anterior são apagados).
+- **Guardar registo** em pastas visíveis: `Download/MG4Launcher/` na memória do carro e `MG4Launcher/registos/` na raiz da
+  pen USB (antes ficava em `Android/data/…`, que o gestor de ficheiros do carro não mostra).
+- Janela **Novidades** da 0.4.6 com as novidades reais (mostrava uma lista antiga).
 
 #### 0.4.5
 - **Animação de carregamento**: agora arranca também com o ecrã ligado e o carro estacionado em P. A versão 0.4.4

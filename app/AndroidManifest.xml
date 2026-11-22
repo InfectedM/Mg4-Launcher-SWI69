@@ -38,6 +38,10 @@
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
     <!-- loghi radio dell'utente (cartella MG4Launcher/loghi su memoria o chiavetta): il permesso si concede da solo -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
+    <!-- fork: "Guardar registo" em pastas visíveis (Download/MG4Launcher e MG4Launcher/registos na pen USB);
+         WRITE_MEDIA_STORAGE (concedido pela firma platform) permite escrever na raiz da pen USB -->
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
+    <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
     <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS" />
 
     <!-- 0.8.2: riavvio del dongle CarPlay/AA (permesso USB e reset della porta, arresto del servizio Allgo) -->

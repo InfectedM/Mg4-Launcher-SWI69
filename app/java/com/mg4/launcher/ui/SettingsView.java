@@ -1344,6 +1344,8 @@ public final class SettingsView extends FrameLayout {
                 }
                 StringBuilder sb = new StringBuilder(L.s(r.onUsb ? R.string.log_saved_usb : R.string.log_saved)).append(' ');
                 sb.append(r.paths.get(0));
+                // fork: o primeiro caminho é a pasta visível (pen USB ou Download); mostra também o segundo, se for visível
+                if (r.paths.size() > 1 && !r.paths.get(1).contains("/Android/data/")) sb.append('\n').append(r.paths.get(1));
                 if (!r.onUsb) sb.append('\n').append(L.s(R.string.log_usb_hint));
                 logSaveSub.setSingleLine(false);
                 logSaveSub.setText(sb.toString());

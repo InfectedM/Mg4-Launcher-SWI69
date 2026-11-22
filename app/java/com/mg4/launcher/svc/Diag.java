@@ -275,6 +275,44 @@ public final class Diag {
         }
         LogUploader.requestNow();   // con l'invio automatico attivo, il log va anche nel repository dei log
 
+        // fork: primeiro em pastas VISÍVEIS no gestor de ficheiros do carro e no computador:
+        //   pen USB → <raiz>/MG4Launcher/registos/   ·   memória do carro → Download/MG4Launcher/
+        // (Android/data/... da app fica só como reserva: muitos gestores de ficheiros não a mostram)
+        grantWriteStorage(c);
+        List<File> visible = new ArrayList<>();
+        File[] vols = new File("/storage").listFiles();
+        if (vols != null) for (File v : vols) {
+            String n = v.getName();
+            if (n.equals("emulated") || n.equals("self") || !v.isDirectory() || !v.canRead()) continue;
+            visible.add(new File(v, "MG4Launcher/registos"));   // pen USB
+        }
+        try {
+            visible.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "MG4Launcher"));
+        } catch (Exception ignored) {
+        }
+        List<String> scan = new ArrayList<>();
+        for (File dir : visible) {
+            try {
+                if (!dir.exists()) dir.mkdirs();
+                File f = new File(dir, name);
+                try (FileOutputStream o = new FileOutputStream(f)) {
+                    o.write(data);
+                }
+                out.paths.add(f.getAbsolutePath());
+                scan.add(f.getAbsolutePath());
+                if (!dir.getAbsolutePath().startsWith(Environment.getExternalStorageDirectory().getAbsolutePath())) out.onUsb = true;
+            } catch (Exception e) {
+                Log.w(TAG, "log non salvato in " + dir + ": " + e);
+            }
+        }
+        if (!scan.isEmpty()) {
+            // para o ficheiro aparecer logo nos gestores de ficheiros / no computador por MTP
+            try {
+                android.media.MediaScannerConnection.scanFile(c, scan.toArray(new String[0]), null, null);
+            } catch (Throwable ignored) {
+            }
+        }
+
         List<File> dirs = new ArrayList<>();
         try {
             File[] ext = c.getExternalFilesDirs(null);
@@ -308,5 +346,20 @@ public final class Diag {
         }
         put("log.salvato", out.paths.isEmpty() ? "nessuna cartella scrivibile" : out.paths.get(0));
         return out;
+    }
+
+    /** Escrita na memória partilhada: o launcher concede-se a permissão sozinho (firma platform, GRANT_RUNTIME_PERMISSIONS). */
+    private static void grantWriteStorage(Context c) {
+        String perm = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
+        if (c.checkSelfPermission(perm) == android.content.pm.PackageManager.PERMISSION_GRANTED) return;
+        try {
+            android.content.pm.PackageManager pm = c.getPackageManager();
+            pm.getClass().getMethod("grantRuntimePermission", String.class, String.class, android.os.UserHandle.class)
+                    .invoke(pm, c.getPackageName(), perm, android.os.Process.myUserHandle());
+            put("log.permessoScrittura", "concesso ora");
+        } catch (Throwable e) {
+            Throwable t = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
+            put("log.permessoScrittura", "non concesso (" + t.getClass().getSimpleName() + ")");
+        }
     }
 }

@@ -556,4 +556,9 @@
     <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Batarya ısıtma</string>
     <string name="bat_heat_on_hint" formatted="false">Batarya ısıtma açık: hızlı şarj daha iyi, ancak menzil azalır. Kendiliğinden kapanmaz: artık gerekmediğinde buradan kapatın.</string>
+    <!-- Novidades 0.4.6 (fork) -->
+    <string name="news_v046_1" formatted="false">Camlar: araçtan inince otomatik kapatma ve “Şimdi kapat” düğmesi (Ayarlar → Camlar), Skittle6938\'in WinClose projesine dayanır</string>
+    <string name="news_v046_2" formatted="false">Akıllı batarya ısıtma: çubuktaki Sürüş grubunda yeni düğme, SliDeeN\'in MG4Control projesine dayanır</string>
+    <string name="news_v046_3" formatted="false">Uygulamalar sayfasında “Başlatıcı ayarları” kısayolu</string>
+    <string name="news_v046_4" formatted="false">Günlük gönderimi yok: “Günlüğü kaydet” artık Download/MG4Launcher ve USB bellekte MG4Launcher/registos klasörüne yazar</string>
 </resources>

@@ -556,4 +556,9 @@
     <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Grzanie baterii</string>
     <string name="bat_heat_on_hint" formatted="false">Grzanie baterii włączone: szybsze ładowanie DC, ale mniejszy zasięg. Nie wyłącza się samo: wyłącz je tutaj, gdy nie jest już potrzebne.</string>
+    <!-- Novidades 0.4.6 (fork) -->
+    <string name="news_v046_1" formatted="false">Szyby: automatyczne zamykanie po wyjściu z auta i przycisk „Zamknij teraz” (Ustawienia → Szyby), na podstawie WinClose autorstwa Skittle6938</string>
+    <string name="news_v046_2" formatted="false">Inteligentne grzanie baterii: nowy przycisk w grupie Jazda na pasku, na podstawie MG4Control autorstwa SliDeeN</string>
+    <string name="news_v046_3" formatted="false">Skrót „Ustawienia launchera” na stronie Aplikacje</string>
+    <string name="news_v046_4" formatted="false">Bez wysyłania logów: „Zapisz log” zapisuje teraz do Download/MG4Launcher i MG4Launcher/registos na pendrive</string>
 </resources>
