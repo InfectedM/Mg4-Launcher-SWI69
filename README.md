@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.6.apk"><img alt="Transferir 0.4.6" src="https://img.shields.io/badge/Transferir-0.4.6-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.7.apk"><img alt="Transferir 0.4.7" src="https://img.shields.io/badge/Transferir-0.4.7-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -242,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.6.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.7.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -258,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.6.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.7.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -331,6 +331,36 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 [![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versões
+
+#### 0.4.7 (fork InfectedM)
+- **Vidros mais leves**: com o fecho automático desligado (por omissão) o launcher já não lê o estado do carro em
+  segundo plano (antes: 8–10 chamadas por segundo, sempre); ligado, o ritmo adapta-se (0,5 s só durante a contagem,
+  2 s em READY, 5 s parado) e a porta continua a chegar na hora.
+- **MG4 Store opcional**: o `build.sh` compila sem `tools/MG4Store.apk` e o botão "Instalar MG4 Store" só aparece
+  quando o APK traz o Store.
+- Os textos novos (Vidros, bateria, novidades) passam para o gerador `tools/i18n.py` / `tools/i18n_pl.py`.
+- **Menos memória** (cerca de 8–12 MB a menos no total, sem mudar o aspeto):
+  - logótipos de rádio: listas e favoritos usam miniaturas de 96 px e as caches passam a ter limite (antes todos a
+    192 px, sem limite e para sempre); imagens grandes (pasta do utilizador, favicons, arte DAB) descodificadas já
+    reduzidas;
+  - capa da música e logótipo DAB: deixam de ser pedidos e recriados a cada segundo (passam a vir só quando mudam);
+  - tejadilho preto e luzes do carro: recortes de poucos KB em vez de telas inteiras de 958×368 (~2,5 MB fixos a menos),
+    imagem igual;
+  - animação de carregamento: fotogramas guardados a 902×275 em vez de 1312×400 (o tamanho em que aparecem no ecrã):
+    ~3 MB a menos durante a animação, metade do trabalho de descodificação e 18 MB em disco em vez de ~30 MB por cor
+    (os fotogramas antigos são apagados e refeitos sozinhos uma vez).
+- **Downloads a partir do fork**: as animações de carregamento e os pacotes de logótipos passam a ser descarregados
+  deste repositório (antes vinham do repositório original). Os ficheiros e os SHA-256 são os mesmos.
+- **Aspeto e toque**:
+  - tema de dia: aviso de pressão baixa dos pneus, nevoeiro traseiro e dianteiro ligados e aquecimento com cores
+    legíveis (antes com contraste de 1,6–2,3:1; o nevoeiro traseiro ligado tem agora fundo âmbar claro);
+  - zonas de toque maiores sem mudar o desenho: botão "Procurar" do rádio, play/seguinte do mini-leitor (altura toda
+    da barra) e separadores Mapa/Media;
+  - definições: a linha inteira liga/desliga o interruptor, o estado desligado tem contorno e a bola desliza;
+    esbatimento nas bordas do menu e do conteúdo (mostra que há mais secções) e o menu abre já na secção escolhida;
+  - pop-ups Clima/Conforto/Condução e diálogos com transição suave (150 ms), sem aceitar um segundo toque enquanto
+    fecham.
+- Janela **Novidades** da 0.4.7.
 
 #### 0.4.6 (fork InfectedM)
 - **Vidros** (novo, baseado no [WinClose](https://github.com/Skittle6938/winclose) de Skittle6938): nova secção
@@ -726,8 +756,10 @@ Nova geração: o mesmo grafismo e funções da versão SWI68 0.8.0, com os serv
 #### Compilar
 
 O launcher é compilado com o script `build.sh` incluído, sem Gradle; algumas ferramentas Android necessárias não estão
-no repositório e têm de ser adicionadas a `tools/`. A versão está em `version.properties`, os textos dos 7 idiomas em
-`tools/strings.py`. Os APK publicados estão na pasta `releases/`.
+no repositório e o `build.sh` descarrega-as sozinho para `tools/`. O MG4 Store é opcional: sem `tools/MG4Store.apk` o
+launcher compila sem ele. A versão está em `version.properties`; os textos dos 8 idiomas são gerados por
+`tools/i18n.py` (e `tools/i18n_pl.py` para o polaco): acrescenta lá os textos novos e corre `python3 tools/i18n.py`
+antes de compilar (não edites os `strings.xml` à mão). Os APK publicados estão na pasta `releases/`.
 
 #### Como comunica com o carro
 

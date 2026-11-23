@@ -43,7 +43,8 @@ import java.util.zip.ZipInputStream;
  */
 public final class LogoPacks {
     /** Indirizzo dei pacchetti: le altre versioni del launcher cambiano solo questa riga. */
-    public static final String BASE_URL = "https://raw.githubusercontent.com/ernestomicco2026-cell/Mg4-Launcher-SWI69/main/loghi/";
+    // fork: pacotes de logótipos do repositório InfectedM (mesmos ficheiros e hashes do original)
+    public static final String BASE_URL = "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/loghi/";
     public static final String AUTO = "auto";
     private static final long WEEK_MS = 7L * 24 * 3600 * 1000;
     private static final long RETRY_MS = 30 * 60_000L;

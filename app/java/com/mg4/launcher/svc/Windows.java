@@ -54,7 +54,16 @@ public final class Windows {
 
     /** Comandos do vidro: parar, subir (enquanto se mantém), subida automática. */
     private static final int CMD_STOP = 0, CMD_UP = 1, CMD_AUTO_UP = 3;
-    private static final long PULSE_MS = 5000, PULSE_STEP_MS = 120, LOOP_MS = 500;
+    private static final long PULSE_MS = 5000, PULSE_STEP_MS = 120;
+    /**
+     * Ritmo do ciclo, conforme o que pode acontecer a seguir (antes eram 500 ms sempre, também com a função desligada):
+     * contagem a decorrer 0,5 s (bip e vidro mexido à mão); armado em P à espera da porta 1 s; em READY 2 s (armar pela
+     * velocidade, marcha); parado 5 s (só para ver o READY de uma viagem nova). Com o fecho automático desligado não se
+     * lê o estado do carro: só se prepara o controlo dos vidros para o botão "Fechar agora" (15 s até ficar pronto,
+     * depois 60 s). A porta chega por callback e acorda o ciclo logo.
+     */
+    private static final long LOOP_COUNTING_MS = 500, LOOP_ARMED_P_MS = 1000, LOOP_READY_MS = 2000, LOOP_IDLE_MS = 5000,
+            LOOP_OFF_PENDING_MS = 15_000, LOOP_OFF_MS = 60_000;
 
     private static Windows instance;
 
@@ -92,7 +101,10 @@ public final class Windows {
         prefs = new Prefs(c);
         hub = new ServiceLink(c, "vidros", ServiceLink.byAction(HUB_PKG, HUB_ACTION));
         hub.setOnConnected(() -> {
-            if (bg != null) bg.post(this::forgetClients);
+            if (bg != null) {
+                bg.post(this::forgetClients);
+                wake();
+            }
         });
         logic = new WindowLogic(new WindowLogic.Events() {
             @Override
@@ -186,14 +198,39 @@ public final class Windows {
             } catch (Throwable e) {
                 Diag.error("vidros", e.toString());
             }
-            bg.postDelayed(this, LOOP_MS);
+            bg.postDelayed(this, nextDelayMs());
         }
     };
+
+    private long nextDelayMs() {
+        if (!prefs.winAuto()) return available() ? LOOP_OFF_MS : LOOP_OFF_PENDING_MS;
+        if (logic.counting()) return LOOP_COUNTING_MS;
+        if (logic.armed() && logic.gear() == WindowLogic.GEAR_P) return LOOP_ARMED_P_MS;
+        if (logic.ready() == 1) return LOOP_READY_MS;
+        return LOOP_IDLE_MS;
+    }
+
+    /** Corre o ciclo já (porta, ligação ao carro, opção mudada nas definições) em vez de esperar pelo intervalo. */
+    public void wake() {
+        Handler h = bg;
+        if (h == null) return;
+        h.post(() -> {
+            h.removeCallbacks(loop);
+            h.post(loop);
+        });
+    }
 
     private void step() {
         long now = SystemClock.uptimeMillis();
         IBinder h = hub.binder();
         if (h == null) return;
+        if (!prefs.winAuto()) {
+            // fecho automático desligado: nenhuma leitura do carro, só o controlo para o botão "Fechar agora"
+            if (logic.counting()) logic.cancel("fecho automático desligado");
+            ensureClients(h, null, now);
+            Diag.putQuiet("vidros.estado", (available() ? "controlo ok (" + saicPkg + ")" : "sem controlo") + " · fecho automático desligado");
+            return;
+        }
         IBinder st = query(h, BIND_STATE);
         if (st != null) {
             try {
@@ -350,6 +387,7 @@ public final class Windows {
                                 if (code == CB_DOOR) logic.onDoor(v, now);
                                 else logic.onGear(v, now);
                             });
+                            wake();   // uma contagem pode ter começado: o ciclo passa logo a 0,5 s
                         }
                     } catch (Throwable ignored) {
                     }

@@ -116,16 +116,26 @@ public final class SettingsView extends FrameLayout {
 
         // --- menu delle sezioni ---
         LinearLayout menu = Ui.column(c);
-        menu.setBackgroundColor(t.day ? 0xFFF6F7F9 : 0xFF111317);
+        final int menuBg = t.day ? 0xFFF6F7F9 : 0xFF111317;
+        menu.setBackgroundColor(menuBg);
         menu.setPadding(dp(24), dp(30), dp(24), dp(24));
         TextView title = Ui.text(c, L.s(R.string.set_menu_title), 32, t.text, Ui.MEDIUM);
         title.setPadding(dp(12) + (sysIndicator && !rhd ? dp(SYSTEM_LIGHT_INSET) : 0), 0, dp(12), dp(26));
         menu.addView(title);
         // 0.4.0 (7 sezioni): il menu va in ScrollView, altrimenti su schermi/sezioni numerose Sistema e il
         // riquadro aggiornamenti finiscono fuori schermo (bug della SWI68 1.0.0, corretto nella 1.0.1).
-        ScrollView menuScroll = new ScrollView(c);
+        // fork: com 8 secções as últimas ficam fora de vista; o esbatimento nas bordas mostra que a lista continua.
+        // getSolidColor opaco = esbatimento pintado com um gradiente simples (sem saveLayer, barato no MT2712)
+        ScrollView menuScroll = new ScrollView(c) {
+            @Override
+            public int getSolidColor() {
+                return menuBg;
+            }
+        };
         menuScroll.setVerticalScrollBarEnabled(false);
         menuScroll.setOverScrollMode(OVER_SCROLL_NEVER);
+        menuScroll.setVerticalFadingEdgeEnabled(true);
+        menuScroll.setFadingEdgeLength(dp(40));
         menuItems = Ui.column(c);
         menuScroll.addView(menuItems, new FrameLayout.LayoutParams(-1, -2));
         menu.addView(menuScroll, Ui.lpWeight(-1, 0, 1));
@@ -167,6 +177,17 @@ public final class SettingsView extends FrameLayout {
         buildMenu();
         buildFooter(up.isBusy());
         showSection(section);
+        // fork: ao abrir numa secção do fundo (ex.: Sistema pelo aviso de atualização) o menu desliza até ela
+        menuScroll.addOnLayoutChangeListener(new OnLayoutChangeListener() {
+            @Override
+            public void onLayoutChange(View v, int l, int tp, int r, int b, int ol, int ot, int or, int ob) {
+                View sel = menuItems.getChildAt(section);
+                if (sel == null || sel.getHeight() == 0) return;
+                menuScroll.removeOnLayoutChangeListener(this);
+                int h = menuScroll.getHeight();
+                if (sel.getBottom() > h) menuScroll.scrollTo(0, sel.getBottom() - h + dp(24));
+            }
+        });
     }
 
     // =========================================================================================
@@ -315,7 +336,15 @@ public final class SettingsView extends FrameLayout {
             return;
         }
 
-        ScrollView sv = new ScrollView(c);
+        // fork: esbatimento também no conteúdo (as escolhas eram cortadas a seco no fundo do cartão)
+        ScrollView sv = new ScrollView(c) {
+            @Override
+            public int getSolidColor() {
+                return t.panel;
+            }
+        };
+        sv.setVerticalFadingEdgeEnabled(true);
+        sv.setFadingEdgeLength(dp(32));
         sv.setVerticalScrollBarEnabled(false);
         sv.setOverScrollMode(OVER_SCROLL_NEVER);
         curScroll = sv;
@@ -435,6 +464,7 @@ public final class SettingsView extends FrameLayout {
         LinearLayout main = card(c);
         main.addView(row(c, L.s(R.string.win_auto), L.s(R.string.win_auto_sub), toggle(c, prefs.winAuto(), on -> {
             prefs.setWinAuto(on);
+            w.wake();
             showSection(SEC_WINDOWS);
         }), false));
         TextView status = Ui.text(c, w.statusText(), 17, t.sub, Ui.REGULAR);
@@ -1121,7 +1151,7 @@ public final class SettingsView extends FrameLayout {
         }
         java.util.List<String> others = com.mg4.launcher.svc.HomeLock.otherLaunchers(app);
         if (!others.isEmpty()) {
-            TextView warn = Ui.text(c, "⚠", 26, 0xFFFFB020, Ui.MEDIUM);
+            TextView warn = Ui.text(c, "⚠", 26, t.warn, Ui.MEDIUM);
             hc.addView(row(c, L.s(R.string.set_other_launchers), L.f(R.string.set_other_launchers_sub, android.text.TextUtils.join(", ", others)),
                     warn, false));
         }
@@ -1269,7 +1299,8 @@ public final class SettingsView extends FrameLayout {
         col.addView(card, topFull(14));
 
         // 1.0.4 (punto D): MG4 Store. Se l'utente l'ha tolto il launcher non lo rimette da solo: si reinstalla da qui
-        if (com.mg4.launcher.svc.StoreSetup.installedCode(c) < 0) {
+        // fork: só se este APK traz o Store (os builds sem Store não têm nada para instalar)
+        if (com.mg4.launcher.svc.StoreSetup.installedCode(c) < 0 && com.mg4.launcher.svc.StoreSetup.bundledAvailable(c)) {
             card = card(c);
             View stBtn = button(c, L.s(R.string.store_install), v -> {
                 android.widget.Toast.makeText(c, L.s(R.string.store_installing), android.widget.Toast.LENGTH_SHORT).show();
@@ -1413,6 +1444,18 @@ public final class SettingsView extends FrameLayout {
         if (sub.isEmpty()) st.setVisibility(GONE);
         r.addView(tx, Ui.margins(Ui.lpWeight(0, -2, 1), 0, 0, dp(20), 0));
         r.addView(right);
+        if (right instanceof Toggle) {
+            // fork: a linha inteira liga/desliga (antes só o interruptor de 76×44). isEnabled() verificado no momento do
+            // toque (há interruptores desativados depois de criados); callOnClick para não tocar o som de clique 2 vezes
+            r.setClickable(true);
+            r.setOnClickListener(v -> {
+                if (right.isEnabled()) right.callOnClick();
+            });
+            r.setForeground(new android.graphics.drawable.RippleDrawable(
+                    android.content.res.ColorStateList.valueOf(t.day ? 0x22000000 : 0x33FFFFFF), null,
+                    new android.graphics.drawable.ColorDrawable(0xFFFFFFFF)));
+            r.setContentDescription(title);
+        }
         return r;
     }
 
@@ -1485,21 +1528,49 @@ public final class SettingsView extends FrameLayout {
         return tg;
     }
 
-    /** Interruttore disegnato con i colori del tema (acceso = colore testo, spento = binario). */
+    /**
+     * Interruttore disegnato con i colori del tema (acceso = colore testo, spento = binario).
+     * Fork: desligado com contorno t.sub (antes o binário sobre a ficha tinha ~1,1:1 e só se via a bola) e a bola desliza
+     * em 150 ms; a ação corre no fim da animação (muitas reconstroem a secção), e toques durante a animação ignoram-se.
+     */
     private final class Toggle extends View {
         private boolean on;
+        private float pos;   // 0 = desligado, 1 = ligado (posição da bola)
+        private boolean busy;
+        private android.animation.ValueAnimator anim;
         private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final RectF r = new RectF();
 
         Toggle(Context c, boolean on, OnToggle l) {
             super(c);
             this.on = on;
+            this.pos = on ? 1f : 0f;
             setClickable(true);
             setOnClickListener(v -> {
+                if (busy) return;
+                busy = true;
                 this.on = !this.on;
-                invalidate();
-                l.changed(this.on);
+                boolean now = this.on;
+                anim = android.animation.ValueAnimator.ofFloat(pos, now ? 1f : 0f);
+                anim.setDuration(150);
+                anim.setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f));
+                anim.addUpdateListener(a -> {
+                    pos = (float) a.getAnimatedValue();
+                    invalidate();
+                });
+                anim.start();
+                // a ação corre sempre (mesmo que a vista saia do ecrã entretanto): a preferência fica gravada
+                main.postDelayed(() -> {
+                    busy = false;
+                    l.changed(now);
+                }, 160);
             });
+        }
+
+        @Override
+        protected void onDetachedFromWindow() {
+            super.onDetachedFromWindow();
+            if (anim != null) anim.cancel();
         }
 
         @Override
@@ -1511,11 +1582,26 @@ public final class SettingsView extends FrameLayout {
         @Override
         protected void onDraw(Canvas cv) {
             float w = getWidth(), h = getHeight(), pad = h * 4f / 44f, d = h - 2 * pad;
-            r.set(0, 0, w, h);
-            p.setColor(on ? t.text : t.track);
-            cv.drawRoundRect(r, h / 2, h / 2, p);
-            p.setColor(on ? t.panel : t.sub);
-            float cx = on ? w - pad - d / 2 : pad + d / 2;
+            boolean lit = pos >= 0.5f;   // a cor muda a meio do deslize
+            if (lit) {
+                r.set(0, 0, w, h);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(t.text);
+                cv.drawRoundRect(r, h / 2, h / 2, p);
+            } else {
+                float sw = dp(2);
+                r.set(sw / 2, sw / 2, w - sw / 2, h - sw / 2);
+                p.setStyle(Paint.Style.FILL);
+                p.setColor(t.chip);
+                cv.drawRoundRect(r, h / 2, h / 2, p);
+                p.setStyle(Paint.Style.STROKE);
+                p.setStrokeWidth(sw);
+                p.setColor(t.sub);
+                cv.drawRoundRect(r, h / 2, h / 2, p);
+                p.setStyle(Paint.Style.FILL);
+            }
+            p.setColor(lit ? t.panel : t.sub);
+            float cx = pad + d / 2 + pos * (w - 2 * pad - d);
             cv.drawCircle(cx, h / 2, d / 2, p);
         }
     }

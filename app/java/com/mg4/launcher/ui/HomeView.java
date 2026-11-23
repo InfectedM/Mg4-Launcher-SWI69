@@ -126,6 +126,8 @@ public final class HomeView extends LinearLayout {
     private long pendingSourceUntil, pendingBandUntil;
     private TextView mTitle, mSub, mMeta, mPos, mDur, artFreq, artUnit, artBand;
     private ImageView artIcon, artLogo;
+    /** Fork: bitmap mostrado agora na capa grande e no mini-leitor (só se volta a pôr quando muda). */
+    private android.graphics.Bitmap artShown, miniShown;
     private LinearLayout artRadio, progressRow, bandRow, favRow;
     private View favScroll;
     private String favSignature = "";
@@ -599,8 +601,8 @@ public final class HomeView extends LinearLayout {
         recircBtn.setVisibility(s.loopMode >= 0 ? VISIBLE : GONE);
         styleClima(recircBtn, s.loopMode < 0 ? 3 : ClimaIcone.ricircoloAcceso(s.loopMode) ? 1 : 0);
         setRecircIcon(s.loopMode);
-        styleToggle(frontFogBtn, s.frontFog, 0xFF34C77B);
-        styleToggle(rearFogBtn, s.rearFog, 0xFFFFB020);
+        styleToggle(frontFogBtn, s.frontFog, t.fogFront);
+        styleToggle(rearFogBtn, s.rearFog, t.warn);
         if (grouped) styleGroups(s);
         styleGuida(s);
         if (popup != null) popup.refresh(s);
@@ -687,7 +689,9 @@ public final class HomeView extends LinearLayout {
 
         LinearLayout tabs = Ui.row(c);
         tabs.setBackground(Ui.round(t.overlay, dp(16)));
-        tabs.setPadding(dp(6), dp(6), dp(6), dp(6));
+        // fork: sem padding vertical; cada separador ocupa a altura toda (60 em vez de 48) e o fundo é desenhado com
+        // 6 dp de margem em cima e em baixo (InsetDrawable em styleTab): o desenho fica igual e a zona de toque cresce
+        tabs.setPadding(dp(6), 0, dp(6), 0);
         tabMap = addTab(c, tabs, L.s(R.string.tab_map), TAB_MAP);
         tabMedia = addTab(c, tabs, L.s(R.string.tab_media), TAB_MEDIA);
         tabPhone = addTab(c, tabs, "CarPlay", TAB_PHONE);
@@ -781,10 +785,11 @@ public final class HomeView extends LinearLayout {
         TextView tv = Ui.text(c, label, ts(18), t.sub, Ui.MEDIUM);
         tv.setGravity(Gravity.CENTER);
         tv.setPadding(tp(22), 0, tp(22), 0);
-        tv.setMinHeight(tp(TABS_H - 12));
+        int h = tp(TABS_H - 12) + 2 * dp(6);
+        tv.setMinHeight(h);
         tv.setClickable(true);
         tv.setOnClickListener(v -> selectTab(which, true));
-        parent.addView(tv, Ui.margins(Ui.lp(-2, tp(TABS_H - 12)), which == 0 ? 0 : dp(6), 0, 0, 0));
+        parent.addView(tv, Ui.margins(Ui.lp(-2, h), which == 0 ? 0 : dp(6), 0, 0, 0));
         return tv;
     }
 
@@ -800,7 +805,9 @@ public final class HomeView extends LinearLayout {
     }
 
     private void styleTab(TextView tv, boolean on) {
-        tv.setBackground(on ? Ui.round(t.text, dp(12)) : Ui.pressable(getContext(), 0, 12, t));
+        android.graphics.drawable.Drawable bg = on ? Ui.round(t.text, dp(12)) : Ui.pressable(getContext(), 0, 12, t);
+        tv.setBackground(new android.graphics.drawable.InsetDrawable(bg, 0, dp(6), 0, dp(6)));
+        tv.setPadding(tp(22), 0, tp(22), 0);   // um fundo com margens substitui o padding: repor o de addTab
         tv.setTextColor(on ? t.panel : t.sub);
     }
 
@@ -1216,6 +1223,22 @@ public final class HomeView extends LinearLayout {
         stationScroll = ss;
         stationPanel.addView(ss, Ui.lpWeight(-1, 0, 1));
         stationHead = sh;
+        // fork: o botão "Procurar" mede ~60×28 px; a zona de toque estende-se (sem mudar o desenho) do topo do painel ao
+        // fim do cabeçalho e 16 dp para cada lado. Só se troca quando o retângulo muda de facto (o texto muda:
+        // Procurar/Atualizar/A procurar…): o painel refaz o layout ~1×/s e um TouchDelegate novo a meio de um toque
+        // perdia o UP (sem clique e o botão ficava premido). Nunca se troca com o botão premido.
+        final android.graphics.Rect[] lastHit = {null};
+        View.OnLayoutChangeListener searchHit = (v, l, tp, r, b, ol, ot, or, ob) -> {
+            if (stationSearch.getWidth() == 0 || sh.getWidth() == 0 || stationSearch.isPressed()) return;
+            android.graphics.Rect hit = new android.graphics.Rect(
+                    Math.max(0, sh.getLeft() + stationSearch.getLeft() - dp(16)), 0,
+                    Math.min(stationPanel.getWidth(), sh.getLeft() + stationSearch.getRight() + dp(16)), sh.getBottom());
+            if (hit.equals(lastHit[0])) return;
+            lastHit[0] = hit;
+            stationPanel.setTouchDelegate(new android.view.TouchDelegate(hit, stationSearch));
+        };
+        stationSearch.addOnLayoutChangeListener(searchHit);
+        stationPanel.addOnLayoutChangeListener(searchHit);
         // 1.0.4: solo righe intere (prima in "Molto grande" l'ultima era tagliata a metà)
         stationPanel.addOnLayoutChangeListener((v, l, tp, r, b, ol, ot, or, ob) -> {
             if (b - tp != ob - ot) fitStationRows();
@@ -1596,11 +1619,17 @@ public final class HomeView extends LinearLayout {
         if (logo) {
             artLogo.setPadding(dp(20), dp(20), dp(20), dp(20));
             artLogo.setScaleType(ImageView.ScaleType.FIT_CENTER);
-            artLogo.setImageBitmap(m.logo);
+            if (m.logo != artShown) {   // fork: só quando a imagem muda (evita redesenhar e reenviar a textura a cada segundo)
+                artLogo.setImageBitmap(m.logo);
+                artShown = m.logo;
+            }
         } else if (cover) {
             artLogo.setPadding(0, 0, 0, 0);
             artLogo.setScaleType(ImageView.ScaleType.CENTER_CROP);
-            artLogo.setImageBitmap(m.art);
+            if (m.art != artShown) {
+                artLogo.setImageBitmap(m.art);
+                artShown = m.art;
+            }
         }
         artRadio.setVisibility(radio && !logo ? VISIBLE : GONE);
         artIcon.setVisibility(radio || cover ? GONE : VISIBLE);
@@ -1644,11 +1673,16 @@ public final class HomeView extends LinearLayout {
         miniTitle.setText(m.title);
         miniSub.setText(sourceLabel(m.source) + (m.subtitle.isEmpty() ? "" : " · " + m.subtitle));
         if (radio && m.logo != null || !radio && m.art != null) {
-            miniArt.clearColorFilter();
-            miniArt.setImageBitmap(radio ? m.logo : m.art);
+            android.graphics.Bitmap mb = radio ? m.logo : m.art;
+            if (mb != miniShown) {   // fork: só quando a imagem muda
+                miniArt.clearColorFilter();
+                miniArt.setImageBitmap(mb);
+                miniShown = mb;
+            }
         } else {
             miniArt.setColorFilter(t.sub, android.graphics.PorterDuff.Mode.SRC_IN);
             miniArt.setImageResource(sourceIcon(m.source));
+            miniShown = null;
         }
 
         // CarPlay / Android Auto: la scheda compare solo con il telefono collegato
@@ -1955,8 +1989,16 @@ public final class HomeView extends LinearLayout {
         mini.setOnClickListener(v -> selectTab(TAB_MEDIA, true));
         FrameLayout mp = Ui.iconButton(c, t, R.drawable.ic_pause, t.text, 0, big ? 76 : 52, big ? 36 : 26, 26, L.s(R.string.play_pause), v -> media.playPause());
         miniPlayIcon = (ImageView) mp.getChildAt(0);
-        mini.addView(mp);
-        mini.addView(Ui.iconButton(c, t, R.drawable.ic_next, t.text, 0, big ? 76 : 52, big ? 34 : 24, 26, L.s(R.string.next), v -> media.skip(true)));
+        // fork: play e seguinte com a altura toda da barra (antes 52×52, e um toque ao lado abria o separador Media em
+        // vez de pausar). Largura e ícone iguais: o desenho não muda.
+        FrameLayout mn = Ui.iconButton(c, t, R.drawable.ic_next, t.text, 0, big ? 76 : 52, big ? 34 : 24, 26, L.s(R.string.next), v -> media.skip(true));
+        // o realce ao premir continua o círculo de antes: fundo com margem vertical até ao tamanho original do botão
+        int barH = big ? dp(BIG_BAR) : tp(100);
+        for (FrameLayout mb : new FrameLayout[]{mp, mn}) {
+            int ins = Math.max(0, (barH - mb.getLayoutParams().height) / 2);
+            mb.setBackground(new android.graphics.drawable.InsetDrawable(mb.getBackground(), 0, ins, 0, ins));
+            mini.addView(mb, new LayoutParams(mb.getLayoutParams().width, -1));
+        }
         // 0.4.3 (punto 7): al posto del mini-player si possono avere i preferiti del telefono o scorciatoie alle app
         String tileMode = prefs.tileMode();
         if (showMini && !Prefs.TILE_MEDIA.equals(tileMode)) {
@@ -2082,7 +2124,7 @@ public final class HomeView extends LinearLayout {
         v.setText(tyreValue(left, unit) + " · " + tyreValue(right, unit) + " " + tyreUnitLabel(unit));
         // pressione bassa (sotto 2,0 bar): in ambra
         boolean low = (!Float.isNaN(left) && left < 2.0f) || (!Float.isNaN(right) && right < 2.0f);
-        v.setTextColor(low ? 0xFFFFB020 : t.text);
+        v.setTextColor(low ? t.warn : t.text);
     }
 
     /** Pulsante sedile riscaldato: icona (specchiata per il lato destro) + tre tacche per il livello. */
@@ -2115,7 +2157,7 @@ public final class HomeView extends LinearLayout {
         f.setTag(level);
         f.setAlpha(level < 0 ? 0.45f : 1f);
         f.setBackground(Ui.pressable(getContext(), t.chip, big ? 24 : 20 * Ui.K, t));
-        int heat = 0xFFFF7A3D;
+        int heat = t.heat;
         ((ImageView) f.getChildAt(0)).setColorFilter(level > 0 ? heat : t.text);
         LinearLayout dots = (LinearLayout) f.getChildAt(1);
         for (int i = 0; i < 3; i++) dots.getChildAt(i).setBackground(Ui.round(i < level ? heat : t.track, dp(3)));
@@ -2152,7 +2194,8 @@ public final class HomeView extends LinearLayout {
         float rad = big ? 24 : 20 * Ui.K;
         if (onColor != 0) {
             // fendinebbia: icona colorata come la spia del quadro (verde anteriori, ambra posteriori)
-            v.setBackground(Ui.pressable(getContext(), t.chip, rad, t));
+            // fork: o retronebbia ligado tem também fundo âmbar claro, para não depender só da cor do ícone
+            v.setBackground(Ui.pressable(getContext(), on && onColor == t.warn ? t.warnBg : t.chip, rad, t));
             ((ImageView) ((FrameLayout) v).getChildAt(0)).setColorFilter(on ? onColor : t.text);
             return;
         }
@@ -2233,7 +2276,6 @@ public final class HomeView extends LinearLayout {
     // Gruppi Clima / Comfort (0.8.2): grafica come gli esempi approvati (esempio-barra, -clima-aperto, -comfort-aperto)
     // =========================================================================================
 
-    private static final int HEAT = 0xFFFF7A3D;
     private static final int CLIMA = 0, COMFORT = 1, GUIDA = 2;
 
     private int groupWidth() {
@@ -2266,7 +2308,7 @@ public final class HomeView extends LinearLayout {
         dots.setGravity(Gravity.CENTER);
         for (int i = 0; i < 3; i++) {
             View d = new View(c);
-            d.setBackground(Ui.round(clima ? t.text : HEAT, dp(3)));
+            d.setBackground(Ui.round(clima ? t.text : t.heat, dp(3)));
             d.setVisibility(GONE);
             dots.addView(d, Ui.margins(new LayoutParams(bs(6, 9), bs(6, 9)), i == 0 ? 0 : bs(4, 6), 0, 0, 0));
         }
@@ -2296,8 +2338,8 @@ public final class HomeView extends LinearLayout {
         boolean seatOn = s.seatLeft > 0 || s.seatRight > 0;
         showDots(comfortDots, (s.seatLeft > 0 ? 1 : 0) + (s.wheelHeat > 0 ? 1 : 0) + (s.seatRight > 0 ? 1 : 0));
         LinearLayout icons = (LinearLayout) comfortGroup.getChildAt(0);
-        ((ImageView) icons.getChildAt(0)).setColorFilter(seatOn ? HEAT : t.text);
-        ((ImageView) icons.getChildAt(1)).setColorFilter(s.wheelHeat > 0 ? HEAT : t.text);
+        ((ImageView) icons.getChildAt(0)).setColorFilter(seatOn ? t.heat : t.text);
+        ((ImageView) icons.getChildAt(1)).setColorFilter(s.wheelHeat > 0 ? t.heat : t.text);
         icons.getChildAt(0).setVisibility(s.seatLeft >= 0 || s.seatRight >= 0 ? VISIBLE : GONE);
         icons.getChildAt(1).setVisibility(s.wheelHeat >= 0 ? VISIBLE : GONE);
         boolean any = s.seatLeft >= 0 || s.seatRight >= 0 || s.wheelHeat >= 0;
@@ -2523,10 +2565,28 @@ public final class HomeView extends LinearLayout {
         final android.graphics.Path path = new android.graphics.Path();
         int ring;
         float radius;
+        /** Fork: 0..1 durante a entrada/saída (multiplica o escurecimento e o anel); closing bloqueia os toques. */
+        float fade = 1f;
+        boolean closing;
 
         Dimmer(Context c) {
             super(c);
             setWillNotDraw(false);
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(android.view.MotionEvent e) {
+            return closing || super.onInterceptTouchEvent(e);
+        }
+
+        @Override
+        public boolean onTouchEvent(android.view.MotionEvent e) {
+            return closing || super.onTouchEvent(e);
+        }
+
+        private int faded(int color) {
+            int a = Math.round(((color >>> 24) & 0xFF) * fade);
+            return (a << 24) | (color & 0x00FFFFFF);
         }
 
         @Override
@@ -2536,12 +2596,12 @@ public final class HomeView extends LinearLayout {
             path.addRect(0, 0, getWidth(), getHeight(), android.graphics.Path.Direction.CW);
             if (!hole.isEmpty()) path.addRoundRect(hole, radius, radius, android.graphics.Path.Direction.CW);
             p.setStyle(android.graphics.Paint.Style.FILL);
-            p.setColor(t.day ? 0x80000000 : 0x99000000);
+            p.setColor(faded(t.day ? 0x80000000 : 0x99000000));
             cv.drawPath(path, p);
             if (!hole.isEmpty()) {
                 p.setStyle(android.graphics.Paint.Style.STROKE);
                 p.setStrokeWidth(dp(3));
-                p.setColor(ring);
+                p.setColor(faded(ring));
                 android.graphics.RectF r = new android.graphics.RectF(hole);
                 r.inset(-dp(2), -dp(2));
                 cv.drawRoundRect(r, radius + dp(2), radius + dp(2), p);
@@ -2569,7 +2629,7 @@ public final class HomeView extends LinearLayout {
             this.guida = kind == GUIDA;
             Context c = getContext();
             catcher = new Dimmer(c);
-            catcher.ring = clima ? t.text : HEAT;
+            catcher.ring = clima ? t.text : t.heat;
             catcher.radius = dp(big ? 24 : 20 * Ui.K);
             catcher.setClickable(true);
             catcher.setOnClickListener(v -> close());
@@ -2746,13 +2806,13 @@ public final class HomeView extends LinearLayout {
                 } else {
                     // accesa = sfondo caldo, bordo arancione, icona e stato arancioni, tacche del livello
                     g.setColor(on ? (t.day ? 0xFFFFF1EA : 0xFF2E241F) : t.chip);
-                    if (on) g.setStroke(dp(2), HEAT);
-                    ((ImageView) tag[1]).setColorFilter(on ? HEAT : t.text);
+                    if (on) g.setStroke(dp(2), t.heat);
+                    ((ImageView) tag[1]).setColorFilter(on ? t.heat : t.text);
                     nm.setTextColor(t.text);
-                    st.setTextColor(on ? HEAT : t.sub);
+                    st.setTextColor(on ? (t.day ? t.text : t.heat) : t.sub);   // fork: texto legível de dia
                     LinearLayout notches = (LinearLayout) tag[4];
                     for (int i = 0; i < notches.getChildCount(); i++) {
-                        notches.getChildAt(i).setBackground(Ui.round(i < level ? HEAT : t.track, dp(3)));
+                        notches.getChildAt(i).setBackground(Ui.round(i < level ? t.heat : t.track, dp(3)));
                     }
                 }
                 v.setBackground(new android.graphics.drawable.RippleDrawable(
@@ -2784,7 +2844,40 @@ public final class HomeView extends LinearLayout {
 
         void show() {
             host.overlay().addView(catcher, new FrameLayout.LayoutParams(-1, -1));
+            fade(true, null);
             touched();
+        }
+
+        /**
+         * Fork: entrada 150 ms / saída 120 ms só com alfa. A posição do cartão e da seta é de place() (setX/setY): não se
+         * anima a translação, senão o cartão saltava para o topo do ecrã.
+         */
+        private void fade(boolean in, Runnable end) {
+            float from = in ? 0f : catcher.fade;
+            android.animation.ValueAnimator a = android.animation.ValueAnimator.ofFloat(from, in ? 1f : 0f);
+            a.setDuration(in ? 150 : 120);
+            a.setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f));
+            card.setLayerType(LAYER_TYPE_HARDWARE, null);
+            if (in) {
+                catcher.fade = 0f;
+                card.setAlpha(0f);
+                arrow.setAlpha(0f);
+            }
+            a.addUpdateListener(x -> {
+                float f = (float) x.getAnimatedValue();
+                catcher.fade = f;
+                card.setAlpha(f);
+                arrow.setAlpha(f);
+                catcher.invalidate();
+            });
+            a.addListener(new android.animation.AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(android.animation.Animator an) {
+                    card.setLayerType(LAYER_TYPE_NONE, null);
+                    if (end != null) end.run();
+                }
+            });
+            a.start();
         }
 
         void touched() {
@@ -2794,8 +2887,14 @@ public final class HomeView extends LinearLayout {
 
         void close() {
             catcher.removeCallbacks(closer);
-            if (catcher.getParent() != null) ((ViewGroup) catcher.getParent()).removeView(catcher);
-            if (popup == this) popup = null;
+            if (popup == this) popup = null;   // já: refresh() e openGroup() deixam de o ver
+            if (catcher.closing) return;
+            catcher.closing = true;             // a partir daqui nenhum toque chega às caselas (sem comandos repetidos)
+            ViewGroup p = (ViewGroup) catcher.getParent();
+            if (p == null) return;
+            fade(false, () -> {
+                if (catcher.getParent() == p) p.removeView(catcher);
+            });
         }
     }
 

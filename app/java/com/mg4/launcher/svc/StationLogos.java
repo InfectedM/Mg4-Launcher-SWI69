@@ -48,7 +48,24 @@ public final class StationLogos {
 
     private final Context ctx;
     private final File dir;
-    private final Map<String, Bitmap> mem = new HashMap<>();
+    /**
+     * Fork: duas caches com limite em bytes (antes: um HashMap sem limite com tudo a 192×192, ~144 KB por logótipo, nunca
+     * libertado). "full" = 192 px, só para a estação em onda; "thumbs" = 96 px para as listas e os favoritos, que se
+     * mostram a 40–60 px. Ficam também com {@link #FULL} e {@link #THUMB} os tamanhos usados na descodificação.
+     */
+    private static final int FULL = 192, THUMB = 96;
+    private final android.util.LruCache<String, Bitmap> full = new android.util.LruCache<String, Bitmap>(1536 * 1024) {
+        @Override
+        protected int sizeOf(String k, Bitmap b) {
+            return b.getByteCount();
+        }
+    };
+    private final android.util.LruCache<String, Bitmap> thumbs = new android.util.LruCache<String, Bitmap>(3 * 1024 * 1024) {
+        @Override
+        protected int sizeOf(String k, Bitmap b) {
+            return b.getByteCount();
+        }
+    };
     private final Map<String, Long> missUntil = new HashMap<>();   // chiavi senza logo: non si ricontrolla il disco per 30 s
     private final Set<String> pending = new HashSet<>();
     private final Set<String> savedThisSession = new HashSet<>();
@@ -73,7 +90,8 @@ public final class StationLogos {
         packs = LogoPacks.get(ctx);
         packs.addListener(() -> {
             synchronized (this) {
-                mem.clear();
+                full.evictAll();
+                thumbs.evictAll();
                 missUntil.clear();
             }
             Runnable r = onUpdate;
@@ -166,7 +184,8 @@ public final class StationLogos {
         Diag.put("loghi.utente", found.isEmpty() ? "nessuno (cartella " + USER_FOLDER + ")" : found.size() + " in " + where);
         if (changed) {
             synchronized (this) {
-                mem.clear();
+                full.evictAll();
+                thumbs.evictAll();
                 missUntil.clear();
             }
             Runnable r = onUpdate;
@@ -174,9 +193,9 @@ public final class StationLogos {
         }
     }
 
-    private Bitmap packLogo(String n) {
+    private Bitmap packLogo(String n, int target) {
         File f = packs.find(n);
-        return f == null ? null : decode(f);
+        return f == null ? null : decode(f, target);
     }
 
     private void seen(String name, boolean has) {
@@ -196,25 +215,70 @@ public final class StationLogos {
         Diag.put("loghi.senzaLogo", sb.length() == 0 ? "nessuna" : sb.toString());
     }
 
-    private static Bitmap decode(File f) {
+    /**
+     * Descodifica já reduzido: lê primeiro as dimensões e usa inSampleSize, para uma imagem grande (pasta do utilizador)
+     * nunca ser descodificada inteira; depois reduz ao tamanho pedido.
+     */
+    private static Bitmap decode(File f, int target) {
         try {
-            Bitmap b = BitmapFactory.decodeFile(f.getPath());
-            return b == null ? null : scale(b);
+            BitmapFactory.Options o = new BitmapFactory.Options();
+            o.inJustDecodeBounds = true;
+            BitmapFactory.decodeFile(f.getPath(), o);
+            if (o.outWidth <= 0 || o.outHeight <= 0) return null;
+            o.inJustDecodeBounds = false;
+            o.inSampleSize = sample(o.outWidth, o.outHeight, target);
+            Bitmap b = BitmapFactory.decodeFile(f.getPath(), o);
+            return b == null ? null : scaleOwned(b, target);
         } catch (Throwable e) {
             return null;
         }
+    }
+
+    /** Maior potência de 2 que deixa o lado maior descodificado ainda ≥ target. */
+    private static int sample(int w, int h, int target) {
+        int s = 1;
+        while (Math.max(w, h) / (s * 2) >= target) s *= 2;
+        return s;
     }
 
     // ---- ricerca ---------------------------------------------------------------------------
 
     /** Logo della stazione (cartella utente, pacchetto integrato, memoria); se manca avvia il download quando c'è rete. */
     public synchronized Bitmap get(String key, String name) {
+        maybeScanUser();
+        Bitmap b = full.get(key);
+        if (b != null) return b;
+        b = resolve(key, name, FULL);
+        if (b != null) full.put(key, b);
+        return b;
+    }
+
+    /**
+     * Fork: miniatura (96 px) para as listas e os favoritos. Vem da cache das miniaturas, da reduzida do logótipo completo
+     * já em memória ou, se não houver, do disco/pacote descodificado já a 96 px (com a mesma lógica de get()).
+     */
+    public synchronized Bitmap getThumb(String key, String name) {
+        maybeScanUser();
+        Bitmap b = thumbs.get(key);
+        if (b != null) return b;
+        Bitmap f = full.get(key);
+        b = f != null ? scaleTo(f, THUMB) : resolve(key, name, THUMB);
+        if (b != null) thumbs.put(key, b);
+        return b;
+    }
+
+    /** A pasta do utilizador relê-se a cada minuto, também quando os logótipos já estão em cache (como antes). */
+    private void maybeScanUser() {
         long now = SystemClock.uptimeMillis();
         if (now - userScanAt > USER_SCAN_MS) {
             userScanAt = now;
             bg.post(this::scanUser);
         }
-        if (mem.containsKey(key)) return mem.get(key);
+    }
+
+    /** Procura o logótipo (pasta do utilizador, pacotes, disco) já no tamanho pedido; se não há, agenda a pesquisa na rede. */
+    private Bitmap resolve(String key, String name, int target) {
+        long now = SystemClock.uptimeMillis();
         Long miss = missUntil.get(key);
         if (miss != null && now < miss) return null;
         String n = norm(clean(name));
@@ -222,18 +286,15 @@ public final class StationLogos {
         Bitmap b = null;
         File uf = user.get(k);
         if (uf == null && !n.isEmpty()) uf = user.get(n);
-        if (uf != null) b = decode(uf);
-        if (b == null) b = packLogo(k);
-        if (b == null && !n.isEmpty() && !n.equals(k)) b = packLogo(n);
+        if (uf != null) b = decode(uf, target);
+        if (b == null) b = packLogo(k, target);
+        if (b == null && !n.isEmpty() && !n.equals(k)) b = packLogo(n, target);
         if (b == null) {
             File f = new File(dir, key + ".png");
-            if (f.exists()) b = BitmapFactory.decodeFile(f.getPath());
+            if (f.exists()) b = decode(f, target);   // fork: os PNG guardados (arte DAB) também reduzidos
         }
         seen(name, b != null);
-        if (b != null) {
-            mem.put(key, b);
-            return b;
-        }
+        if (b != null) return b;
         missUntil.put(key, now + 30_000);
         File none = new File(dir, key + ".none");
         boolean recentMiss = none.exists() && System.currentTimeMillis() - none.lastModified() < RETRY_MS;
@@ -247,11 +308,15 @@ public final class StationLogos {
     /** Logo ricevuto dalla stazione DAB: salvato in modo permanente (se l'utente non ne ha messo uno suo). */
     public synchronized void put(String key, Bitmap b) {
         if (b == null || b.getWidth() < 8) return;
-        if (!mem.containsKey(key)) mem.put(key, b);
+        // fork: guarda-se uma cópia reduzida a 192 px (a arte DAB chega a ~320×240). NUNCA recycle de b: é o bitmap da
+        // MediaMetadata e continua a ser mostrado como logótipo da estação em onda.
+        boolean need = full.get(key) == null;
+        boolean save = savedThisSession.add(key);   // salvato su disco una volta per avvio
         missUntil.remove(key);
-        if (!savedThisSession.add(key)) return;   // salvato su disco una volta per avvio
-        Bitmap copy = b;
-        bg.post(() -> save(key, copy));
+        if (!need && !save) return;
+        Bitmap small = scaleTo(b, FULL);
+        if (need) full.put(key, small);
+        if (save) bg.post(() -> save(key, small));
     }
 
     private void save(String key, Bitmap b) {
@@ -294,9 +359,16 @@ public final class StationLogos {
                 if (!fav.startsWith("http")) continue;
                 try {
                     byte[] img = fetch(fav, 1_500_000);
-                    Bitmap b = BitmapFactory.decodeByteArray(img, 0, img.length);
-                    if (b != null && b.getWidth() >= 32 && b.getHeight() >= 32) found = scale(b);
-                } catch (Exception ignored) {
+                    // fork: dimensões primeiro, depois descodificação reduzida (um favicon pode ter 2000 px ou mais)
+                    BitmapFactory.Options bo = new BitmapFactory.Options();
+                    bo.inJustDecodeBounds = true;
+                    BitmapFactory.decodeByteArray(img, 0, img.length, bo);
+                    if (bo.outWidth < 32 || bo.outHeight < 32 || (long) bo.outWidth * bo.outHeight > 16_000_000L) continue;
+                    bo.inJustDecodeBounds = false;
+                    bo.inSampleSize = sample(bo.outWidth, bo.outHeight, FULL);
+                    Bitmap b = BitmapFactory.decodeByteArray(img, 0, img.length, bo);
+                    if (b != null) found = scaleOwned(b, FULL);
+                } catch (Exception | OutOfMemoryError ignored) {
                 }
             }
         } catch (Exception e) {
@@ -316,7 +388,7 @@ public final class StationLogos {
             offlineStep = OFFLINE_MIN_MS;
             pending.remove(key);
             if (found != null) {
-                mem.put(key, found);
+                full.put(key, found);
                 missUntil.remove(key);
                 save(key, found);
             } else {
@@ -353,11 +425,18 @@ public final class StationLogos {
         }
     }
 
-    private static Bitmap scale(Bitmap b) {
-        int max = 192;
+    /** Reduz ao lado maior max (devolve o próprio bitmap se já cabe). Não recicla o original. */
+    private static Bitmap scaleTo(Bitmap b, int max) {
         if (b.getWidth() <= max && b.getHeight() <= max) return b;
         float k = max / (float) Math.max(b.getWidth(), b.getHeight());
-        return Bitmap.createScaledBitmap(b, Math.round(b.getWidth() * k), Math.round(b.getHeight() * k), true);
+        return Bitmap.createScaledBitmap(b, Math.max(1, Math.round(b.getWidth() * k)), Math.max(1, Math.round(b.getHeight() * k)), true);
+    }
+
+    /** Como scaleTo, mas recicla o intermédio: só para bitmaps descodificados aqui dentro. */
+    private static Bitmap scaleOwned(Bitmap b, int max) {
+        Bitmap r = scaleTo(b, max);
+        if (r != b) b.recycle();
+        return r;
     }
 
     private static byte[] fetch(String url, int maxBytes) throws Exception {

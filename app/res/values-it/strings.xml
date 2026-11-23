@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Animazione di ricarica: parte anche con lo schermo acceso e l\'auto ferma in P; si ferma solo in READY, in movimento o fuori da P</string>
     <string name="news_v045_2" formatted="false">Cavo di ricarica riconosciuto meglio; nuova prova «READY letto» nel Controllo funzioni</string>
     <string name="chk_ready" formatted="false">READY letto</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Finestrini</string>
     <string name="sec_windows_sub" formatted="false">Chiusura automatica, modo per finestrino</string>
     <string name="win_auto" formatted="false">Chiudi quando scendi dall\'auto</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Riaprire la porta, uscire da P, accendere l\'auto o muovere un finestrino annulla la chiusura.</string>
     <string name="win_toast_countdown">Finestrini in chiusura tra %1$d s</string>
     <string name="win_toast_cancel" formatted="false">Chiusura dei finestrini annullata</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Riscald. batteria</string>
     <string name="bat_heat_on_hint" formatted="false">Riscaldamento batteria acceso: ricarica rapida migliore, ma meno autonomia. Non si spegne da solo: spegnilo qui quando non serve più.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Finestrini: chiusura automatica quando scendi dall\'auto e pulsante «Chiudi ora» (Impostazioni → Finestrini), basato su WinClose di Skittle6938</string>
     <string name="news_v046_2" formatted="false">Riscaldamento intelligente della batteria: nuovo pulsante nel gruppo Guida della barra, basato su MG4Control di SliDeeN</string>
     <string name="news_v046_3" formatted="false">Scorciatoia «Impostazioni del launcher» nella pagina App</string>
     <string name="news_v046_4" formatted="false">Nessun invio dei log: «Salva log» scrive ora in Download/MG4Launcher e in MG4Launcher/registos sulla chiavetta USB</string>
+    <string name="news_v047_1" formatted="false">Meno memoria: loghi radio, copertina della musica, immagini dell\'auto e animazione di ricarica (circa 8–12 MB in meno)</string>
+    <string name="news_v047_2" formatted="false">Finestrini: nessun lavoro in background quando la chiusura automatica è spenta</string>
+    <string name="news_v047_3" formatted="false">Tema giorno più leggibile (pneumatici, fendinebbia, riscaldamento) e zone di tocco più grandi (Cerca, mini-player, Mappa/Media)</string>
+    <string name="news_v047_4" formatted="false">Impostazioni e finestre più morbide: riga intera toccabile, interruttori con contorno, transizioni; animazioni e loghi scaricati da questo fork</string>
 </resources>

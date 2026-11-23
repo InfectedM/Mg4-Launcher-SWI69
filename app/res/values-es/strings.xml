@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Animación de carga: también arranca con la pantalla encendida y el coche parado en P; se detiene solo en READY, en movimiento o fuera de P</string>
     <string name="news_v045_2" formatted="false">Cable de carga detectado mejor; nueva prueba «READY leído» en la Comprobación de funciones</string>
     <string name="chk_ready" formatted="false">READY leído</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Ventanillas</string>
     <string name="sec_windows_sub" formatted="false">Cierre automático, modo por ventanilla</string>
     <string name="win_auto" formatted="false">Cerrar al salir del coche</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Volver a abrir la puerta, salir de P, encender el coche o mover una ventanilla cancela el cierre.</string>
     <string name="win_toast_countdown">Ventanillas cerrándose en %1$d s</string>
     <string name="win_toast_cancel" formatted="false">Cierre de ventanillas cancelado</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Calentar batería</string>
     <string name="bat_heat_on_hint" formatted="false">Calentamiento de batería activado: carga rápida mejor, pero menos autonomía. No se apaga solo: apágalo aquí cuando ya no lo necesites.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Ventanillas: cierre automático al salir del coche y botón «Cerrar ahora» (Ajustes → Ventanillas), basado en WinClose de Skittle6938</string>
     <string name="news_v046_2" formatted="false">Calentamiento inteligente de la batería: nuevo botón en el grupo Conducción de la barra, basado en MG4Control de SliDeeN</string>
     <string name="news_v046_3" formatted="false">Acceso directo «Ajustes del launcher» en la página Apps</string>
     <string name="news_v046_4" formatted="false">Sin envío de registros: «Guardar registro» escribe ahora en Download/MG4Launcher y en MG4Launcher/registos en el USB</string>
+    <string name="news_v047_1" formatted="false">Menos memoria: logos de radio, carátula de la música, imágenes del coche y animación de carga (unos 8–12 MB menos)</string>
+    <string name="news_v047_2" formatted="false">Ventanillas: sin trabajo en segundo plano con el cierre automático apagado</string>
+    <string name="news_v047_3" formatted="false">Tema de día más legible (neumáticos, antiniebla, calefacción) y zonas táctiles más grandes (Buscar, minirreproductor, Mapa/Media)</string>
+    <string name="news_v047_4" formatted="false">Ajustes y ventanas más suaves: fila entera pulsable, interruptores con contorno, transiciones; animaciones y logos descargados de este fork</string>
 </resources>

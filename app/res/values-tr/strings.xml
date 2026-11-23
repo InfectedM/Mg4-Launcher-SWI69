@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Şarj animasyonu: ekran açıkken ve araç P\'de dururken de başlar; yalnızca READY\'de, hareket halinde veya P dışında durur</string>
     <string name="news_v045_2" formatted="false">Şarj kablosu daha iyi algılanıyor; İşlev kontrolünde yeni “READY okundu” testi</string>
     <string name="chk_ready" formatted="false">READY okundu</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Camlar</string>
     <string name="sec_windows_sub" formatted="false">Otomatik kapatma, cam başına mod</string>
     <string name="win_auto" formatted="false">Araçtan inince kapat</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Kapıyı yeniden açmak, P\'den çıkmak, aracı çalıştırmak veya bir camı hareket ettirmek kapatmayı iptal eder.</string>
     <string name="win_toast_countdown">Camlar %1$d sn içinde kapanıyor</string>
     <string name="win_toast_cancel" formatted="false">Cam kapatma iptal edildi</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Batarya ısıtma</string>
     <string name="bat_heat_on_hint" formatted="false">Batarya ısıtma açık: hızlı şarj daha iyi, ancak menzil azalır. Kendiliğinden kapanmaz: artık gerekmediğinde buradan kapatın.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Camlar: araçtan inince otomatik kapatma ve “Şimdi kapat” düğmesi (Ayarlar → Camlar), Skittle6938\'in WinClose projesine dayanır</string>
     <string name="news_v046_2" formatted="false">Akıllı batarya ısıtma: çubuktaki Sürüş grubunda yeni düğme, SliDeeN\'in MG4Control projesine dayanır</string>
     <string name="news_v046_3" formatted="false">Uygulamalar sayfasında “Başlatıcı ayarları” kısayolu</string>
     <string name="news_v046_4" formatted="false">Günlük gönderimi yok: “Günlüğü kaydet” artık Download/MG4Launcher ve USB bellekte MG4Launcher/registos klasörüne yazar</string>
+    <string name="news_v047_1" formatted="false">Daha az bellek: radyo logoları, müzik kapağı, araç görselleri ve şarj animasyonu (yaklaşık 8–12 MB daha az)</string>
+    <string name="news_v047_2" formatted="false">Camlar: otomatik kapatma kapalıyken arka planda çalışma yok</string>
+    <string name="news_v047_3" formatted="false">Daha okunaklı gündüz teması (lastikler, sis lambaları, ısıtma) ve daha büyük dokunma alanları (Ara, mini oynatıcı, Harita/Medya)</string>
+    <string name="news_v047_4" formatted="false">Daha akıcı ayarlar ve pencereler: tüm satır dokunulabilir, çerçeveli anahtarlar, geçişler; animasyonlar ve logolar bu fork\'tan indirilir</string>
 </resources>

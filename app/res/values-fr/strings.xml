@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Animation de recharge : elle démarre aussi écran allumé et voiture à l\'arrêt en P ; elle s\'arrête seulement en READY, en roulant ou hors de P</string>
     <string name="news_v045_2" formatted="false">Câble de recharge mieux détecté ; nouveau test « READY lu » dans le Contrôle des fonctions</string>
     <string name="chk_ready" formatted="false">READY lu</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Vitres</string>
     <string name="sec_windows_sub" formatted="false">Fermeture automatique, mode par vitre</string>
     <string name="win_auto" formatted="false">Fermer en quittant la voiture</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Rouvrir la porte, quitter P, démarrer la voiture ou bouger une vitre annule la fermeture.</string>
     <string name="win_toast_countdown">Fermeture des vitres dans %1$d s</string>
     <string name="win_toast_cancel" formatted="false">Fermeture des vitres annulée</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Chauffe batterie</string>
     <string name="bat_heat_on_hint" formatted="false">Chauffage de la batterie activé : recharge rapide meilleure, mais moins d\'autonomie. Il ne s\'arrête pas tout seul : désactivez-le ici quand vous n\'en avez plus besoin.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Vitres : fermeture automatique en quittant la voiture et bouton « Fermer maintenant » (Réglages → Vitres), basé sur WinClose de Skittle6938</string>
     <string name="news_v046_2" formatted="false">Chauffage intelligent de la batterie : nouveau bouton dans le groupe Conduite de la barre, basé sur MG4Control de SliDeeN</string>
     <string name="news_v046_3" formatted="false">Raccourci « Réglages du launcher » dans la page Apps</string>
     <string name="news_v046_4" formatted="false">Aucun envoi de journaux : « Enregistrer le journal » écrit maintenant dans Download/MG4Launcher et MG4Launcher/registos sur la clé USB</string>
+    <string name="news_v047_1" formatted="false">Moins de mémoire : logos radio, pochette de la musique, images de la voiture et animation de charge (environ 8–12 Mo de moins)</string>
+    <string name="news_v047_2" formatted="false">Vitres : aucun travail en arrière-plan quand la fermeture automatique est désactivée</string>
+    <string name="news_v047_3" formatted="false">Thème jour plus lisible (pneus, antibrouillards, chauffage) et zones tactiles plus grandes (Rechercher, mini-lecteur, Carte/Média)</string>
+    <string name="news_v047_4" formatted="false">Réglages et fenêtres plus fluides : ligne entière cliquable, interrupteurs avec contour, transitions ; animations et logos téléchargés depuis ce fork</string>
 </resources>

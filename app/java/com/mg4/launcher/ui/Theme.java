@@ -6,6 +6,13 @@ import android.content.Context;
 public final class Theme {
     public final boolean day;
     public final int bg, panel, text, sub, track, chip, battery, accent, onAccent, overlay, map, road, roadMinor, glow, shadow;
+    /**
+     * Fork: cores de aviso por tema. As antigas (âmbar FFB020, verde 34C77B, laranja FF7A3D) foram escolhidas para fundo
+     * escuro e de dia ficavam com contraste 1,6–2,3:1 (o nevoeiro traseiro ligado via-se pior do que desligado).
+     * Dia: warn 4,5:1 e fogFront 4,5:1 sobre o chip; heat = laranja de dia do MG4 Clima (clima_caldo), 3,2:1 (ícones).
+     * Noite: valores de sempre.
+     */
+    public final int warn, warnBg, heat, fogFront;
 
     private Theme(boolean day) {
         this.day = day;
@@ -13,10 +20,12 @@ public final class Theme {
             bg = 0xFFE6E8EB; panel = 0xFFFFFFFF; text = 0xFF111318; sub = 0xFF555C66; track = 0xFFE1E4E8;
             chip = 0xFFF1F3F5; battery = 0xFF1E9E5A; overlay = 0xEBFFFFFF; map = 0xFFEEF0F2; road = 0xFFFFFFFF;
             roadMinor = 0xFFE2E5E9; glow = 0xFFC9D3E0; shadow = 0x1A000000;
+            warn = 0xFFB45309; warnBg = 0xFFFFF4DC; heat = 0xFFE1621F; fogFront = 0xFF15803D;
         } else {
             bg = 0xFF0A0B0D; panel = 0xFF15171B; text = 0xFFF2F3F5; sub = 0xFF9BA1A9; track = 0xFF262A30;
             chip = 0xFF1E2126; battery = 0xFF34C77B; overlay = 0xEB15171B; map = 0xFF1A1D22; road = 0xFF2A2E35;
             roadMinor = 0xFF22252B; glow = 0xFF1F2A3A; shadow = 0x8C000000;
+            warn = 0xFFFFB020; warnBg = 0xFF2E2A1F; heat = 0xFFFF7A3D; fogFront = 0xFF34C77B;
         }
         // nessun colore d'accento: pulsanti e icone usano lo stesso colore del testo
         accent = text;

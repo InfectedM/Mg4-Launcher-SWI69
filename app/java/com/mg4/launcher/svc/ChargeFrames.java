@@ -16,10 +16,17 @@ import java.util.List;
  * normale, senza decoder video a schermo: niente superfici nere e gli errori si vedono nel log.
  * <p>
  * L'estrazione usa MediaMetadataRetriever (lo stesso delle miniature della galleria) a blocchi di 8 fotogrammi, in un
- * thread di lavoro. Circa 290 fotogrammi per tema, 25–30 MB in tutto per un colore. Log "ricarica.fotogrammi".
+ * thread di lavoro. Circa 290 fotogrammi per tema, ~18–20 MB in tutto per un colore. Log "ricarica.fotogrammi".
+ * <p>
+ * Fork: i fotogrammi si salvano ridotti a {@link #SCALE} (1312×400 → 902×275). Sull'auto la clip si disegna al massimo a
+ * ~898×274 (pannello di 720 dp, densità 160), quindi l'aspetto non cambia; in riproduzione i 3 buffer ARGB passano da
+ * ~6 MB a ~2,8 MB e la decodifica JPEG a 30 fps si dimezza. Nuova cartella "fotogrammi2": quella vecchia (fotogrammi a
+ * grandezza piena, 25–30 MB) si cancella da sola alla prima preparazione.
  */
 public final class ChargeFrames {
-    private static final String DONE = "pronto", DIR = "fotogrammi";
+    private static final String DONE = "pronto", DIR = "fotogrammi2", OLD_DIR = "fotogrammi";
+    /** 1312×400 → 902×275: proporzione esatta (anche l'altezza resta intera). */
+    private static final float SCALE = 0.6875f;
     private static final int CHUNK = 8, JPEG_Q = 88;
 
     private ChargeFrames() {}
@@ -69,7 +76,10 @@ public final class ChargeFrames {
             long t0 = android.os.SystemClock.elapsedRealtime();
             int total = 0, made = 0;
             for (File c : clips) {
-                if (c == null || frames(c) != null) continue;
+                if (c == null) continue;
+                File old = new File(c.getParentFile(), OLD_DIR);   // fork: fotogrammi vecchi a grandezza piena
+                if (old.isDirectory()) ChargePack.deleteTree(old);
+                if (frames(c) != null) continue;
                 String err = buildOne(c);
                 if (err != null) {
                     Diag.put("ricarica.fotogrammi", "errore " + c.getName() + ": " + err);
@@ -140,9 +150,12 @@ public final class ChargeFrames {
                         if (prev == null || !copy(prev, out)) return "fotogramma " + written + " non letto";
                         continue;
                     }
+                    int tw = Math.round(b.getWidth() * SCALE), th = Math.round(b.getHeight() * SCALE);
+                    Bitmap sb = tw > 0 && th > 0 && tw < b.getWidth() ? Bitmap.createScaledBitmap(b, tw, th, true) : b;
                     try (FileOutputStream fo = new FileOutputStream(out)) {
-                        if (!b.compress(Bitmap.CompressFormat.JPEG, JPEG_Q, fo)) return "fotogramma " + written + " non salvato";
+                        if (!sb.compress(Bitmap.CompressFormat.JPEG, JPEG_Q, fo)) return "fotogramma " + written + " non salvato";
                     } finally {
+                        if (sb != b) sb.recycle();
                         b.recycle();
                     }
                     prev = out;

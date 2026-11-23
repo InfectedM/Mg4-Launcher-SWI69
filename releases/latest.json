@@ -1,6 +1,6 @@
 {
-  "version": "0.4.6",
-  "apk": "releases/MG4Launcher-SWI69-0.4.6.apk",
-  "size": 1104569,
-  "notes": "Vidros: fecho automático ao sair do carro e fecho manual (baseado no WinClose). Aquecimento inteligente da bateria no grupo Condução (baseado no MG4Control). Atalho para as definições do launcher no separador Apps. Atualizações a partir do fork InfectedM. Envio de registos desligado. Guardar registo em Download/MG4Launcher e MG4Launcher/registos na pen USB."
+  "version": "0.4.7",
+  "apk": "releases/MG4Launcher-SWI69-0.4.7.apk",
+  "size": 1125229,
+  "notes": "Menos memória (cerca de 8–12 MB: logótipos de rádio, capa da música, imagens do carro e animação de carregamento); Vidros sem trabalho em segundo plano com o fecho automático desligado; tema de dia mais legível e zonas de toque maiores; definições e janelas com transições; animações e logótipos descarregados deste fork; MG4 Store opcional."
 }

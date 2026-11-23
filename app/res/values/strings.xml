@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Charging animation: it also starts with the screen on and the car parked in P; it stops only in READY, while moving or out of P</string>
     <string name="news_v045_2" formatted="false">Charging cable detected more reliably; new “READY read” test in the Feature check</string>
     <string name="chk_ready" formatted="false">READY read</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Windows</string>
     <string name="sec_windows_sub" formatted="false">Auto close, per-window mode</string>
     <string name="win_auto" formatted="false">Close when leaving the car</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Opening the door again, leaving P, switching the car on or moving a window cancels the closing.</string>
     <string name="win_toast_countdown">Windows closing in %1$d s</string>
     <string name="win_toast_cancel" formatted="false">Window closing cancelled</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Battery heat</string>
     <string name="bat_heat_on_hint" formatted="false">Battery heating on: faster DC charging, but less range. It does not switch itself off: switch it off here when you no longer need it.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Windows: automatic closing when you leave the car and a “Close now” button (Settings → Windows), based on WinClose by Skittle6938</string>
     <string name="news_v046_2" formatted="false">Smart battery heating: new button in the Driving group of the bar, based on MG4Control by SliDeeN</string>
     <string name="news_v046_3" formatted="false">“Launcher settings” shortcut in the Apps page</string>
     <string name="news_v046_4" formatted="false">No log uploads: “Save log” now writes to Download/MG4Launcher and to MG4Launcher/registos on the USB stick</string>
+    <string name="news_v047_1" formatted="false">Less memory: radio logos, music cover, car images and charging animation (about 8–12 MB less)</string>
+    <string name="news_v047_2" formatted="false">Windows: no background work when automatic closing is off</string>
+    <string name="news_v047_3" formatted="false">Easier-to-read day theme (tyres, fog lights, heating) and bigger touch areas (Search, mini player, Map/Media)</string>
+    <string name="news_v047_4" formatted="false">Smoother settings and dialogs: whole row tappable, outlined switches, transitions; animations and logos downloaded from this fork</string>
 </resources>

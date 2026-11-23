@@ -168,6 +168,51 @@ public final class MediaClient {
         volatile MediaBrowser browser;
         volatile MediaController controller;
         final MediaController.Callback callback;
+        /**
+         * Fork: metadados em cache, atualizados pelo próprio serviço (onMetadataChanged). Antes o poll de 1 s pedia-os por
+         * binder a cada segundo e cada resposta trazia uma capa/logótipo DAB novo (~400 KB). Com o mesmo objeto, a capa é
+         * o mesmo Bitmap e o ecrã não volta a enviar a textura. Rede de segurança: releitura ao fim de 30 s.
+         */
+        volatile MediaMetadata meta;
+        volatile long metaAt;
+        final MediaController.Callback metaCb = new MediaController.Callback() {
+            @Override
+            public void onMetadataChanged(MediaMetadata md) {
+                meta = md;
+                metaAt = SystemClock.uptimeMillis();
+            }
+
+            @Override
+            public void onSessionDestroyed() {
+                meta = null;
+                metaAt = 0;
+            }
+        };
+
+        /** Metadados actuais (só no fio do poll: o Bundle não se desempacota em dois fios). */
+        MediaMetadata meta() {
+            MediaController c = controller;
+            if (c == null) return null;
+            long now = SystemClock.uptimeMillis();
+            if (metaAt == 0 || now - metaAt > 30_000) {
+                meta = c.getMetadata();
+                metaAt = now;
+            }
+            return meta;
+        }
+
+        private void dropController() {
+            MediaController old = controller;
+            controller = null;
+            meta = null;
+            metaAt = 0;
+            if (old != null) {
+                try {
+                    old.unregisterCallback(metaCb);
+                } catch (Exception ignored) {
+                }
+            }
+        }
 
         Browser(String name, String pkg, String cls, MediaController.Callback cb) {
             this.name = name;
@@ -183,7 +228,13 @@ public final class MediaClient {
                     public void onConnected() {
                         try {
                             MediaController c = new MediaController(ctx, browser.getSessionToken());
+                            dropController();
+                            // metaCb ANTES do callback que faz o poll: os callbacks chegam pela ordem de registo, no mesmo
+                            // handler, e assim o poll já encontra os metadados novos
+                            c.registerCallback(metaCb, main);
                             c.registerCallback(callback != null ? callback : refresh, main);
+                            meta = null;
+                            metaAt = 0;
                             controller = c;
                             Diag.put("media." + name, "collegato");
                             post(MediaClient.this::poll);
@@ -194,14 +245,14 @@ public final class MediaClient {
 
                     @Override
                     public void onConnectionSuspended() {
-                        controller = null;
+                        dropController();
                         Diag.put("media." + name, "sospeso");
                         retry(5000);
                     }
 
                     @Override
                     public void onConnectionFailed() {
-                        controller = null;
+                        dropController();
                         Diag.put("media." + name, "non disponibile");
                         retry(15000);
                     }
@@ -233,7 +284,7 @@ public final class MediaClient {
             main.post(() -> {
                 MediaBrowser b = browser;
                 browser = null;
-                controller = null;
+                dropController();
                 if (b != null) {
                     try {
                         b.disconnect();
@@ -564,7 +615,7 @@ public final class MediaClient {
         Browser b = browserFor(src);
         MediaController c = b == null ? null : b.controller;
         if (c != null) {
-            MediaMetadata m = c.getMetadata();
+            MediaMetadata m = b.meta();   // fork: em cache (ver Browser.meta)
             PlaybackState ps = c.getPlaybackState();
             if (m != null) {
                 s.title = nz(m.getString(MediaMetadata.METADATA_KEY_TITLE));
@@ -619,7 +670,7 @@ public final class MediaClient {
     /** Radio: sessione RadioMBService (nome, testo, logo DAB, stato) + frequenza da IRadioManager. */
     private void fillRadio(State s) {
         MediaController c = radioMbs.controller;
-        MediaMetadata m = c == null ? null : c.getMetadata();
+        MediaMetadata m = c == null ? null : radioMbs.meta();   // fork: em cache
         PlaybackState ps = c == null ? null : c.getPlaybackState();
         String author = m == null ? "" : nz(m.getString(MediaMetadata.METADATA_KEY_AUTHOR));
         String title = m == null ? "" : nz(m.getString(MediaMetadata.METADATA_KEY_TITLE));
@@ -694,7 +745,7 @@ public final class MediaClient {
         }
         for (Station st : list) {
             if (st.key.isEmpty()) st.key = StationLogos.key(st.band, st.sid, st.khz, st.name);
-            if (st.logo == null) st.logo = logos.get(st.key, st.name);
+            if (st.logo == null) st.logo = logos.getThumb(st.key, st.name);   // fork: miniatura (lista a 40–60 px)
         }
         s.stations = list;
         if (scanning && SystemClock.uptimeMillis() > scanUntil) scanning = false;
@@ -704,7 +755,7 @@ public final class MediaClient {
 
         List<Station> fav = favorites;
         for (Station st : fav) {
-            if (st.logo == null) st.logo = logos.get(st.key, st.name);
+            if (st.logo == null) st.logo = logos.getThumb(st.key, st.name);   // fork: miniatura
             if (st.key.equals(s.stationKey)) s.stationIsFavorite = true;
         }
         s.favorites = fav;
@@ -1846,7 +1897,7 @@ public final class MediaClient {
             st.name = s.title.equals(s.radioFreq + " " + s.radioUnit) ? "" : s.title;
         }
         st.key = s.stationKey;
-        st.logo = s.logo;
+        st.logo = null;   // fork: o poll a seguir carrega a miniatura (não fica preso o logótipo completo / a arte DAB)
         list.add(st);
         saveFavorites(list);
         post(this::poll);

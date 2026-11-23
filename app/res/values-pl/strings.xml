@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Animacja ładowania: startuje też przy włączonym ekranie i aucie stojącym na P; zatrzymuje się tylko w READY, w ruchu lub poza P</string>
     <string name="news_v045_2" formatted="false">Kabel ładowania wykrywany lepiej; nowy test „READY odczytany” w Kontroli funkcji</string>
     <string name="chk_ready" formatted="false">READY odczytany</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Szyby</string>
     <string name="sec_windows_sub" formatted="false">Automatyczne zamykanie, tryb każdej szyby</string>
     <string name="win_auto" formatted="false">Zamykaj po wyjściu z auta</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Ponowne otwarcie drzwi, wyjście z P, włączenie auta lub ruszenie szyby anuluje zamykanie.</string>
     <string name="win_toast_countdown">Szyby zamkną się za %1$d s</string>
     <string name="win_toast_cancel" formatted="false">Zamykanie szyb anulowane</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Grzanie baterii</string>
     <string name="bat_heat_on_hint" formatted="false">Grzanie baterii włączone: szybsze ładowanie DC, ale mniejszy zasięg. Nie wyłącza się samo: wyłącz je tutaj, gdy nie jest już potrzebne.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Szyby: automatyczne zamykanie po wyjściu z auta i przycisk „Zamknij teraz” (Ustawienia → Szyby), na podstawie WinClose autorstwa Skittle6938</string>
     <string name="news_v046_2" formatted="false">Inteligentne grzanie baterii: nowy przycisk w grupie Jazda na pasku, na podstawie MG4Control autorstwa SliDeeN</string>
     <string name="news_v046_3" formatted="false">Skrót „Ustawienia launchera” na stronie Aplikacje</string>
     <string name="news_v046_4" formatted="false">Bez wysyłania logów: „Zapisz log” zapisuje teraz do Download/MG4Launcher i MG4Launcher/registos na pendrive</string>
+    <string name="news_v047_1" formatted="false">Mniej pamięci: loga stacji, okładka muzyki, obrazy auta i animacja ładowania (ok. 8–12 MB mniej)</string>
+    <string name="news_v047_2" formatted="false">Szyby: brak pracy w tle przy wyłączonym automatycznym zamykaniu</string>
+    <string name="news_v047_3" formatted="false">Czytelniejszy motyw dzienny (opony, światła przeciwmgłowe, ogrzewanie) i większe pola dotyku (Szukaj, mini odtwarzacz, Mapa/Media)</string>
+    <string name="news_v047_4" formatted="false">Płynniejsze ustawienia i okna: cały wiersz klikalny, przełączniki z obramowaniem, przejścia; animacje i loga pobierane z tego forka</string>
 </resources>

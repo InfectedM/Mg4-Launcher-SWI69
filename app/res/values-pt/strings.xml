@@ -515,7 +515,6 @@
     <string name="news_v045_1" formatted="false">Animação de carregamento: arranca também com o ecrã ligado e o carro parado em P; para só em READY, em movimento ou fora de P</string>
     <string name="news_v045_2" formatted="false">Cabo de carregamento detetado melhor; novo teste «READY lido» na Verificação de funções</string>
     <string name="chk_ready" formatted="false">READY lido</string>
-    <!-- Vidros (fork) -->
     <string name="sec_windows" formatted="false">Vidros</string>
     <string name="sec_windows_sub" formatted="false">Fecho automático, modo por vidro</string>
     <string name="win_auto" formatted="false">Fechar ao sair do carro</string>
@@ -553,12 +552,14 @@
     <string name="win_cancel_hint" formatted="false">Voltar a abrir a porta, sair de P, ligar o carro ou mexer num vidro cancela o fecho.</string>
     <string name="win_toast_countdown">Vidros a fechar dentro de %1$d s</string>
     <string name="win_toast_cancel" formatted="false">Fecho dos vidros cancelado</string>
-    <!-- Aquecimento da bateria (fork) -->
     <string name="tile_bat_heat" formatted="false">Aquecer bateria</string>
     <string name="bat_heat_on_hint" formatted="false">Aquecimento da bateria ligado: carregamento rápido melhor, mas menos autonomia. Não se desliga sozinho: desliga-o aqui quando já não precisares.</string>
-    <!-- Novidades 0.4.6 (fork) -->
     <string name="news_v046_1" formatted="false">Vidros: fecho automático ao sair do carro e botão «Fechar agora» (Definições → Vidros), baseado no WinClose de Skittle6938</string>
     <string name="news_v046_2" formatted="false">Aquecimento inteligente da bateria: novo botão no grupo Condução da barra, baseado no MG4Control de SliDeeN</string>
     <string name="news_v046_3" formatted="false">Atalho «Definições do launcher» no separador Apps</string>
     <string name="news_v046_4" formatted="false">Sem envio de registos: «Guardar registo» grava agora em Download/MG4Launcher e em MG4Launcher/registos na pen USB</string>
+    <string name="news_v047_1" formatted="false">Menos memória: logótipos de rádio, capa da música, imagens do carro e animação de carregamento (cerca de 8–12 MB a menos)</string>
+    <string name="news_v047_2" formatted="false">Vidros: sem trabalho em segundo plano com o fecho automático desligado</string>
+    <string name="news_v047_3" formatted="false">Tema de dia mais legível (pneus, nevoeiro, aquecimento) e zonas de toque maiores (Procurar, mini-leitor, Mapa/Media)</string>
+    <string name="news_v047_4" formatted="false">Definições e janelas mais suaves: linha inteira tocável, interruptores com contorno, transições; animações e logótipos descarregados deste fork</string>
 </resources>

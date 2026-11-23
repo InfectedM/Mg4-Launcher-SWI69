@@ -64,6 +64,15 @@ public final class StoreSetup {
         }
     }
 
+    /** Fork: este APK traz o MG4 Store dentro (assets/MG4Store.apk)? Os builds sem Store não mostram o botão de instalação. */
+    public static boolean bundledAvailable(Context c) {
+        try (InputStream in = c.getApplicationContext().getAssets().open(ASSET)) {
+            return in != null;
+        } catch (Exception e) {
+            return false;
+        }
+    }
+
     /** Avvio del launcher: installazione automatica una volta sola, poi solo il log. Va chiamato fuori dal thread principale. */
     public static void onStart(Context ctx) {
         Context c = ctx.getApplicationContext();

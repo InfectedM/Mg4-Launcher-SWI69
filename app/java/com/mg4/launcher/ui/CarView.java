@@ -23,7 +23,7 @@ import com.mg4.launcher.R;
  *   <li>Tetto nero opzionale: car_roof.webp (ombreggiatura del tetto in grigio + maschera), moltiplicato per 1A1B1E.</li>
  *   <li>Cerchi a scelta disegnati sopra (il render ha l'Aero 17", che non si ridisegna): 16" un po' più piccoli,
  *       18" un po' più grandi.</li>
- *   <li>Fari accesi: car_lights.webp (fari e fanali accesi presi dal render di notte) più il fascio morbido davanti.</li>
+ *   <li>Fari accesi: car_lights_*.webp (fari e fanali accesi presi dal render di notte) più il fascio morbido davanti.</li>
  * </ul>
  * Geometria: il riquadro 958×360 corrisponde ai pixel (177, 12)–(1135, 372) dei fotogrammi delle clip (1312×400),
  * quindi i centri ruota sono quelli delle clip (358 e 973, y 288) meno lo scostamento.
@@ -33,13 +33,25 @@ public final class CarView extends View {
     private static final int[] BODY_RES = {R.drawable.car_arctic_white, R.drawable.car_black_pearl, R.drawable.car_camden_grey,
             R.drawable.car_cosmic_silver, R.drawable.car_ealing_green, R.drawable.car_piccadilly_blue,
             R.drawable.car_dynamic_red, R.drawable.car_volcano_orange};
-    private static Bitmap body, roof, lightsBmp;
+    private static Bitmap body, roof;
+    private static Bitmap[] lightParts;
     private static int bodyIdx = -1;
+    /**
+     * Fork: o tejadilho e as luzes eram telas inteiras 958×368 quase vazias (1,35 MB cada, sempre em memória). Agora são
+     * recortes sem perdas com 2 px de margem transparente, desenhados na mesma posição da tela original (canto superior
+     * esquerdo de cada recorte, em px da imagem do corpo). Caixas originais: tejadilho (406,6)-(864,46); luzes
+     * (21,146)-(137,200), (847,87)-(945,153), (908,229)-(946,286). Se se gerar de novo uma imagem em tela inteira,
+     * drawPart desenha-a como antes.
+     */
+    private static final int[] ROOF_OFF = {404, 4};
+    private static final int[] LIGHT_RES = {R.drawable.car_lights_front, R.drawable.car_lights_rear, R.drawable.car_lights_rear_low};
+    private static final int[][] LIGHT_OFF = {{19, 144}, {845, 85}, {906, 227}};
 
     private final Paint roofLayer = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
     private final Paint plain = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
     private final Paint floor = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF dst = new RectF();
+    private final RectF partDst = new RectF();
     private boolean blackRoof;
     private int glow;
     private int color = 5;
@@ -68,10 +80,35 @@ public final class CarView extends View {
         return BitmapFactory.decodeResource(c.getResources(), res, o);
     }
 
+    /** Tejadilho preto: só se descodifica quando é preciso (fica em memória, são ~80 KB). */
+    private static synchronized Bitmap roof(Context c) {
+        if (roof == null) roof = decode(c, R.drawable.car_roof);
+        return roof;
+    }
+
+    /** Luzes: só se descodificam na primeira vez que os faróis acendem (ficam em memória, ~65 KB no total). */
+    private static synchronized Bitmap[] lightParts(Context c) {
+        if (lightParts == null) {
+            Bitmap[] p = new Bitmap[LIGHT_RES.length];
+            for (int i = 0; i < p.length; i++) p[i] = decode(c, LIGHT_RES[i]);
+            lightParts = p;
+        }
+        return lightParts;
+    }
+
+    /** Desenha um recorte na sua posição da tela original (mesma escala s do corpo). */
+    private void drawPart(Canvas c, Bitmap b, int ox, int oy, float s, float left, float top, Paint p) {
+        if (b == null) return;
+        if (b.getWidth() >= (int) PHOTO_W) {   // imagem em tela inteira (render antigo): como antes
+            c.drawBitmap(b, null, dst, p);
+            return;
+        }
+        partDst.set(left + ox * s, top + oy * s, left + (ox + b.getWidth()) * s, top + (oy + b.getHeight()) * s);
+        c.drawBitmap(b, null, partDst, p);
+    }
+
     /** Immagine del colore scelto (una sola in memoria, condivisa tra le CarView). */
     private static synchronized void load(Context c, int idx) {
-        if (roof == null) roof = decode(c, R.drawable.car_roof);
-        if (lightsBmp == null) lightsBmp = decode(c, R.drawable.car_lights);
         if (body != null && bodyIdx == idx) return;
         body = decode(c, BODY_RES[idx]);
         bodyIdx = idx;
@@ -154,7 +191,7 @@ public final class CarView extends View {
         c.restore();
 
         c.drawBitmap(body, null, dst, plain);
-        if (blackRoof && roof != null) c.drawBitmap(roof, null, dst, roofLayer);
+        if (blackRoof) drawPart(c, roof(getContext()), ROOF_OFF[0], ROOF_OFF[1], s, left, top, roofLayer);
         drawWheels(c, s, left, top);
         if (lights) drawLights(c, s, left, top);
     }
@@ -168,7 +205,8 @@ public final class CarView extends View {
         c.scale(1f, 0.38f, fx - 50 * s, fy + 8 * s);
         c.drawCircle(fx - 50 * s, fy + 8 * s, 188 * s, beamPaint);
         c.restore();
-        if (lightsBmp != null) c.drawBitmap(lightsBmp, null, dst, plain);
+        Bitmap[] parts = lightParts(getContext());
+        for (int i = 0; i < parts.length; i++) drawPart(c, parts[i], LIGHT_OFF[i][0], LIGHT_OFF[i][1], s, left, top, plain);
     }
 
     private void drawWheels(Canvas c, float s, float left, float top) {

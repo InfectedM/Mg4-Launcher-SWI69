@@ -19,7 +19,7 @@ public final class Confirm {
     /** 0.4.2: come show, con un'azione anche sul tasto secondario (es. OK di un avviso da remoto). */
     public static void show(FrameLayout root, Theme t, String title, String msg, String cancel, String ok, Runnable onOk, Runnable onCancel) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
         LinearLayout card = Ui.column(c);
@@ -33,16 +33,16 @@ public final class Confirm {
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
         btns.addView(button(c, t, cancel, false, v -> {
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
             if (onCancel != null) onCancel.run();
         }), Ui.lp(-2, Ui.tp(c, 60)));
         btns.addView(button(c, t, ok, true, v -> {
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
             onOk.run();
         }), Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 28), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 980), -2, Gravity.CENTER));
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     public interface OnText {
@@ -53,7 +53,7 @@ public final class Confirm {
     public static void input(FrameLayout root, Theme t, String title, String msg, String initial, String hint,
                              String cancel, String ok, OnText onOk) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
         LinearLayout card = Ui.column(c);
@@ -83,19 +83,20 @@ public final class Confirm {
                         .hideSoftInputFromWindow(e.getWindowToken(), 0);
             } catch (Throwable ignored) {
             }
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
         };
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
         btns.addView(button(c, t, cancel, false, v -> close.run()), Ui.lp(-2, Ui.tp(c, 60)));
         btns.addView(button(c, t, ok, true, v -> {
+            if (((Scrim) dim).closing) return;   // fork: toque duplo — o texto só se entrega uma vez
             close.run();
             onOk.text(e.getText().toString());
         }), Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 28), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 980), -2, Gravity.CENTER_HORIZONTAL | Gravity.TOP));
         ((FrameLayout.LayoutParams) card.getLayoutParams()).topMargin = Ui.dp(c, 60);
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
         e.requestFocus();
         e.postDelayed(() -> {
             try {
@@ -116,10 +117,10 @@ public final class Confirm {
      */
     public static void pick(FrameLayout root, Theme t, String title, String msg, String[] options, int selected, String cancel, OnPick onPick) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
-        dim.setOnClickListener(v -> ((ViewGroup) dim.getParent()).removeView(dim));
+        dim.setOnClickListener(v -> dismiss(dim));
         LinearLayout card = Ui.column(c);
         card.setBackground(Ui.round(t.panel, Ui.dp(c, 28)));
         card.setPadding(Ui.dp(c, 40), Ui.dp(c, 34), Ui.dp(c, 40), Ui.dp(c, 30));
@@ -139,7 +140,7 @@ public final class Confirm {
             b.setBackground(on ? Ui.round(t.text, Ui.tp(c, 18)) : Ui.pressable(c, t.chip, 18 * Ui.K, t));
             b.setClickable(true);
             b.setOnClickListener(v -> {
-                ((ViewGroup) dim.getParent()).removeView(dim);
+                if (!dismiss(dim)) return;
                 if (idx != selected) onPick.picked(idx);
             });
             opts.addView(b, Ui.margins(Ui.lpWeight(0, Ui.tp(c, 84), 1), i == 0 ? 0 : Ui.dp(c, 12), 0, 0, 0));
@@ -147,19 +148,19 @@ public final class Confirm {
         card.addView(opts, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 26), 0, 0));
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
-        btns.addView(button(c, t, cancel, false, v -> ((ViewGroup) dim.getParent()).removeView(dim)), Ui.lp(-2, Ui.tp(c, 60)));
+        btns.addView(button(c, t, cancel, false, v -> dismiss(dim)), Ui.lp(-2, Ui.tp(c, 60)));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 24), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 1080), -2, Gravity.CENTER));
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     /** 0.4.2: scelta da un elenco lungo (es. l'app del pulsante in alto a destra): righe che scorrono. */
     public static void list(FrameLayout root, Theme t, String title, String[] options, String cancel, OnPick onPick) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
-        dim.setOnClickListener(v -> ((ViewGroup) dim.getParent()).removeView(dim));
+        dim.setOnClickListener(v -> dismiss(dim));
         LinearLayout card = Ui.column(c);
         card.setBackground(Ui.round(t.panel, Ui.dp(c, 28)));
         card.setPadding(Ui.dp(c, 40), Ui.dp(c, 30), Ui.dp(c, 40), Ui.dp(c, 24));
@@ -175,7 +176,7 @@ public final class Confirm {
             b.setBackground(Ui.pressable(c, t.chip, 16 * Ui.K, t));
             b.setClickable(true);
             b.setOnClickListener(v -> {
-                ((ViewGroup) dim.getParent()).removeView(dim);
+                if (!dismiss(dim)) return;
                 onPick.picked(idx);
             });
             items.addView(b, Ui.margins(new LinearLayout.LayoutParams(-1, Ui.tp(c, 64)), 0, i == 0 ? 0 : Ui.dp(c, 8), 0, 0));
@@ -184,10 +185,10 @@ public final class Confirm {
         card.addView(sv, Ui.margins(new LinearLayout.LayoutParams(-1, Math.min(Ui.dp(c, 400), options.length * (Ui.tp(c, 64) + Ui.dp(c, 8)))), 0, Ui.dp(c, 18), 0, 0));
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
-        btns.addView(button(c, t, cancel, false, v -> ((ViewGroup) dim.getParent()).removeView(dim)), Ui.lp(-2, Ui.tp(c, 60)));
+        btns.addView(button(c, t, cancel, false, v -> dismiss(dim)), Ui.lp(-2, Ui.tp(c, 60)));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 16), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 820), -2, Gravity.CENTER));
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     public interface OnTime {
@@ -198,10 +199,10 @@ public final class Confirm {
     public static void time(FrameLayout root, Theme t, String title, int hour, int minute, String cancel, String ok, OnTime onSet) {
         Context c = root.getContext();
         final int[] v = {Math.max(0, Math.min(23, hour)), Math.max(0, Math.min(59, minute)) / 5 * 5};
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
-        dim.setOnClickListener(x -> ((ViewGroup) dim.getParent()).removeView(dim));
+        dim.setOnClickListener(x -> dismiss(dim));
         LinearLayout card = Ui.column(c);
         card.setBackground(Ui.round(t.panel, Ui.dp(c, 28)));
         card.setPadding(Ui.dp(c, 40), Ui.dp(c, 30), Ui.dp(c, 40), Ui.dp(c, 24));
@@ -243,14 +244,14 @@ public final class Confirm {
         card.addView(row, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 20), 0, 0));
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
-        btns.addView(button(c, t, cancel, false, x -> ((ViewGroup) dim.getParent()).removeView(dim)), Ui.lp(-2, Ui.tp(c, 60)));
+        btns.addView(button(c, t, cancel, false, x -> dismiss(dim)), Ui.lp(-2, Ui.tp(c, 60)));
         btns.addView(button(c, t, ok, true, x -> {
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
             onSet.set(v[0], v[1]);
         }), Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 14), 0, 0, 0));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 20), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 640), -2, Gravity.CENTER));
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     public interface OnMulti {
@@ -265,7 +266,7 @@ public final class Confirm {
     public static void multi(FrameLayout root, Theme t, String title, String msg, String[] options, boolean[] checked,
                              String cancel, String ok, OnMulti onOk) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
         LinearLayout card = Ui.column(c);
@@ -320,16 +321,16 @@ public final class Confirm {
         card.addView(sv, Ui.margins(new LinearLayout.LayoutParams(-1, Ui.dp(c, 420)), 0, Ui.dp(c, 22), 0, 0));
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
-        btns.addView(button(c, t, cancel, false, v -> ((ViewGroup) dim.getParent()).removeView(dim)), Ui.lp(-2, Ui.tp(c, 60)));
+        btns.addView(button(c, t, cancel, false, v -> dismiss(dim)), Ui.lp(-2, Ui.tp(c, 60)));
         btns.addView(button(c, t, ok, true, v -> {
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
             java.util.List<Integer> out = new java.util.ArrayList<>();
             for (int i = 1; i < on.length; i++) if (on[i]) out.add(i);
             onOk.chosen(out);
         }), Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 24), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 1180), -2, Gravity.CENTER));
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     /**
@@ -339,7 +340,7 @@ public final class Confirm {
     public static void pickMany(FrameLayout root, Theme t, String title, String msg, String[] options, java.util.List<Integer> preset,
                                 int max, String cancel, String ok, OnMulti onOk) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
         LinearLayout card = Ui.column(c);
@@ -389,14 +390,14 @@ public final class Confirm {
         card.addView(sv, Ui.margins(new LinearLayout.LayoutParams(-1, listMaxHeight(c, true, 420)), 0, Ui.dp(c, 22), 0, 0));
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
-        btns.addView(button(c, t, cancel, false, v -> ((ViewGroup) dim.getParent()).removeView(dim)), Ui.lp(-2, Ui.tp(c, 60)));
+        btns.addView(button(c, t, cancel, false, v -> dismiss(dim)), Ui.lp(-2, Ui.tp(c, 60)));
         btns.addView(button(c, t, ok, true, v -> {
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
             onOk.chosen(new java.util.ArrayList<>(on));
         }), Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 24), 0, 0));
         dim.addView(card, new FrameLayout.LayoutParams(Ui.dp(c, 1180), -2, Gravity.CENTER));
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     /** Altezza massima di un elenco nel popup, così i pulsanti restano sempre sullo schermo. */
@@ -409,7 +410,7 @@ public final class Confirm {
     /** Avviso con elenco puntato e un solo pulsante (popup "Novità"). */
     public static void notice(FrameLayout root, Theme t, String title, String subtitle, String[] items, String ok, Runnable onClose) {
         Context c = root.getContext();
-        FrameLayout dim = new FrameLayout(c);
+        FrameLayout dim = new Scrim(c);
         dim.setBackgroundColor(t.day ? 0x66000000 : 0xB3000000);
         dim.setClickable(true);
         LinearLayout card = Ui.column(c);
@@ -439,7 +440,7 @@ public final class Confirm {
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END);
         btns.addView(button(c, t, ok, true, v -> {
-            ((ViewGroup) dim.getParent()).removeView(dim);
+            if (!dismiss(dim)) return;
             if (onClose != null) onClose.run();
         }), Ui.lp(-2, Ui.tp(c, 60)));
         card.addView(btns, Ui.margins(new LinearLayout.LayoutParams(-1, -2), 0, Ui.dp(c, 26), 0, 0));
@@ -447,7 +448,7 @@ public final class Confirm {
         lp.topMargin = Ui.dp(c, 30);
         lp.bottomMargin = Ui.dp(c, 30);
         dim.addView(card, lp);
-        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        open(root, dim);
     }
 
     private static TextView button(Context c, Theme t, String text, boolean primary, View.OnClickListener l) {
@@ -458,5 +459,99 @@ public final class Confirm {
         b.setClickable(true);
         b.setOnClickListener(l);
         return b;
+    }
+
+    // ---- fork: transições (150 ms a entrar, 120 ms a sair) -------------------------------------------------------
+
+    /**
+     * Fundo escuro dos diálogos. Ao começar a fechar intercepta todos os toques: durante a animação de saída nenhum
+     * botão recebe um segundo toque (sem isto um toque duplo repetiria comandos ao carro, ex. carregamento ou V2L).
+     */
+    static final class Scrim extends FrameLayout {
+        boolean closing;
+
+        Scrim(Context c) {
+            super(c);
+        }
+
+        @Override
+        public boolean onInterceptTouchEvent(android.view.MotionEvent e) {
+            return closing || super.onInterceptTouchEvent(e);
+        }
+
+        @Override
+        public boolean onTouchEvent(android.view.MotionEvent e) {
+            return closing || super.onTouchEvent(e);
+        }
+    }
+
+    /** Mostra o diálogo com uma entrada suave; tira já os que ainda estão a sair (nunca dois escurecimentos juntos). */
+    private static void open(FrameLayout root, FrameLayout dim) {
+        boolean swap = false;
+        for (int i = root.getChildCount() - 1; i >= 0; i--) {
+            View v = root.getChildAt(i);
+            if (v instanceof Scrim && ((Scrim) v).closing) {
+                root.removeViewAt(i);
+                swap = true;
+            }
+        }
+        root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
+        // diálogo que substitui outro a fechar: o escurecimento fica logo opaco (sem piscar), só o cartão entra
+        animate(dim, true, null, swap);
+    }
+
+    /**
+     * Fecha com uma saída suave. Devolve false se já estava a fechar (a ação não deve correr outra vez). A vista sai do
+     * pai guardado agora: se entretanto já foi tirada (tecla Home), não faz nada.
+     */
+    static boolean dismiss(View view) {
+        if (!(view instanceof Scrim)) {
+            ViewGroup p = (ViewGroup) view.getParent();
+            if (p != null) p.removeView(view);
+            return true;
+        }
+        Scrim dim = (Scrim) view;
+        if (dim.closing) return false;
+        dim.closing = true;
+        ViewGroup p = (ViewGroup) dim.getParent();
+        if (p == null) return true;
+        animate(dim, false, () -> {
+            if (dim.getParent() == p) p.removeView(dim);
+        }, false);
+        return true;
+    }
+
+    /** Anima só o fundo (alfa da cor, sem camada de ecrã inteiro) e o cartão (com camada só do tamanho dele). */
+    private static void animate(FrameLayout dim, boolean in, Runnable end, boolean keepBg) {
+        View card = dim.getChildCount() > 0 ? dim.getChildAt(0) : null;
+        android.graphics.drawable.Drawable bg = dim.getBackground();
+        float shift = Ui.dp(dim.getContext(), 12);
+        android.animation.ValueAnimator a = android.animation.ValueAnimator.ofFloat(in ? 0f : 1f, in ? 1f : 0f);
+        a.setDuration(in ? 150 : 120);
+        a.setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f));
+        if (card != null) card.setLayerType(View.LAYER_TYPE_HARDWARE, null);
+        if (in) {   // valores iniciais já aplicados: o primeiro fotograma não pisca opaco
+            if (bg != null && !keepBg) bg.setAlpha(0);
+            if (card != null) {
+                card.setAlpha(0f);
+                card.setTranslationY(shift);
+            }
+        }
+        a.addUpdateListener(x -> {
+            float f = (float) x.getAnimatedValue();
+            if (bg != null && !(in && keepBg)) bg.setAlpha(Math.round(255 * f));
+            if (card != null) {
+                card.setAlpha(f);
+                if (in) card.setTranslationY((1f - f) * shift);
+            }
+        });
+        a.addListener(new android.animation.AnimatorListenerAdapter() {
+            @Override
+            public void onAnimationEnd(android.animation.Animator an) {
+                if (card != null) card.setLayerType(View.LAYER_TYPE_NONE, null);
+                if (end != null) end.run();
+            }
+        });
+        a.start();
     }
 }
