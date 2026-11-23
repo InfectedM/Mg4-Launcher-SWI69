@@ -1968,6 +1968,44 @@ public final class HomeView extends LinearLayout {
         // pulsanti: la musica resta nel pannello Media.
         // con i gruppi c'è spazio anche con la barra grande
         boolean showMini = grouped ? Ui.K < 1.5f : !big && Ui.K < 1.25f;
+        bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
+
+        // fendinebbia (sulla MG4 si accendono solo dallo schermo); il retronebbia si può nascondere se l'auto ha il tasto
+        int fog = bs(68, BIG_BTN);
+        frontFogBtn = toggleIcon(c, R.drawable.ic_fog_front, L.s(R.string.fog_front), v -> vehicle.toggleFrontFog());
+        frontFogBtn.setVisibility(GONE);
+        bar.addView(frontFogBtn, Ui.margins(new LayoutParams(fog, fog), 0, 0, dp(8), 0));
+        rearFogBtn = toggleIcon(c, R.drawable.ic_fog_rear, L.s(R.string.fog_rear), v -> vehicle.toggleRearFog());
+        // retronebbia: Automatico = nascosto se la barra di sistema mostra già la sua spia/tasto, oppure Mostra / Nascondi
+        boolean rearFog = prefs.showRearFog(com.mg4.launcher.svc.CarFeatures.hasSystemLightIndicator(c));
+        if (!rearFog) rearFogBtn.setVisibility(GONE);
+        bar.addView(rearFogBtn, new LayoutParams(fog, fog));
+
+        bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
+
+        // scorciatoie; con la barra grande restano telefono e 360° (Radio è nel pannello Media, le Impostazioni tra le app)
+        // 0.9.6: CarPlay / Android Auto nella barra, solo con il telefono collegato
+        int pj = bs(64, BIG_SHORTCUT);
+        projBtn = barIcon(c, R.drawable.ic_projection, t.text, 0, pj, bs(44, BIG_ICON + 16), big ? 22 : 18 * Ui.K, "CarPlay / Android Auto",
+                v -> media.openProjection());
+        projBtn.setLayoutParams(Ui.margins(Ui.lp(pj, pj), dp(6), 0, 0, 0));
+        projBtn.setVisibility(GONE);
+        bar.addView(projBtn);
+        bar.addView(shortcut(c, R.drawable.ic_phone, L.s(R.string.app_phone), com.mg4.launcher.apps.MgApps.PHONE_PKG, com.mg4.launcher.apps.MgApps.PHONE_CLS));
+        if (!big) bar.addView(shortcut(c, R.drawable.ic_radio, L.s(R.string.src_radio), com.mg4.launcher.apps.MgApps.RADIO_PKG, com.mg4.launcher.apps.MgApps.RADIO_CLS));
+        // 0.4.0 (punto 8): il tasto 360 apre la 360 originale (predefinito), MG4 360, un'altra app scelta, o è nascosto;
+        // l'originale resta nascosto se la configurazione dell'auto dice che non ci sono telecamere.
+        Cam360.Target cam = Cam360.resolve(c, prefs);
+        camKind = cam.kind;
+        cameraBtn = shortcut(c, 0, cam.label.isEmpty() ? L.s(R.string.app_camera) : cam.label, cam.pkg, cam.cls);
+        if (camKind == Cam360.HIDDEN
+                || (camKind == Cam360.ORIGINAL && Boolean.FALSE.equals(VehicleClient.cameraPresent(vehicle.last().cameraConfig))))
+            cameraBtn.setVisibility(GONE);
+        bar.addView(cameraBtn);
+        if (!big) bar.addView(shortcut(c, R.drawable.ic_gear, L.s(R.string.app_settings), com.mg4.launcher.apps.MgApps.SETTINGS_PKG, com.mg4.launcher.apps.MgApps.SETTINGS_CLS));
+
+        // fork: o mini-player (ou os preferidos/atalhos que o substituem) passa para o fim da barra, à direita; nevoeiro e
+        // atalhos ficam ao meio, mais perto do condutor (guia à esquerda). Com guia à direita a barra é espelhada.
         if (showMini) bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
         LinearLayout mini = Ui.row(c);
         mini.setGravity(Gravity.CENTER_VERTICAL);
@@ -2016,41 +2054,6 @@ public final class HomeView extends LinearLayout {
         } else if (showMini) bar.addView(mini, Ui.lpWeight(0, -1, 1));
         else bar.addView(Ui.spacer(c));
 
-        bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
-
-        // fendinebbia (sulla MG4 si accendono solo dallo schermo); il retronebbia si può nascondere se l'auto ha il tasto
-        int fog = bs(68, BIG_BTN);
-        frontFogBtn = toggleIcon(c, R.drawable.ic_fog_front, L.s(R.string.fog_front), v -> vehicle.toggleFrontFog());
-        frontFogBtn.setVisibility(GONE);
-        bar.addView(frontFogBtn, Ui.margins(new LayoutParams(fog, fog), 0, 0, dp(8), 0));
-        rearFogBtn = toggleIcon(c, R.drawable.ic_fog_rear, L.s(R.string.fog_rear), v -> vehicle.toggleRearFog());
-        // retronebbia: Automatico = nascosto se la barra di sistema mostra già la sua spia/tasto, oppure Mostra / Nascondi
-        boolean rearFog = prefs.showRearFog(com.mg4.launcher.svc.CarFeatures.hasSystemLightIndicator(c));
-        if (!rearFog) rearFogBtn.setVisibility(GONE);
-        bar.addView(rearFogBtn, new LayoutParams(fog, fog));
-
-        bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
-
-        // scorciatoie; con la barra grande restano telefono e 360° (Radio è nel pannello Media, le Impostazioni tra le app)
-        // 0.9.6: CarPlay / Android Auto nella barra, solo con il telefono collegato
-        int pj = bs(64, BIG_SHORTCUT);
-        projBtn = barIcon(c, R.drawable.ic_projection, t.text, 0, pj, bs(44, BIG_ICON + 16), big ? 22 : 18 * Ui.K, "CarPlay / Android Auto",
-                v -> media.openProjection());
-        projBtn.setLayoutParams(Ui.margins(Ui.lp(pj, pj), dp(6), 0, 0, 0));
-        projBtn.setVisibility(GONE);
-        bar.addView(projBtn);
-        bar.addView(shortcut(c, R.drawable.ic_phone, L.s(R.string.app_phone), com.mg4.launcher.apps.MgApps.PHONE_PKG, com.mg4.launcher.apps.MgApps.PHONE_CLS));
-        if (!big) bar.addView(shortcut(c, R.drawable.ic_radio, L.s(R.string.src_radio), com.mg4.launcher.apps.MgApps.RADIO_PKG, com.mg4.launcher.apps.MgApps.RADIO_CLS));
-        // 0.4.0 (punto 8): il tasto 360 apre la 360 originale (predefinito), MG4 360, un'altra app scelta, o è nascosto;
-        // l'originale resta nascosto se la configurazione dell'auto dice che non ci sono telecamere.
-        Cam360.Target cam = Cam360.resolve(c, prefs);
-        camKind = cam.kind;
-        cameraBtn = shortcut(c, 0, cam.label.isEmpty() ? L.s(R.string.app_camera) : cam.label, cam.pkg, cam.cls);
-        if (camKind == Cam360.HIDDEN
-                || (camKind == Cam360.ORIGINAL && Boolean.FALSE.equals(VehicleClient.cameraPresent(vehicle.last().cameraConfig))))
-            cameraBtn.setVisibility(GONE);
-        bar.addView(cameraBtn);
-        if (!big) bar.addView(shortcut(c, R.drawable.ic_gear, L.s(R.string.app_settings), com.mg4.launcher.apps.MgApps.SETTINGS_PKG, com.mg4.launcher.apps.MgApps.SETTINGS_CLS));
         // le app si aprono scorrendo la home verso sinistra: niente pulsante dedicato
         if (rhd) mirrorRow(bar);
         barView = bar;
