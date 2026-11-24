@@ -2,5 +2,5 @@
   "version": "0.4.7",
   "apk": "releases/MG4Launcher-SWI69-0.4.7.apk",
   "size": 1125229,
-  "notes": "Atalhos da barra de baixo ao centro e mini-player à direita; menos memória (cerca de 8–12 MB: logótipos de rádio, capa da música, imagens do carro e animação de carregamento); Vidros sem trabalho em segundo plano com o fecho automático desligado; tema de dia mais legível e zonas de toque maiores; definições e janelas com transições; animações e logótipos descarregados deste fork; MG4 Store opcional."
+  "notes": "Atalhos da barra de baixo ao centro, mais espaçados e com divisórias, e mini-player à direita; menos memória (cerca de 8–12 MB: logótipos de rádio, capa da música, imagens do carro e animação de carregamento); Vidros sem trabalho em segundo plano com o fecho automático desligado; tema de dia mais legível e zonas de toque maiores; definições e janelas com transições; animações e logótipos descarregados deste fork; MG4 Store opcional."
 }

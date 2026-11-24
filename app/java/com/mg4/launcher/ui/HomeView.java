@@ -1968,27 +1968,31 @@ public final class HomeView extends LinearLayout {
         // pulsanti: la musica resta nel pannello Media.
         // con i gruppi c'è spazio anche con la barra grande
         boolean showMini = grouped ? Ui.K < 1.5f : !big && Ui.K < 1.25f;
-        bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
+        // fork: com os grupos e o tamanho normal sobra muito espaço para o mini-player: os botões do meio ficam mais
+        // largos e mais afastados (menos toques no botão do lado). Nos outros tamanhos já são maiores e não há folga.
+        roomy = showMini && grouped && !big && Ui.K < 1.1f;
+        scHalf = roomy ? dp(7) : 0;
+        bar.addView(sectionDivider(c));
 
         // fendinebbia (sulla MG4 si accendono solo dallo schermo); il retronebbia si può nascondere se l'auto ha il tasto
         int fog = bs(68, BIG_BTN);
         frontFogBtn = toggleIcon(c, R.drawable.ic_fog_front, L.s(R.string.fog_front), v -> vehicle.toggleFrontFog());
         frontFogBtn.setVisibility(GONE);
-        bar.addView(frontFogBtn, Ui.margins(new LayoutParams(fog, fog), 0, 0, dp(8), 0));
+        bar.addView(frontFogBtn, Ui.margins(new LayoutParams(fog, fog), scHalf, 0, roomy ? scHalf : dp(8), 0));
         rearFogBtn = toggleIcon(c, R.drawable.ic_fog_rear, L.s(R.string.fog_rear), v -> vehicle.toggleRearFog());
         // retronebbia: Automatico = nascosto se la barra di sistema mostra già la sua spia/tasto, oppure Mostra / Nascondi
         boolean rearFog = prefs.showRearFog(com.mg4.launcher.svc.CarFeatures.hasSystemLightIndicator(c));
         if (!rearFog) rearFogBtn.setVisibility(GONE);
-        bar.addView(rearFogBtn, new LayoutParams(fog, fog));
+        bar.addView(rearFogBtn, Ui.margins(new LayoutParams(fog, fog), scHalf, 0, scHalf, 0));
 
-        bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
+        bar.addView(sectionDivider(c));
 
         // scorciatoie; con la barra grande restano telefono e 360° (Radio è nel pannello Media, le Impostazioni tra le app)
         // 0.9.6: CarPlay / Android Auto nella barra, solo con il telefono collegato
         int pj = bs(64, BIG_SHORTCUT);
         projBtn = barIcon(c, R.drawable.ic_projection, t.text, 0, pj, bs(44, BIG_ICON + 16), big ? 22 : 18 * Ui.K, "CarPlay / Android Auto",
                 v -> media.openProjection());
-        projBtn.setLayoutParams(Ui.margins(Ui.lp(pj, pj), dp(6), 0, 0, 0));
+        projBtn.setLayoutParams(Ui.margins(Ui.lp(scWidth(pj), pj), roomy ? scHalf : dp(6), 0, scHalf, 0));
         projBtn.setVisibility(GONE);
         bar.addView(projBtn);
         bar.addView(shortcut(c, R.drawable.ic_phone, L.s(R.string.app_phone), com.mg4.launcher.apps.MgApps.PHONE_PKG, com.mg4.launcher.apps.MgApps.PHONE_CLS));
@@ -2006,7 +2010,7 @@ public final class HomeView extends LinearLayout {
 
         // fork: o mini-player (ou os preferidos/atalhos que o substituem) passa para o fim da barra, à direita; nevoeiro e
         // atalhos ficam ao meio, mais perto do condutor (guia à esquerda). Com guia à direita a barra é espelhada.
-        if (showMini) bar.addView(Ui.divider(c, t.track, big ? 72 : 48));
+        if (showMini) bar.addView(sectionDivider(c));
         LinearLayout mini = Ui.row(c);
         mini.setGravity(Gravity.CENTER_VERTICAL);
         mini.setPadding(dp(6), 0, dp(4), 0);
@@ -2249,6 +2253,21 @@ public final class HomeView extends LinearLayout {
      * Scorciatoia a un'app originale. Se l'attività esatta non c'è si apre l'app principale; se manca anche quella il
      * pulsante resta attenuato e non fa nulla. icon = 0: scritta "360°" al posto dell'icona.
      */
+    /** fork: barra com folga (ver buildBottomBar): atalhos mais largos e afastados, divisórias mais visíveis. */
+    private boolean roomy;
+    private int scHalf;
+
+    private int scWidth(int size) {
+        return roomy ? size + dp(16) : size;
+    }
+
+    /** Divisória entre secções da barra: um pouco mais escura que a pista, para se ver também de dia. */
+    private View sectionDivider(Context c) {
+        View v = Ui.divider(c, (0x59 << 24) | (t.sub & 0xFFFFFF), big ? 72 : 48);
+        if (roomy) ((MarginLayoutParams) v.getLayoutParams()).setMargins(dp(10), 0, dp(10), 0);
+        return v;
+    }
+
     private View shortcut(Context c, int icon, String desc, String pkg, String cls) {
         int size = bs(64, BIG_SHORTCUT);
         boolean camera = icon == 0;
@@ -2266,7 +2285,7 @@ public final class HomeView extends LinearLayout {
         } else {
             f = barIcon(c, icon, t.text, 0, size, bs(30, BIG_ICON - 2), big ? 22 : 18 * Ui.K, desc, l);
         }
-        f.setLayoutParams(Ui.margins(Ui.lp(size, size), dp(6), 0, 0, 0));
+        f.setLayoutParams(Ui.margins(Ui.lp(scWidth(size), size), roomy ? scHalf : dp(6), 0, scHalf, 0));
         if (camera ? !host.canOpenCamera() : !host.canLaunch(pkg, cls)) {
             f.setAlpha(0.35f);
             f.setClickable(false);

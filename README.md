@@ -336,6 +336,8 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 - **Barra de baixo mais perto do condutor**: nevoeiro e atalhos (telefone, rádio, 360°, definições, CarPlay/Android
   Auto) passam para o centro, logo a seguir ao clima; o mini-player (ou os favoritos/atalhos que o substituem) vai
   para a direita. Com guia à direita a barra continua espelhada.
+- **Atalhos mais espaçados** (tamanho Normal, botões agrupados): botões do meio mais largos e afastados (menos toques
+  no botão do lado), mini-player mais estreito e divisórias entre secções mais visíveis.
 - **Vidros mais leves**: com o fecho automático desligado (por omissão) o launcher já não lê o estado do carro em
   segundo plano (antes: 8–10 chamadas por segundo, sempre); ligado, o ritmo adapta-se (0,5 s só durante a contagem,
   2 s em READY, 5 s parado) e a porta continua a chegar na hora.
