@@ -5,18 +5,18 @@ import android.os.Parcel;
 import android.os.RemoteException;
 
 /**
- * Chiamate binder "a mano" verso i servizi SAIC: stesso protocollo dei proxy AIDL generati
- * (interface token + argomenti, poi readException + risultato), senza dipendere dalle loro classi.
+ * Hand-written binder calls to the SAIC services: same protocol as the generated AIDL proxies
+ * (interface token + arguments, then readException + result), without depending on their classes.
  */
 public final class Rpc {
     private Rpc() {}
 
-    /** Scrive gli argomenti della chiamata nel parcel. */
+    /** Writes the call arguments into the parcel. */
     public interface Args {
         void write(Parcel p);
     }
 
-    /** Legge il risultato dal parcel di risposta. */
+    /** Reads the result from the reply parcel. */
     public interface Reader<T> {
         T read(Parcel p);
     }
@@ -25,7 +25,7 @@ public final class Rpc {
 
     public static <T> T call(IBinder b, String descriptor, int code, Args args, Reader<T> reader)
             throws RemoteException {
-        if (b == null) throw new RemoteException("binder non disponibile");
+        if (b == null) throw new RemoteException("binder unavailable");
         Parcel data = Parcel.obtain();
         Parcel reply = Parcel.obtain();
         try {
@@ -67,7 +67,7 @@ public final class Rpc {
         return call(b, descriptor, code, args, Parcel::readStrongBinder);
     }
 
-    /** Legge un Parcelable restituito con la convenzione AIDL (int 0 = null). */
+    /** Reads a Parcelable returned with the AIDL convention (int 0 = null). */
     public static <T> T readNullable(Parcel p, Reader<T> body) {
         return p.readInt() != 0 ? body.read(p) : null;
     }

@@ -30,10 +30,10 @@ import com.mg4.launcher.ui.SettingsView;
 import com.mg4.launcher.ui.Theme;
 import com.mg4.launcher.ui.Ui;
 
-/** Home del launcher: costruisce l'interfaccia e collega i servizi dell'auto. */
+/** Launcher home: builds the interface and connects the car services. */
 public final class MainActivity extends Activity implements HomeView.Host, AppsView.Host, SettingsView.Host {
 
-    /** Schermo intero: nasconde barra di stato e dock MG (la SystemUI SAIC segue i flag standard). */
+    /** Full screen: hides the status bar and MG dock (the SAIC SystemUI follows the standard flags). */
     private static final int IMMERSIVE = View.SYSTEM_UI_FLAG_FULLSCREEN
             | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION
             | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -56,7 +56,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     private SettingsView settings;
     private int lastUiMode;
 
-    /** Versione per SWI69 su un altro firmware (es. SWI68): solo la schermata di avviso, nessun collegamento ai servizi. */
+    /** SWI69 build on another firmware (e.g. SWI68): only the warning screen, no connection to the services. */
     private boolean wrongFirmware;
 
     @Override
@@ -64,7 +64,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         super.onCreate(state);
         prefs = new Prefs(this);
         L.init(this, prefs.language());
-        // schermo intero dal primo disegno: niente ridimensionamento della finestra all'avvio
+        // full screen from the first draw: no window resizing at start
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         if (com.mg4.launcher.svc.Firmware.wrong(this)) {
             wrongFirmware = true;
@@ -83,18 +83,18 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         media = new MediaClient(this);
         nav = new NavClient(this);
         updater = new Updater(this);
-        // 0.4.3: Controllo funzioni (sola lettura) e controllo automatico 60 s dopo l'avvio di una versione nuova
+        // 0.4.3: Feature check (read only) and automatic check 60 s after the start of a new version
         com.mg4.launcher.svc.SelfCheck.bind(vehicle, media);
         com.mg4.launcher.svc.SelfCheck.scheduleAfterUpdate(this, updater.currentVersion());
-        // 1.0.4 (punto F): pacchetto dell'animazione di ricarica del colore scelto (in background, se attiva)
+        // 1.0.4 (point F): charging animation pack for the chosen color (in the background, if enabled)
         android.os.Handler later = new android.os.Handler(android.os.Looper.getMainLooper());
         later.postDelayed(() -> {
             if (!isDestroyed() && prefs.chargeAnim())
-                new Thread(() -> com.mg4.launcher.svc.ChargePack.ensure(this, Prefs.CAR_COLORS[prefs.carColorIndex()], false), "mg4-anim-avvio").start();
+                new Thread(() -> com.mg4.launcher.svc.ChargePack.ensure(this, Prefs.CAR_COLORS[prefs.carColorIndex()], false), "mg4-anim-start").start();
         }, 45_000);
-        // 1.0.4 (punto D): MG4 Store contenuto nel launcher, installato una volta sola se manca o è più vecchio (30 s dopo l'avvio)
+        // 1.0.4 (point D): MG4 Store bundled in the launcher, installed only once if missing or older (30 s after start)
         later.postDelayed(() -> {
-            if (!isDestroyed()) new Thread(() -> com.mg4.launcher.svc.StoreSetup.onStart(this), "mg4-store-avvio").start();
+            if (!isDestroyed()) new Thread(() -> com.mg4.launcher.svc.StoreSetup.onStart(this), "mg4-store-start").start();
         }, 30_000);
         lastUiMode = getResources().getConfiguration().uiMode;
 
@@ -105,17 +105,17 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         });
         setContentView(root);
         getWindow().getDecorView().setOnSystemUiVisibilityChangeListener(vis -> {
-            // se il sistema rimostra le barre (es. dopo un popup) le rinasconde
+            // if the system shows the bars again (e.g. after a popup) hide them again
             if ((vis & View.SYSTEM_UI_FLAG_FULLSCREEN) == 0) root.postDelayed(this::goFullscreen, 2500);
         });
         goFullscreen();
         build();
-        // primo avvio dopo un aggiornamento: popup "Novità" (una sola volta per versione)
+        // first start after an update: "What's new" popup (only once per version)
         root.postDelayed(this::showNewsIfUpdated, 1500);
 
         vehicle.setListener(s -> {
             if (home != null) home.onVehicle(s);
-            // lato di guida letto dall'auto solo dopo l'avvio del CarService: se cambia, si ricostruisce la home
+            // driving side read from the car only after the CarService starts: if it changes, the home is rebuilt
             if (home != null && Prefs.DRIVE_AUTO.equals(prefs.driveSide())) {
                 Boolean known = com.mg4.launcher.svc.CarFeatures.knownRhd(this);
                 if (known != null && known != home.isRightHand()) {
@@ -128,23 +128,23 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         media.setListener(s -> {
             if (home != null) {
                 home.onMedia(s);
-                // SWI69: le indicazioni arrivano solo da CarPlay / Android Auto (dati del telefono nello stato media)
+                // SWI69: directions only come from CarPlay / Android Auto (phone data in the media state)
                 home.onNav(nav.last());
             }
         });
         nav.setListener(s -> {
             if (home != null) home.onNav(s);
         });
-        // 0.4.3: tema automatico uguale alla SWI68 0.4.3 (catena di fonti, uiMode bloccato ignorato, 60 s di conferma)
+        // 0.4.3: automatic theme same as SWI68 0.4.3 (chain of sources, locked uiMode ignored, 60 s confirmation)
         com.mg4.launcher.svc.DayNight.get(this).start(day -> {
             if (!Prefs.THEME_AUTO.equals(prefs.themeMode()) || theme == null || theme.day == day || isFinishing()) return;
-            com.mg4.launcher.svc.Diag.put("tema.ricostruito", (day ? "giorno" : "notte") + " (cambio confermato)");
+            com.mg4.launcher.svc.Diag.put("theme.rebuilt", (day ? "day" : "night") + " (change confirmed)");
             IconStyler.clearCache();
             boolean wasSettings = settings != null;
             build();
             if (wasSettings) openSettings();
         });
-        // 0.4.2 (punto 6): dopo la retromarcia si riapre l'app di prima come la aprono i pulsanti del launcher
+        // 0.4.2 (point 6): after reversing, the previous app is reopened the way the launcher buttons open it
         com.mg4.launcher.svc.RetroReturn.setOpener(new com.mg4.launcher.svc.RetroReturn.Opener() {
             @Override
             public boolean available(String pkg) {
@@ -165,34 +165,34 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 }
             }
         });
-        // collegamento ai servizi dopo il primo disegno: la home compare subito, già nelle dimensioni finali
+        // connect to the services after the first draw: the home appears right away, already at its final size
         root.post(() -> {
             vehicle.start();
             conn.start();
             media.start();
-            // SWI69: nessun navigatore MG (si naviga con CarPlay / Android Auto): il servizio di navigazione non si usa
+            // SWI69: no MG navigator (navigation via CarPlay / Android Auto): the navigation service is not used
             com.mg4.launcher.svc.DongleWatch.get(this, media).start();
-            // Vidros (fork): fecho automático ao sair do carro, corre sempre em segundo plano
+            // Windows (fork): automatic closing when leaving the car, always runs in the background
             com.mg4.launcher.svc.Windows.get(this).start();
             com.mg4.launcher.svc.EmbedCheck.log(this);
-            // 0.4.2 (punto 11a): all'accensione dell'auto si riprende l'ultima sorgente audio usata davvero
-            if (android.os.SystemClock.elapsedRealtime() < 5 * 60_000L) media.resumeLastSource("accensione");
+            // 0.4.2 (point 11a): at car power-on the last audio source actually used is resumed
+            if (android.os.SystemClock.elapsedRealtime() < 5 * 60_000L) media.resumeLastSource("power-on");
         });
-        // 0.4.2 (punto 2): misura della finestra della spia luci della SystemUI (se cambia lo spazio, si ridisegna la home)
+        // 0.4.2 (point 2): size of the SystemUI lights indicator window (if the space changes, the home is redrawn)
         root.postDelayed(probeLight, 12_000);
-        // avvio all'accensione: servizio di accessibilità, scadenza officina, riconferma della home predefinita
+        // start at power-on: accessibility service, workshop expiry, default home reconfirmation
         com.mg4.launcher.svc.StartGuard.markProcess();
         com.mg4.launcher.svc.HomeMode.checkExpiry(getApplicationContext());
         com.mg4.launcher.svc.HomeMode.diag(getApplicationContext());
         new Thread(() -> {
             com.mg4.launcher.svc.BootAccessibility.ensureEnabled(getApplicationContext());
-            com.mg4.launcher.svc.HomeLock.apply(getApplicationContext(), "avvio launcher");
+            com.mg4.launcher.svc.HomeLock.apply(getApplicationContext(), "launcher start");
             com.mg4.launcher.svc.StartGuard.resolvedHome(getApplicationContext());
             com.mg4.launcher.svc.StartGuard.reportKeyApps(getApplicationContext());
         }, "mg4-home").start();
         com.mg4.launcher.svc.CrashGuard.install(this);
         com.mg4.launcher.svc.BootAccessibility.watchList(this);
-        // 0.9.6: 10 minuti senza crash → il salvavita si azzera (l'avvio sicuro può ripartire alla prossima accensione)
+        // 0.9.6: 10 minutes without crashes → the lifesaver resets (safe start can resume at the next power-on)
         root.postDelayed(() -> com.mg4.launcher.svc.CrashGuard.reset(getApplicationContext()), 10 * 60_000L);
 
         IntentFilter f = new IntentFilter();
@@ -202,15 +202,15 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         f.addAction(Intent.ACTION_PACKAGE_REPLACED);
         f.addDataScheme("package");
         registerReceiver(packages, f);
-        // all'avvio dell'auto le app utente compaiono solo dopo lo sblocco dell'utente Android
+        // at car start, user apps appear only after the Android user is unlocked
         registerReceiver(packages, new IntentFilter(Intent.ACTION_USER_UNLOCKED));
-        // orologio nel riquadro batteria: ogni minuto e al cambio di ora / fuso
+        // clock in the battery box: every minute and on time / timezone change
         IntentFilter tf = new IntentFilter(Intent.ACTION_TIME_TICK);
         tf.addAction(Intent.ACTION_TIME_CHANGED);
         tf.addAction(Intent.ACTION_TIMEZONE_CHANGED);
         registerReceiver(clockTick, tf);
         root.postDelayed(saveDiag, 15000);
-        // 0.4.2 (punto 12): primo controllo aggiornamenti e avvisi 2 minuti dopo l'avvio (sistema stabile), poi ogni 6 ore
+        // 0.4.2 (point 12): first update and notice check 2 minutes after start (system stable), then every 6 hours
         root.postDelayed(autoCheck, 120_000);
         IntentFilter sf = new IntentFilter(Intent.ACTION_SCREEN_OFF);
         sf.addAction(Intent.ACTION_SCREEN_ON);
@@ -218,22 +218,22 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         root.postDelayed(this::logoPacksTick, 20_000);
     }
 
-    // ---- modalità officina: aperto il launcher durante l'officina, si chiede se disattivarla ----------
+    // ---- workshop mode: if the launcher is opened during workshop mode, ask whether to turn it off ----------
 
-    private boolean officinaAsked;
+    private boolean workshopAsked;
 
-    private void askOfficina() {
+    private void askWorkshop() {
         android.content.Context app = getApplicationContext();
-        if (!com.mg4.launcher.svc.HomeMode.officina(app)) {
-            officinaAsked = false;
+        if (!com.mg4.launcher.svc.HomeMode.workshop(app)) {
+            workshopAsked = false;
             return;
         }
-        if (officinaAsked) return;
-        officinaAsked = true;
-        root.post(() -> com.mg4.launcher.ui.Confirm.show(root, theme, L.s(R.string.officina_active_title),
-                L.f(R.string.officina_active_msg, com.mg4.launcher.svc.HomeMode.officinaDate(app)),
+        if (workshopAsked) return;
+        workshopAsked = true;
+        root.post(() -> com.mg4.launcher.ui.Confirm.show(root, theme, L.s(R.string.workshop_active_title),
+                L.f(R.string.workshop_active_msg, com.mg4.launcher.svc.HomeMode.workshopDate(app)),
                 L.s(R.string.btn_keep), L.s(R.string.btn_deactivate), () -> {
-                    com.mg4.launcher.svc.HomeMode.end(app, "annullata");
+                    com.mg4.launcher.svc.HomeMode.end(app, "cancelled");
                     if (settings != null) {
                         closeSettings();
                         openSettings();
@@ -241,10 +241,10 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 }));
     }
 
-    // ---- popup discreto per i nuovi aggiornamenti ----------------------------------------------
+    // ---- discreet popup for new updates ----------------------------------------------
 
-    private static final long CHECK_EVERY = 6 * 60 * 60 * 1000L;   // ogni 6 ore
-    private static final long POPUP_SHOW = 20_000;                  // poi si nasconde da solo
+    private static final long CHECK_EVERY = 6 * 60 * 60 * 1000L;   // every 6 hours
+    private static final long POPUP_SHOW = 20_000;                  // then it hides by itself
     private View updPopup;
 
     private boolean firstAutoCheck = true;
@@ -252,7 +252,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     private final Runnable autoCheck = new Runnable() {
         @Override
         public void run() {
-            if (!com.mg4.launcher.svc.HomeMode.officina(getApplicationContext())) {
+            if (!com.mg4.launcher.svc.HomeMode.workshop(getApplicationContext())) {
                 final boolean first = firstAutoCheck;
                 firstAutoCheck = false;
                 updater.autoCheck(L.resolve(prefs.language()), new Updater.Auto() {
@@ -271,7 +271,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         }
     };
 
-    // ---- 0.4.2 (punto 12c): avvisi da remoto ----------------------------------------------------------------
+    // ---- 0.4.2 (point 12c): remote notices ----------------------------------------------------------------
 
     private final java.util.ArrayDeque<Updater.Notice> noticeQueue = new java.util.ArrayDeque<>();
     private boolean noticeOpen;
@@ -319,12 +319,12 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
 
     private void noticeDiag() {
         android.content.SharedPreferences sp = prefs.raw();
-        updater.noticeShown = "mostrati " + sp.getStringSet("avvisi.visti", new java.util.HashSet<>())
-                + " · confermati " + sp.getStringSet("avvisi.confermati", new java.util.HashSet<>());
-        Diag.put("avvisi.stato", "letti " + updater.noticeIds + " · " + updater.noticeShown);
+        updater.noticeShown = "shown " + sp.getStringSet("avvisi.visti", new java.util.HashSet<>())
+                + " · confirmed " + sp.getStringSet("avvisi.confermati", new java.util.HashSet<>());
+        Diag.put("notices.state", "read " + updater.noticeIds + " · " + updater.noticeShown);
     }
 
-    /** Pulsante Aggiorna fuori dalle impostazioni: apre la sezione Sistema e installa (o controlla, se non c'è ancora la versione). */
+    /** Update button outside the settings: opens the System section and installs (or checks, if the version is not there yet). */
     private void updateNow(Updater.Release r) {
         SettingsView.openAt(SettingsView.SEC_SYSTEM);
         closeSettings();
@@ -333,18 +333,18 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         else updater.check(prefs.updateRepo(), prefs.githubToken());
     }
 
-    /** Spegnimento/risveglio dello schermo: dopo più di 5 minuti spento si riprende l'ultima sorgente (punto 11a). */
+    /** Screen off/wake: after more than 5 minutes off, the last source is resumed (point 11a). */
     private long screenOffAt = -1;
     private final BroadcastReceiver screen = new BroadcastReceiver() {
         @Override
         public void onReceive(Context c, Intent i) {
             if (Intent.ACTION_SCREEN_OFF.equals(i.getAction())) {
                 screenOffAt = android.os.SystemClock.elapsedRealtime();
-                if (home != null) home.pauseChargeAnim();   // 0.4.4: animazione di ricarica ferma a schermo spento
+                if (home != null) home.pauseChargeAnim();   // 0.4.4: charging animation stopped while the screen is off
             } else if (screenOffAt > 0 && android.os.SystemClock.elapsedRealtime() - screenOffAt > 5 * 60_000L) {
                 screenOffAt = -1;
                 if (home != null) home.onScreenOn();
-                if (media != null) media.resumeLastSource("risveglio dopo lo spegnimento");
+                if (media != null) media.resumeLastSource("wake-up after power-off");
             }
         }
     };
@@ -358,7 +358,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 if (wasSettings) openSettings();
             });
         }
-    }, "mg4-spia").start();
+    }, "mg4-indicator").start();
 
     private final Runnable hidePopup = () -> hideUpdatePopup();
 
@@ -374,7 +374,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         bgd.setStroke(dp(1), t.track);
         card.setBackground(bgd);
         card.setElevation(dp(14));
-        card.setClickable(true);   // i tocchi sul popup non passano alla home sotto
+        card.setClickable(true);   // touches on the popup do not reach the home below
 
         LinearLayout txt = Ui.column(this);
         txt.addView(Ui.text(this, L.s(R.string.upd_popup_title), 18, t.text, Ui.MEDIUM));
@@ -423,7 +423,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         return Ui.dp(this, v);
     }
 
-    // ---- firmware sbagliato ------------------------------------------------------------------
+    // ---- wrong firmware ------------------------------------------------------------------
 
     private void showWrongFirmware() {
         theme = Theme.resolve(this, prefs);
@@ -459,7 +459,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         root.addView(card, new FrameLayout.LayoutParams(dp(1100), -2, Gravity.CENTER));
     }
 
-    /** Apre la home originale dell'auto (qualunque firmware): la prima home che non è questo launcher. */
+    /** Opens the car's original home (any firmware): the first home that is not this launcher. */
     private void openAnyOtherHome() {
         try {
             Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME);
@@ -471,13 +471,13 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 return;
             }
         } catch (Exception e) {
-            Diag.error("home originale", e.toString());
+            Diag.error("home original", e.toString());
         }
     }
 
-    // ---- popup "Novità" dopo un aggiornamento -------------------------------------------------
+    // ---- "What's new" popup after an update -------------------------------------------------
 
-    /** Una sola volta per ogni versione (anche le correzioni), nella lingua scelta; non dopo la prima installazione. */
+    /** Only once per version (fixes included), in the chosen language; not after the first install. */
     private void showNewsIfUpdated() {
         String ver = updater.currentVersion();
         if (ver.equals(prefs.newsShownFor())) return;
@@ -492,7 +492,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         showNews(ver);
     }
 
-    /** Novità di ogni versione (testi in tutte le lingue in strings.xml). */
+    /** What's new in each version (texts in all languages in strings.xml). */
     private static int[] newsFor(String ver) {
         switch (ver) {
             case "0.4.10":  // fork InfectedM
@@ -543,7 +543,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 L.s(R.string.btn_ok), null);
     }
 
-    /** Ogni 15 s salva la diagnostica su file: adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostica.txt */
+    /** Every 15 s saves the diagnostics to a file: adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostica.txt */
     private final Runnable saveDiag = new Runnable() {
         @Override
         public void run() {
@@ -553,12 +553,12 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     };
 
     /**
-     * Schermo intero: il contenuto occupa sempre tutti i 1920×720 px. Le barre di sistema, se ricompaiono
-     * per un attimo (trascinando dal bordo), si sovrappongono senza spostare il layout.
+     * Full screen: the content always fills all 1920×720 px. The system bars, if they reappear
+     * for a moment (dragging from the edge), overlay without shifting the layout.
      */
     private WindowInsets applyInsets(View v, WindowInsets in) {
         v.setPadding(0, 0, 0, 0);
-        Diag.put("finestra", v.getWidth() + "×" + v.getHeight() + " · margini sistema " + in.getSystemWindowInsetLeft() + ","
+        Diag.put("window", v.getWidth() + "×" + v.getHeight() + " · system insets " + in.getSystemWindowInsetLeft() + ","
                 + in.getSystemWindowInsetTop() + "," + in.getSystemWindowInsetRight() + "," + in.getSystemWindowInsetBottom());
         return in.consumeSystemWindowInsets();
     }
@@ -568,7 +568,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         if (d.getSystemUiVisibility() != IMMERSIVE) d.setSystemUiVisibility(IMMERSIVE);
     }
 
-    /** 0.4.0: true mentre il launcher è davanti (onResume..onPause), per sapere se Home arriva "da dentro". */
+    /** 0.4.0: true while the launcher is in front (onResume..onPause), to know whether Home comes "from inside". */
     private boolean inFront;
 
     @Override
@@ -585,22 +585,22 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             goFullscreen();
             return;
         }
-        // avvio sicuro: tornati nel launcher dopo aver aperto apposta la home MG → la sua schermata si rispegne
+        // safe start: back in the launcher after deliberately opening the MG home → its screen is disabled again
         new Thread(() -> {
             Context app = getApplicationContext();
             if (com.mg4.launcher.svc.HomeLock.option(app) && com.mg4.launcher.svc.HomeMode.active(app)
-                    && !com.mg4.launcher.svc.HomeLock.mgDisabled(app)) com.mg4.launcher.svc.HomeLock.apply(app, "ritorno nel launcher");
+                    && !com.mg4.launcher.svc.HomeLock.mgDisabled(app)) com.mg4.launcher.svc.HomeLock.apply(app, "back in the launcher");
         }, "mg4-homelock").start();
-        askOfficina();
+        askWorkshop();
         goFullscreen();
-        com.mg4.launcher.svc.RetroReturn.noteBroughtBy("launcher ripreso (MainActivity.onResume)");
-        // 0.4.3 (punto 6): tornando dall'app Radio l'elenco delle stazioni si rilegge subito
-        if (media != null) media.refreshRadioLists("ritorno nel launcher");
-        // 0.4.3 (punto 7): stato del telefono riletto (riquadro "Preferiti telefono"), anche se gli avvisi del servizio non arrivano
+        com.mg4.launcher.svc.RetroReturn.noteBroughtBy("launcher resumed (MainActivity.onResume)");
+        // 0.4.3 (point 6): coming back from the Radio app the station list is re-read immediately
+        if (media != null) media.refreshRadioLists("back in the launcher");
+        // 0.4.3 (point 7): phone state re-read ("Phone favourites" box), even if the service notifications do not arrive
         com.mg4.launcher.svc.PhoneClient.get(this).refresh();
-        // 0.4.0: se giorno/notte è cambiato mentre il launcher era dietro e l'avviso non è arrivato, si ricostruisce qui
+        // 0.4.0: if day/night changed while the launcher was behind and the notification did not arrive, rebuild here
         if (theme != null && root != null && com.mg4.launcher.ui.Theme.wouldBeDay(this, prefs) != theme.day) {
-            com.mg4.launcher.svc.Diag.put("tema.ripreso", "cambio recuperato al ritorno nel launcher");
+            com.mg4.launcher.svc.Diag.put("theme.resumed", "change caught up on return to the launcher");
             IconStyler.clearCache();
             build();
         }
@@ -643,7 +643,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     protected void onStart() {
         super.onStart();
         if (wrongFirmware) return;
-        // il collegamento ai servizi resta attivo; qui si riprendono solo le letture periodiche
+        // the service connections stay active; only the periodic reads are resumed here
         vehicle.resume();
         conn.resume();
         if (home != null) home.updateClock();
@@ -652,7 +652,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
 
     @Override
     protected void onStop() {
-        if (home != null) home.pauseChargeAnim();   // 1.0.4: animazione ferma con il launcher in secondo piano
+        if (home != null) home.pauseChargeAnim();   // 1.0.4: animation stopped with the launcher in the background
         super.onStop();
         if (wrongFirmware) return;
         vehicle.pause();
@@ -691,11 +691,11 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
         if (wrongFirmware) return;
-        // tasto Home: torna sempre alla schermata principale
-        // 0.4.0 (punto 3): con il launcher già davanti chiude anche ogni popup aperto (Clima, Comfort, Guida,
-        // conferme, elenchi, avvisi)
-        if (inFront) closePopups("tasto Home");
-        // 0.4.2 (punto 6): tasto Home dell'utente (non l'apertura automatica): niente ritorno all'app dopo la retromarcia
+        // Home key: always goes back to the main screen
+        // 0.4.0 (point 3): with the launcher already in front it also closes every open popup (Climate, Comfort, Drive,
+        // confirmations, lists, notices)
+        if (inFront) closePopups("Home key");
+        // 0.4.2 (point 6): user's Home key (not the automatic opening): no return to the app after reversing
         if (intent == null || !intent.getBooleanExtra(com.mg4.launcher.svc.HomeMode.EXTRA_AUTO, false)) {
             com.mg4.launcher.svc.RetroReturn.noteHomePressed();
         }
@@ -703,7 +703,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         closeApps();
     }
 
-    /** Toglie dalla schermata tutto ciò che non è la home/app o le impostazioni: popup dei gruppi, conferme, avvisi. */
+    /** Removes from the screen everything that is not the home/apps or settings: group popups, confirmations, notices. */
     private void closePopups(String why) {
         int n = 0;
         if (home != null && home.closePopup()) n++;
@@ -715,7 +715,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 n++;
             }
         }
-        com.mg4.launcher.svc.Diag.put("home.popupChiusi", n + " (" + why + ")");
+        com.mg4.launcher.svc.Diag.put("home.popupsClosed", n + " (" + why + ")");
     }
 
     @Override
@@ -723,7 +723,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         if (wrongFirmware) return;
         if (settings != null) closeSettings();
         else if (pager != null && pager.page() != 0) closeApps();
-        // altrimenti il launcher resta dov'è
+        // otherwise the launcher stays where it is
     }
 
     @Override
@@ -733,7 +733,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             if (L.init(this, prefs.language())) showWrongFirmware();
             return;
         }
-        // lingua di sistema cambiata: con "Automatica" il launcher la segue subito
+        // system language changed: with "Automatic" the launcher follows it right away
         if (L.init(this, prefs.language())) {
             catalog.refreshLabels();
             build();
@@ -741,7 +741,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         }
         if (cfg.uiMode != lastUiMode) {
             lastUiMode = cfg.uiMode;
-            // il cambio si applica dopo 60 s di conferma (DayNight richiama la ricostruzione)
+            // the change is applied after 60 s of confirmation (DayNight calls the rebuild)
             com.mg4.launcher.svc.DayNight.get(this).onConfigurationChanged();
         }
     }
@@ -754,18 +754,18 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         }
     };
 
-    // ---- pacchetti loghi radio: download quando arriva la rete, zip su chiavetta da installare ----------
+    // ---- radio logo packs: download when the network arrives, zip on USB stick to install ----------
 
     private int logoTicks;
 
     private void logoPacksTick() {
         com.mg4.launcher.svc.LogoPacks lp = com.mg4.launcher.svc.LogoPacks.get(this);
         lp.tick();
-        if (logoTicks++ % 2 != 0) return;   // la chiavetta si controlla ogni 2 minuti
+        if (logoTicks++ % 2 != 0) return;   // the USB stick is checked every 2 minutes
         new Thread(() -> {
             java.util.List<java.io.File> zips = lp.usbPacksToOffer();
             for (java.io.File f : zips) root.post(() -> offerUsbPack(lp, f));
-        }, "mg4-usb-loghi").start();
+        }, "mg4-usb-logos").start();
     }
 
     private void offerUsbPack(com.mg4.launcher.svc.LogoPacks lp, java.io.File f) {
@@ -774,7 +774,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         com.mg4.launcher.ui.Confirm.show(root, theme, L.s(R.string.logos_usb_title),
                 L.f(R.string.logos_usb_msg, com.mg4.launcher.svc.LogoPacks.countryName(cc), f.getParent()),
                 L.s(R.string.btn_cancel), L.s(R.string.btn_install), () -> lp.installUsb(f, true));
-        lp.installUsb(f, false);   // proposto una volta sola, anche se si annulla
+        lp.installUsb(f, false);   // offered only once, even if cancelled
     }
 
     private final BroadcastReceiver packages = new BroadcastReceiver() {
@@ -806,7 +806,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         catalog.launchComponent(pkg, cls);
     }
 
-    /** App Energia SWI69 (ricarica, scarica V2L, consumi): non ha schede apribili dall'esterno, si apre la principale. */
+    /** SWI69 Energy app (charging, V2L discharge, consumption): no tabs openable from outside, the main one is opened. */
     @Override
     public void openEnergy(String module) {
         Intent i = catalog.resolveLaunch(com.mg4.launcher.apps.MgApps.ENERGY_PKG, com.mg4.launcher.apps.MgApps.ENERGY_CLS);
@@ -814,45 +814,45 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         try {
             startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } catch (Exception e) {
-            com.mg4.launcher.svc.Diag.error("energia " + module, e.toString());
+            com.mg4.launcher.svc.Diag.error("energy " + module, e.toString());
         }
     }
 
     /**
-     * Telecamere (360° o retrocamera), come il pulsante della home originale SWI69: EvsService con "state" = 1.
-     * Se il servizio non c'è si apre la schermata delle telecamere.
+     * Cameras (360° or rear camera), like the button of the original SWI69 home: EvsService with "state" = 1.
+     * If the service is missing, the camera screen is opened.
      */
     @Override
     public boolean openCamera() {
-        // come la home originale SWI69 R45: configurazione 3 = AVM, 5 = AVM del quadro, gli altri = EVS
+        // like the original SWI69 R45 home: configuration 3 = AVM, 5 = cluster AVM, others = EVS
         int cfg = vehicle != null ? vehicle.last().cameraConfig : Integer.MIN_VALUE;
         if (cfg == 3 || cfg == 5) {
             String pkg = cfg == 3 ? "com.saicmotor.avm" : "com.saicmotor.hmi.aroundview";
             String cls = cfg == 3 ? "com.saicmotor.avm.service.SaicMotorAvmService" : "com.saicmotor.hmi.aroundview.AvmService";
             try {
                 if (startService(new Intent("com.saicmotor.avm.START_ENTER").setComponent(new ComponentName(pkg, cls))) != null) {
-                    Diag.put("telecamere", "aperte (" + pkg + ")");
+                    Diag.put("cameras", "opened (" + pkg + ")");
                     return true;
                 }
             } catch (Exception e) {
-                Diag.error("telecamere", e.toString());
+                Diag.error("cameras", e.toString());
             }
         }
         try {
             Intent i = new Intent().setComponent(new ComponentName("com.saicmotor.evs", "com.saicmotor.evs.service.EvsService")).putExtra("state", 1);
             if (startService(i) != null) {
-                Diag.put("telecamere", "aperte (EvsService)");
+                Diag.put("cameras", "opened (EvsService)");
                 return true;
             }
         } catch (Exception e) {
-            Diag.error("telecamere", e.toString());
+            Diag.error("cameras", e.toString());
         }
         return catalog.launchComponent("com.saicmotor.evs", "com.saicmotor.evs.view.EvsActivity");
     }
 
     @Override
     public boolean canOpenCamera() {
-        // auto senza telecamere secondo la configurazione: niente 360° (come la home originale)
+        // car without cameras according to the configuration: no 360° (like the original home)
         if (vehicle != null && Boolean.FALSE.equals(VehicleClient.cameraPresent(vehicle.last().cameraConfig))) return false;
         try {
             getPackageManager().getPackageInfo("com.saicmotor.evs", 0);
@@ -877,7 +877,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         launchNavigator(prefs.navApp());
     }
 
-    /** Apre il navigatore scelto: MG, quello del telefono (CarPlay/Android Auto) o un'app installata. */
+    /** Opens the chosen navigator: MG, the phone's one (CarPlay/Android Auto) or an installed app. */
     @Override
     public void launchNavigator(String which) {
         boolean phone = media.last().deviceType != 0;
@@ -888,7 +888,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 return;
             }
         } else if (!Prefs.NAV_AUTO.equals(which) && !Prefs.NAV_MG.equals(which)) {
-            // 0.4.4 (issue #27): app di navigazione scelta; se non c'è più si va avanti come "Automatico", senza crash
+            // 0.4.4 (issue #27): chosen navigation app; if it is gone, continue as "Automatic", without crashing
             Intent li = null;
             try {
                 li = getPackageManager().getLaunchIntentForPackage(which);
@@ -897,15 +897,15 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             if (li != null) {
                 try {
                     startActivity(li.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    Diag.put("nav.appScelta", which + " · aperta");
+                    Diag.put("nav.chosenApp", which + " · opened");
                     return;
                 } catch (Exception e) {
-                    Diag.error("navigatore.app", e.toString());
+                    Diag.error("navigator.app", e.toString());
                 }
             }
-            Diag.put("nav.appScelta", which + " · non disponibile: CarPlay/Android Auto o il primo navigatore installato");
+            Diag.put("nav.chosenApp", which + " · unavailable: CarPlay/Android Auto or the first installed navigator");
         }
-        // nessun navigatore MG sulla SWI69: senza telefono si apre il primo navigatore installato, se c'è
+        // no MG navigator on the SWI69: without a phone the first installed navigator is opened, if any
         if (phone) {
             media.openProjection();
             media.openRemoteNavigation();
@@ -916,7 +916,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             try {
                 startActivity(others.get(0).intent());
             } catch (Exception e) {
-                Diag.error("navigatore.app", e.toString());
+                Diag.error("navigator.app", e.toString());
             }
         }
     }
@@ -927,9 +927,9 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     }
 
     /**
-     * 1.0.4 (punto F5): prova dell'animazione di ricarica. Usa il pacchetto del colore scelto se c'è, altrimenti uno zip
-     * animazione-<colore>.zip nella cartella principale della chiavetta USB. Si chiudono le impostazioni e la prova
-     * gira sull'auto della home: aggancio → loop (3 giri) → finita → sgancio.
+     * 1.0.4 (point F5): charging animation test. Uses the chosen color's pack if present, otherwise a zip
+     * animazione-<color>.zip in the root folder of the USB stick. The settings close and the test
+     * runs on the home's car: plug in → loop (3 rounds) → finished → unplug.
      */
     @Override
     public void testChargeAnimation() {
@@ -940,33 +940,33 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             if (com.mg4.launcher.svc.ChargePack.complete(this, color)) {
                 dir = com.mg4.launcher.svc.ChargePack.dir(this, color);
                 slug = com.mg4.launcher.svc.ChargePack.slug(color);
-                Diag.put("ricarica.prova", "pacchetto " + color + " installato");
+                Diag.put("charge.test", "package " + color + " installed");
             } else {
                 Object[] usb = com.mg4.launcher.svc.ChargePack.loadFromUsb(this);
                 if (usb == null) {
                     runOnUiThread(() -> android.widget.Toast.makeText(this, L.s(R.string.anim_test_missing), android.widget.Toast.LENGTH_LONG).show());
-                    Diag.put("ricarica.prova", "nessun pacchetto: né scaricato né zip animazione-<colore>.zip sulla chiavetta");
+                    Diag.put("charge.test", "no package: neither downloaded nor animazione-<color>.zip on the USB stick");
                     return;
                 }
                 dir = (java.io.File) usb[0];
                 slug = (String) usb[1];
             }
-            // 1.0.4: la prima volta i fotogrammi si preparano dalle clip (circa 20–40 s), poi la prova parte subito
+            // 1.0.4: the first time the frames are prepared from the clips (about 20–40 s), then the test starts right away
             java.io.File probe = com.mg4.launcher.svc.ChargePack.clipIn(dir, slug, true, "loop");
             if (probe != null && com.mg4.launcher.svc.ChargeFrames.frames(probe) == null) {
                 runOnUiThread(() -> android.widget.Toast.makeText(this, L.s(R.string.anim_preparing), android.widget.Toast.LENGTH_LONG).show());
                 String err = com.mg4.launcher.svc.ChargePack.buildFramesIn(dir, slug);
                 if (err != null) {
-                    Diag.put("ricarica.prova", "fotogrammi non preparati: " + err);
+                    Diag.put("charge.test", "frames not prepared: " + err);
                     runOnUiThread(() -> android.widget.Toast.makeText(this, L.f(R.string.anim_prepare_failed, err), android.widget.Toast.LENGTH_LONG).show());
                     return;
                 }
             }
             runOnUiThread(() -> {
                 if (settings != null) closeSettings();
-                if (home != null) home.testChargeAnim(dir, slug, () -> Diag.put("ricarica.prova", "finita · " + slug));
+                if (home != null) home.testChargeAnim(dir, slug, () -> Diag.put("charge.test", "finished · " + slug));
             });
-        }, "mg4-prova-animazione").start();
+        }, "mg4-test-animation").start();
     }
 
     @Override
@@ -1036,14 +1036,14 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     @Override
     public void openOriginalHome() {
         try {
-            com.mg4.launcher.svc.HomeLock.release(this, "home MG aperta apposta");
-            // aperta apposta: il controllo all'accensione per un po' non deve riportare il nostro launcher
+            com.mg4.launcher.svc.HomeLock.release(this, "MG home opened on purpose");
+            // opened on purpose: for a while the power-on check must not bring back our launcher
             com.mg4.launcher.svc.BootWatcher.userOpenedOriginal(this);
             startActivity(new Intent(Intent.ACTION_MAIN)
                     .setComponent(new ComponentName(com.mg4.launcher.apps.MgApps.HOME_PKG, com.mg4.launcher.apps.MgApps.HOME_CLS))
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         } catch (Exception e) {
-            Diag.error("home originale", e.toString());
+            Diag.error("home original", e.toString());
         }
     }
 }

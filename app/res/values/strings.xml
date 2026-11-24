@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Use as default home</string>
     <string name="home_default_sub" formatted="false">MG4 Launcher opens at power-on and with the Home button</string>
     <string name="home_default_off_sub" formatted="false">Off: the original MG home is used</string>
-    <string name="officina_until_sub">Service mode until %1$s</string>
-    <string name="officina_title" formatted="false">Service mode</string>
-    <string name="officina_sub" formatted="false">For a few days the car uses the original MG home, then the launcher comes back by itself</string>
+    <string name="workshop_until_sub">Service mode until %1$s</string>
+    <string name="workshop_title" formatted="false">Service mode</string>
+    <string name="workshop_sub" formatted="false">For a few days the car uses the original MG home, then the launcher comes back by itself</string>
     <string name="days_1" formatted="false">1 day</string>
     <string name="days_3" formatted="false">3 days</string>
     <string name="days_7" formatted="false">7 days</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Keep it on</string>
     <string name="confirm_home_off_title" formatted="false">Use the original MG home?</string>
     <string name="confirm_home_off_msg" formatted="false">The MG home becomes the default, also at power-on. The MG home does not list MG4 Launcher among its apps: to come back you will need a computer (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). If you only need it for a few days, use Service mode: the launcher comes back by itself.</string>
-    <string name="confirm_officina_title" formatted="false">Turn on service mode?</string>
-    <string name="confirm_officina_msg">Until %1$s the car will use the original MG home and updates will be paused. When it expires, MG4 Launcher comes back by itself, as before.</string>
-    <string name="officina_active_title" formatted="false">Service mode is on</string>
-    <string name="officina_active_msg">Service mode is on until %1$s. Do you want to turn it off?</string>
+    <string name="confirm_workshop_title" formatted="false">Turn on service mode?</string>
+    <string name="confirm_workshop_msg">Until %1$s the car will use the original MG home and updates will be paused. When it expires, MG4 Launcher comes back by itself, as before.</string>
+    <string name="workshop_active_title" formatted="false">Service mode is on</string>
+    <string name="workshop_active_msg">Service mode is on until %1$s. Do you want to turn it off?</string>
     <string name="set_ui_size" formatted="false">CONTROL SIZE</string>
     <string name="ui_size_normal" formatted="false">Normal</string>
     <string name="ui_size_large" formatted="false">Large</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">Which pack do you want to delete?</string>
     <string name="logos_usb_title" formatted="false">Radio logos found</string>
     <string name="logos_usb_msg">There is a logo pack for %1$s in %2$s. Install it? It works without internet too.</string>
-    <string name="group_clima" formatted="false">Climate</string>
+    <string name="group_climate" formatted="false">Climate</string>
     <string name="group_comfort" formatted="false">Comfort</string>
     <string name="tap_outside_close" formatted="false">tap outside to close</string>
     <string name="lka_desc" formatted="false">Lane keeping assist (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">Inside temperature hidden: the car doesn\'t provide it (it showed the outside one); we\'re looking for it in the logs</string>
     <string name="newsv_4" formatted="false">CarPlay/Android Auto dongles that show up as an iPhone are now recognised and restarted if they don\'t start</string>
     <string name="newsf_1" formatted="false">Fan set to OFF now really turns the climate off (it used to come back to 1)</string>
-    <string name="group_guida" formatted="false">Driving</string>
+    <string name="group_drive" formatted="false">Driving</string>
     <string name="tile_lka" formatted="false">Lane</string>
     <string name="tile_acc" formatted="false">Assistant</string>
     <string name="tile_pedal" formatted="false">Brake pedal</string>
     <string name="recirc_in" formatted="false">Inside</string>
     <string name="recirc_out" formatted="false">Outside</string>
-    <string name="guida_stopped" formatted="false">Can only be changed with the car stopped</string>
+    <string name="drive_stopped" formatted="false">Can only be changed with the car stopped</string>
     <string name="set_inside_none" formatted="false">Not available: the car does not send it to the screen. The «ambient» value read before was actually the outside temperature</string>
     <string name="newsg_1" formatted="false">New Driving button in the bar: LKA, One Pedal, assistant (Off/ACC/TJA) and brake pedal (Comfort/Medium/Sport) in a single panel</string>
     <string name="newsg_2" formatted="false">Assistant and brake pedal can only be changed with the car stopped, for safety</string>

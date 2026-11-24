@@ -15,21 +15,21 @@ import android.view.View;
 import com.mg4.launcher.R;
 
 /**
- * La MG4 disegnata dal render 3D (1.0.4): la stessa auto, nella stessa posa e con gli stessi colori del primo
- * fotogramma dell'animazione di ricarica, così il passaggio immagine ferma → animazione non si vede.
+ * The MG4 drawn from the 3D render (1.0.4): the same car, in the same pose and with the same colors as the first
+ * frame of the charging animation, so the still image → animation switch is not visible.
  * <ul>
- *   <li>Un'immagine per colore (car_&lt;colore&gt;.webp, 958×368: riquadro 958×360 + 8 righe sotto per l'ombra), con
- *       vetri trasparenti e ombra a terra già nel render; si carica solo quella del colore scelto.</li>
- *   <li>Tetto nero opzionale: car_roof.webp (ombreggiatura del tetto in grigio + maschera), moltiplicato per 1A1B1E.</li>
- *   <li>Cerchi a scelta disegnati sopra (il render ha l'Aero 17", che non si ridisegna): 16" un po' più piccoli,
- *       18" un po' più grandi.</li>
- *   <li>Fari accesi: car_lights_*.webp (fari e fanali accesi presi dal render di notte) più il fascio morbido davanti.</li>
+ *   <li>One image per color (car_&lt;color&gt;.webp, 958×368: 958×360 box + 8 rows below for the shadow), with
+ *       transparent windows and ground shadow already in the render; only the chosen color is loaded.</li>
+ *   <li>Optional black roof: car_roof.webp (roof shading in grey + mask), multiplied by 1A1B1E.</li>
+ *   <li>Selectable wheels drawn on top (the render has the Aero 17", which is not redrawn): 16" a bit smaller,
+ *       18" a bit larger.</li>
+ *   <li>Lights on: car_lights_*.webp (head and tail lights on, taken from the night render) plus the soft beam in front.</li>
  * </ul>
- * Geometria: il riquadro 958×360 corrisponde ai pixel (177, 12)–(1135, 372) dei fotogrammi delle clip (1312×400),
- * quindi i centri ruota sono quelli delle clip (358 e 973, y 288) meno lo scostamento.
+ * Geometry: the 958×360 box matches pixels (177, 12)–(1135, 372) of the clip frames (1312×400),
+ * so the wheel centers are those of the clips (358 and 973, y 288) minus the offset.
  */
 public final class CarView extends View {
-    /** Nomi dei file per colore, nello stesso ordine di {@link Prefs#CAR_COLORS}. */
+    /** File names per color, in the same order as {@link Prefs#CAR_COLORS}. */
     private static final int[] BODY_RES = {R.drawable.car_arctic_white, R.drawable.car_black_pearl, R.drawable.car_camden_grey,
             R.drawable.car_cosmic_silver, R.drawable.car_ealing_green, R.drawable.car_piccadilly_blue,
             R.drawable.car_dynamic_red, R.drawable.car_volcano_orange};
@@ -37,11 +37,11 @@ public final class CarView extends View {
     private static Bitmap[] lightParts;
     private static int bodyIdx = -1;
     /**
-     * Fork: o tejadilho e as luzes eram telas inteiras 958×368 quase vazias (1,35 MB cada, sempre em memória). Agora são
-     * recortes sem perdas com 2 px de margem transparente, desenhados na mesma posição da tela original (canto superior
-     * esquerdo de cada recorte, em px da imagem do corpo). Caixas originais: tejadilho (406,6)-(864,46); luzes
-     * (21,146)-(137,200), (847,87)-(945,153), (908,229)-(946,286). Se se gerar de novo uma imagem em tela inteira,
-     * drawPart desenha-a como antes.
+     * Fork: the roof and the lights were full 958×368 canvases, almost empty (1.35 MB each, always in memory). Now they are
+     * lossless crops with a 2 px transparent margin, drawn at the same position on the original canvas (top-left
+     * corner of each crop, in px of the body image). Original boxes: roof (406,6)-(864,46); lights
+     * (21,146)-(137,200), (847,87)-(945,153), (908,229)-(946,286). If a full-canvas image is generated again,
+     * drawPart draws it as before.
      */
     private static final int[] ROOF_OFF = {404, 4};
     private static final int[] LIGHT_RES = {R.drawable.car_lights_front, R.drawable.car_lights_rear, R.drawable.car_lights_rear_low};
@@ -55,17 +55,17 @@ public final class CarView extends View {
     private boolean blackRoof;
     private int glow;
     private int color = 5;
-    /** Cerchi (indice di {@link Prefs#WHEEL_RES}); quello del render non si ridisegna. */
+    /** Wheels (index into {@link Prefs#WHEEL_RES}); the render's own is not redrawn. */
     private int wheel = Prefs.WHEEL_PHOTO;
     private static final android.util.SparseArray<Bitmap> RIMS = new android.util.SparseArray<>();
-    /** Riquadro di riferimento (px dell'immagine) e centri/raggio dei cerchi. */
+    /** Reference box (image px) and wheel centers/radius. */
     private static final float PHOTO_W = 958, PHOTO_H = 360;
     private static final float[][] WHEEL_CENTERS = {{181f, 276f}, {796f, 276f}};
     private static final float RIM_R = 54.7f;
     private final Paint rimPaint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
     private final Paint rimShade = new Paint(Paint.ANTI_ALIAS_FLAG);
     private final RectF rimDst = new RectF();
-    /** Fari accesi (anabbaglianti o posizione) disegnati sull'auto. */
+    /** Lights on (dipped beam or position) drawn on the car. */
     private boolean lights;
     private final Paint beamPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
@@ -80,13 +80,13 @@ public final class CarView extends View {
         return BitmapFactory.decodeResource(c.getResources(), res, o);
     }
 
-    /** Tejadilho preto: só se descodifica quando é preciso (fica em memória, são ~80 KB). */
+    /** Black roof: decoded only when needed (stays in memory, ~80 KB). */
     private static synchronized Bitmap roof(Context c) {
         if (roof == null) roof = decode(c, R.drawable.car_roof);
         return roof;
     }
 
-    /** Luzes: só se descodificam na primeira vez que os faróis acendem (ficam em memória, ~65 KB no total). */
+    /** Lights: decoded only the first time the lights turn on (stay in memory, ~65 KB in total). */
     private static synchronized Bitmap[] lightParts(Context c) {
         if (lightParts == null) {
             Bitmap[] p = new Bitmap[LIGHT_RES.length];
@@ -96,10 +96,10 @@ public final class CarView extends View {
         return lightParts;
     }
 
-    /** Desenha um recorte na sua posição da tela original (mesma escala s do corpo). */
+    /** Draws a crop at its position on the original canvas (same scale s as the body). */
     private void drawPart(Canvas c, Bitmap b, int ox, int oy, float s, float left, float top, Paint p) {
         if (b == null) return;
-        if (b.getWidth() >= (int) PHOTO_W) {   // imagem em tela inteira (render antigo): como antes
+        if (b.getWidth() >= (int) PHOTO_W) {   // full-canvas image (old render): as before
             c.drawBitmap(b, null, dst, p);
             return;
         }
@@ -107,7 +107,7 @@ public final class CarView extends View {
         c.drawBitmap(b, null, partDst, p);
     }
 
-    /** Immagine del colore scelto (una sola in memoria, condivisa tra le CarView). */
+    /** Image of the chosen color (only one in memory, shared between CarViews). */
     private static synchronized void load(Context c, int idx) {
         if (body != null && bodyIdx == idx) return;
         body = decode(c, BODY_RES[idx]);
@@ -130,7 +130,7 @@ public final class CarView extends View {
         }
     }
 
-    /** bodyColor = uno dei {@link Prefs#CAR_COLOR_VALUES}: sceglie l'immagine di quel colore. */
+    /** bodyColor = one of {@link Prefs#CAR_COLOR_VALUES}: picks the image of that color. */
     public void setLook(int bodyColor, boolean blackRoof, Theme t) {
         int idx = 0;
         for (int i = 0; i < Prefs.CAR_COLOR_VALUES.length; i++) if (Prefs.CAR_COLOR_VALUES[i] == bodyColor) idx = i;
@@ -141,21 +141,21 @@ public final class CarView extends View {
         invalidate();
     }
 
-    /** Fari accesi sull'auto disegnata; se lo stato non si legge l'auto resta com'è (false). */
+    /** Lights on the drawn car; if the state cannot be read the car stays as is (false). */
     public void setLights(boolean on) {
         if (on == lights) return;
         lights = on;
         invalidate();
     }
 
-    // ---- geometria: serve anche all'animazione di ricarica (stesso riquadro, stessi centri ruota) --
+    // ---- geometry: also used by the charging animation (same box, same wheel centers) --
 
-    /** Scala del riquadro in una vista w×h (stessa formula di onDraw). */
+    /** Box scale in a w×h view (same formula as onDraw). */
     public static float photoScale(int w, int h) {
         return Math.min(w / PHOTO_W, (h * 0.9f) / PHOTO_H);
     }
 
-    /** Centro della ruota anteriore (a sinistra) in px della vista w×h. */
+    /** Center of the front wheel (on the left) in px of the w×h view. */
     public static float[] wheelCenter(int w, int h) {
         float s = photoScale(w, h);
         float dw = PHOTO_W * s, dh = PHOTO_H * s;
@@ -163,7 +163,7 @@ public final class CarView extends View {
         return new float[]{left + WHEEL_CENTERS[0][0] * s, top + WHEEL_CENTERS[0][1] * s};
     }
 
-    /** Distanza tra i centri delle ruote (px dell'immagine). */
+    /** Distance between the wheel centers (image px). */
     public static float wheelDistance() {
         return WHEEL_CENTERS[1][0] - WHEEL_CENTERS[0][0];
     }
@@ -177,10 +177,10 @@ public final class CarView extends View {
         float s = photoScale(w, h);
         float dw = PHOTO_W * s, dh = PHOTO_H * s;
         float left = (w - dw) / 2f, top = (h - dh) / 2f - h * 0.02f;
-        // l'immagine ha 8 righe in più sotto il riquadro (ombra a terra)
+        // the image has 8 extra rows below the box (ground shadow)
         dst.set(left, top, left + dw, top + body.getHeight() * s);
 
-        // alone sul "pavimento" come nelle clip (l'ombra sotto l'auto è già nel render)
+        // halo on the "floor" as in the clips (the shadow under the car is already in the render)
         float cy = top + dh - dh * 0.035f;
         if (floor.getShader() == null) {
             floor.setShader(new RadialGradient(w / 2f, cy, dw * 0.55f, glow, glow & 0x00FFFFFF, Shader.TileMode.CLAMP));
@@ -196,7 +196,7 @@ public final class CarView extends View {
         if (lights) drawLights(c, s, left, top);
     }
 
-    /** Fari e fanali accesi dal render di notte, più un fascio morbido davanti al faro (muso a sinistra). */
+    /** Head and tail lights from the night render, plus a soft beam in front of the headlight (nose on the left). */
     private void drawLights(Canvas c, float s, float left, float top) {
         float fx = left + 73 * s, fy = top + 171 * s;
         beamPaint.setShader(new RadialGradient(fx - 50 * s, fy + 8 * s, 188 * s, new int[]{0x66FFF6D8, 0x22FFF6D8, 0x00FFF6D8},
@@ -218,7 +218,7 @@ public final class CarView extends View {
             float cx = left + wc[0] * s, cy = top + wc[1] * s;
             rimDst.set(cx - r, cy - r, cx + r, cy + r);
             c.drawBitmap(b, null, rimDst, rimPaint);
-            // ombra in basso come nel render (luce dall'alto)
+            // shadow at the bottom as in the render (light from above)
             rimShade.setShader(new android.graphics.LinearGradient(0, cy - r, 0, cy + r, 0x00000000, 0x55000000, Shader.TileMode.CLAMP));
             c.drawCircle(cx, cy, r, rimShade);
         }

@@ -7,11 +7,11 @@ import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Collections;
 
-/** Firma un APK (schemi v1 + v2) con la chiave contenuta in un keystore PKCS12. */
+/** Signs an APK (v1 + v2 schemes) with the key stored in a PKCS12 keystore. */
 public class Sign {
     public static void main(String[] a) throws Exception {
         if (a.length != 5) {
-            System.err.println("uso: Sign <keystore.p12> <password> <alias> <in.apk> <out.apk>");
+            System.err.println("usage: Sign <keystore.p12> <password> <alias> <in.apk> <out.apk>");
             System.exit(2);
         }
         KeyStore ks = KeyStore.getInstance("PKCS12");
@@ -31,6 +31,6 @@ public class Sign {
                 .setV3SigningEnabled(false)
                 .build()
                 .sign();
-        System.out.println("firmato: " + a[4]);
+        System.out.println("signed: " + a[4]);
     }
 }

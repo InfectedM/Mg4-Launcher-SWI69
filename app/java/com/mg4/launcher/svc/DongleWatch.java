@@ -18,37 +18,37 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Riavvio automatico dei dongle CarPlay / Android Auto wireless che a volte non partono finché non si tolgono e
- * rimettono (es. "AutoKit-TBox Plus", "SmartBox").
+ * Automatic restart of wireless CarPlay / Android Auto dongles that sometimes do not start until unplugged and
+ * plugged back (e.g. "AutoKit-TBox Plus", "SmartBox").
  * <ul>
- *   <li>interviene solo con un dongle riconosciuto: produttore USB dei dongle (Carlinkit 1314) oppure il dispositivo USB
- *   il cui numero di serie ha già dato una sessione con un nome da dongle (il launcher lo impara da solo). Un iPhone o
- *   un telefono Android collegato via cavo e le chiavette di musica non vengono mai toccati;</li>
- *   <li>solo se dopo N secondi dall'accensione (20 di default) non è partita nessuna sessione CarPlay/AA;</li>
- *   <li>al massimo 2 tentativi per accensione: reset della porta USB del dongle (come toglierlo e rimetterlo), poi
- *   riavvio del servizio CarPlay/AA (Allgo);</li>
- *   <li>0.9.8 (come la SWI68): niente più riconoscimento "automatico" di qualsiasi Apple/Android: i dongle wireless si presentano sull'USB
- *   come un iPhone (05ac:12a8) o in modalità accessorio Android (18d1:2d00), proprio come i telefoni col cavo, che venivano
- *   resettati. Ora conta come dongle solo: produttore dei dongle (Carlinkit), nome USB da dongle (es. "smartlinkBox",
- *   "OKBox") oppure numero di serie che ha già dato una sessione con un nome da dongle. Apple, modalità accessorio Android
- *   e dispositivi che si presentano come telefono (nome, classe) sono esclusi in tutti gli altri casi, e anche i numeri di
- *   serie che hanno dato una sessione col nome di un telefono. Con un telefono escluso collegato non si tocca
- *   nulla sull'USB. Il motivo di ogni esclusione va nella diagnostica (dongle.escluso);</li>
- *   <li>mai durante una chiamata.</li>
+ *   <li>acts only with a recognized dongle: USB vendor of the dongles (Carlinkit 1314) or the USB device
+ *   whose serial number already gave a session with a dongle name (the launcher learns it by itself). An iPhone or
+ *   an Android phone connected by cable and music sticks are never touched;</li>
+ *   <li>only if N seconds after power-on (20 by default) no CarPlay/AA session has started;</li>
+ *   <li>at most 2 attempts per power-on: reset of the dongle's USB port (like unplugging and replugging it), then
+ *   restart of the CarPlay/AA service (Allgo);</li>
+ *   <li>0.9.8 (like the SWI68): no more "automatic" detection of any Apple/Android: wireless dongles show up on USB
+ *   as an iPhone (05ac:12a8) or in Android accessory mode (18d1:2d00), just like phones on a cable, which were being
+ *   reset. Now only these count as dongles: dongle vendor (Carlinkit), dongle USB name (e.g. "smartlinkBox",
+ *   "OKBox") or a serial number that already gave a session with a dongle name. Apple, Android accessory mode
+ *   and devices presenting themselves as a phone (name, class) are excluded in all other cases, and so are serial
+ *   numbers that gave a session with a phone name. With an excluded phone connected nothing on USB is
+ *   touched. The reason for each exclusion goes into the diagnostics (dongle.escluso);</li>
+ *   <li>never during a call.</li>
  * </ul>
- * Ogni passo va nella diagnostica (chiavi dongle.*).
+ * Every step goes into the diagnostics (dongle.* keys).
  */
 public final class DongleWatch {
     private static final String PREFS = "dongle";
-    /** Produttori USB dei dongle (non di telefoni): Carlinkit / "Magic Communication Tec.". */
+    /** USB vendors of dongles (not of phones): Carlinkit / "Magic Communication Tec.". */
     private static final int[] DONGLE_VIDS = {0x1314};
     private static final int APPLE_VID = 0x05AC, GOOGLE_AOAP_VID = 0x18D1;
-    /** Nomi con cui i dongle si presentano a CarPlay/AA (in minuscolo, senza spazi). */
+    /** Names the dongles present to CarPlay/AA with (lowercase, no spaces). */
     private static final String[] DONGLE_NAMES = {"autokit", "carlinkit", "cpc200", "tbox", "smartbox", "ottocast",
             "u2w", "u2aw", "aawireless", "ma1", "carsifi", "cplay2air", "magicbox", "aibox", "wireless", "dongle", "adapter",
             "carplaybox", "playbox", "bmbox", "okbox", "smartlink", "carlink", "cpbox", "aabox", "linkbox", "aiplay",
             "vehiconn", "play2video", "carbox"};
-    /** Nomi di telefoni (in minuscolo, senza spazi): USB o sessione con questi nomi = telefono, mai resettato. */
+    /** Phone names (lowercase, no spaces): USB or session with these names = phone, never reset. */
     private static final String[] PHONE_NAMES = {"iphone", "ipad", "pixel", "redmi", "xiaomi", "poco", "galaxy", "samsung",
             "oneplus", "huawei", "honor", "oppo", "vivo", "realme", "motorola", "moto", "nokia", "xperia", "sony", "nothing",
             "phone", "android"};
@@ -61,7 +61,7 @@ public final class DongleWatch {
         return instance;
     }
 
-    /** Istanza già creata dal launcher (null prima dell'avvio dei servizi). */
+    /** Instance already created by the launcher (null before the services start). */
     public static synchronized DongleWatch peek() {
         return instance;
     }
@@ -81,7 +81,7 @@ public final class DongleWatch {
         bg = new Handler(th.getLooper());
     }
 
-    // ---- impostazioni ----------------------------------------------------------------------
+    // ---- settings --------------------------------------------------------------------------
 
     public boolean enabled() {
         return sp.getBoolean("attivo", true);
@@ -89,10 +89,10 @@ public final class DongleWatch {
 
     public void setEnabled(boolean on) {
         sp.edit().putBoolean("attivo", on).apply();
-        Diag.put("dongle.automatico", on ? "acceso" : "spento");
+        Diag.put("dongle.auto", on ? "on" : "off");
     }
 
-    /** Secondi dall'accensione prima di intervenire. */
+    /** Seconds after power-on before acting. */
     public int delaySeconds() {
         return sp.getInt("secondi", 20);
     }
@@ -101,7 +101,7 @@ public final class DongleWatch {
         sp.edit().putInt("secondi", s).apply();
     }
 
-    // ---- avvio -----------------------------------------------------------------------------
+    // ---- start -----------------------------------------------------------------------------
 
     public synchronized void start() {
         if (started) return;
@@ -120,7 +120,7 @@ public final class DongleWatch {
         }
     }
 
-    /** Tentativi già fatti in questa accensione (resta giusto anche se il launcher si riavvia). */
+    /** Attempts already made in this power-on (stays correct even if the launcher restarts). */
     private int attempts() {
         return sp.getInt("boot", -1) == bootCount() ? sp.getInt("tentativi", 0) : 0;
     }
@@ -135,65 +135,65 @@ public final class DongleWatch {
 
     private void check() {
         if (sessionActive()) {
-            Diag.put("dongle.esito", attempts() == 0 ? "sessione partita da sola" : "sessione partita dopo " + attempts() + " tentativi");
+            Diag.put("dongle.result", attempts() == 0 ? "session started on its own" : "session started after " + attempts() + " attempts");
             learn();
             return;
         }
         if (!enabled()) {
-            Diag.put("dongle.esito", "nessuna sessione, riavvio automatico spento");
+            Diag.put("dongle.result", "no session, automatic restart off");
             return;
         }
         int n = attempts();
         if (n >= 2) {
-            Diag.put("dongle.esito", "nessuna sessione dopo 2 tentativi: niente altro in questa accensione");
+            Diag.put("dongle.result", "no session after 2 attempts: nothing more this power-on");
             return;
         }
         if (inCall()) {
-            Diag.put("dongle.esito", "chiamata in corso: rimando");
+            Diag.put("dongle.result", "call in progress: postponing");
             bg.postDelayed(this::check, 15_000);
             return;
         }
         UsbDevice d = findDongle();
         String excl = excluded();
         if (d == null && !excl.isEmpty()) {
-            Diag.put("dongle.esito", "nessuna sessione e nessun dongle: collegato solo " + excl + ": non tocco il dispositivo");
+            Diag.put("dongle.result", "no session and no dongle: only " + excl + " connected: not touching the device");
             return;
         }
         if (d == null) {
-            Diag.put("dongle.esito", "nessuna sessione, ma nessun dongle riconosciuto collegato: non intervengo");
+            Diag.put("dongle.result", "no session, but no recognized dongle connected: not intervening");
             return;
         }
         setAttempts(n + 1);
         if (n == 0) {
             boolean ok = resetUsb(d);
-            Diag.put("dongle.tentativo1", "reset porta USB " + describe(d) + ": " + (ok ? "fatto" : "non riuscito"));
-            checkReappear("dongle.dopoReset", d.getVendorId(), d.getProductId());
-            if (!ok) {   // passa subito al secondo
+            Diag.put("dongle.attempt1", "USB port reset " + describe(d) + ": " + (ok ? "done" : "failed"));
+            checkReappear("dongle.afterReset", d.getVendorId(), d.getProductId());
+            if (!ok) {   // go straight to the second
                 bg.postDelayed(this::check, 2000);
                 return;
             }
         } else {
-            Diag.put("dongle.tentativo2", "riavvio servizio CarPlay/AA: " + restartAllgo());
+            Diag.put("dongle.attempt2", "CarPlay/AA service restart: " + restartAllgo());
         }
         bg.postDelayed(this::check, delaySeconds() * 1000L);
     }
 
-    /** Pulsante "Riavvia CarPlay/AA": reset del dongle se riconosciuto, poi riavvio del servizio. */
+    /** "Riavvia CarPlay/AA" button: dongle reset if recognized, then service restart. */
     public void restartNow(Runnable onDone) {
         bg.post(() -> {
             String res;
             if (inCall()) {
-                res = "chiamata in corso: non riavviato";
+                res = "call in progress: not restarted";
             } else {
                 UsbDevice d = findDongle();
                 StringBuilder sb = new StringBuilder();
                 String excl = excluded();
-                if (d == null && !excl.isEmpty()) sb.append("collegato solo ").append(excl).append(": USB non toccata; ");
-                if (d != null) sb.append("reset USB ").append(describe(d)).append(": ").append(resetUsb(d) ? "fatto" : "non riuscito").append("; ");
-                sb.append("servizio: ").append(restartAllgo());
+                if (d == null && !excl.isEmpty()) sb.append("only ").append(excl).append(" connected: USB not touched; ");
+                if (d != null) sb.append("reset USB ").append(describe(d)).append(": ").append(resetUsb(d) ? "done" : "failed").append("; ");
+                sb.append("service: ").append(restartAllgo());
                 res = sb.toString();
             }
-            Diag.put("dongle.manuale", res);
+            Diag.put("dongle.manual", res);
             if (onDone != null) new Handler(android.os.Looper.getMainLooper()).post(onDone);
         });
     }
@@ -208,7 +208,7 @@ public final class DongleWatch {
         return media.remoteCallActive();
     }
 
-    // ---- riconoscimento --------------------------------------------------------------------
+    // ---- detection -------------------------------------------------------------------------
 
     private static boolean dongleName(String name) {
         String n = name == null ? "" : name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
@@ -226,9 +226,9 @@ public final class DongleWatch {
     }
 
     /**
-     * Sessione attiva: con un nome da dongle si ricorda il numero di serie dei dispositivi USB Apple/AOAP/dongle collegati;
-     * con il nome di un telefono (es. "iPhone 16 Pro max", "REDMI Note…") quel numero di serie diventa un telefono, che non
-     * si resetta mai. Vale l'ultima sessione vista.
+     * Active session: with a dongle name, the serial numbers of the connected Apple/AOAP/dongle USB devices are remembered;
+     * with a phone name (e.g. "iPhone 16 Pro max", "REDMI Note…") that serial number becomes a phone, which is
+     * never reset. The last session seen counts.
      */
     private void learn() {
         MediaClient.State m = media.last();
@@ -241,7 +241,7 @@ public final class DongleWatch {
             if (vid != APPLE_VID && vid != GOOGLE_AOAP_VID && !isDongleVid(vid) && !dongleName(product(d))) continue;
             String serial = serial(d);
             if (serial.isEmpty()) {
-                Diag.putQuiet("dongle.seriale", describe(d) + ": numero di serie non leggibile");
+                Diag.putQuiet("dongle.serial", describe(d) + ": serial number not readable");
                 continue;
             }
             if (dongle) changed |= s.add(serial) | ph.remove(serial);
@@ -249,9 +249,9 @@ public final class DongleWatch {
         }
         if (changed) {
             sp.edit().putStringSet("seriali", s).putStringSet("telefoni", ph).apply();
-            if (dongle) Diag.put("dongle.riconosciuto", m.deviceName + " (" + s.size() + " numeri di serie memorizzati)");
-            // 1.0.4: niente nome del telefono nel log (dato personale)
-            else Diag.put("dongle.telefonoRiconosciuto", "sessione con un telefono: il dispositivo USB è un telefono, non verrà mai resettato");
+            if (dongle) Diag.put("dongle.detected", m.deviceName + " (" + s.size() + " serial numbers stored)");
+            // 1.0.4: no phone name in the log (personal data)
+            else Diag.put("dongle.phoneDetected", "session with a phone: the USB device is a phone, it will never be reset");
         }
     }
 
@@ -261,9 +261,9 @@ public final class DongleWatch {
     }
 
     /**
-     * Solo un dongle wireless vero (0.9.8): produttore dei dongle, nome USB da dongle (es. "OKBox", "SmartBox",
-     * "smartlinkBox", anche con 18d1:2d00 o 2717:ff40) o numero di serie già visto in una sessione con nome da dongle.
-     * Un numero di serie visto in una sessione col nome di un telefono non è mai un dongle.
+     * Only a real wireless dongle (0.9.8): dongle vendor, dongle USB name (e.g. "OKBox", "SmartBox",
+     * "smartlinkBox", also with 18d1:2d00 or 2717:ff40) or serial number already seen in a session with a dongle name.
+     * A serial number seen in a session with a phone name is never a dongle.
      */
     private UsbDevice findDongle() {
         Set<String> s = learned(), ph = phones();
@@ -281,24 +281,24 @@ public final class DongleWatch {
         String n = name == null ? "" : name.toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9]", "");
         if (n.isEmpty()) return false;
         for (String p : PHONE_NAMES) if (n.contains(p)) return true;
-        return n.matches("sm[a-z]?\\d{3}[a-z0-9]{0,3}");   // modelli Samsung, es. "SM-S918B"
+        return n.matches("sm[a-z]?\\d{3}[a-z0-9]{0,3}");   // Samsung models, e.g. "SM-S918B"
     }
 
-    /** Il dispositivo si presenta come un telefono: nome (prodotto o produttore) o classe (comunicazioni, foto/MTP). */
+    /** The device presents itself as a phone: name (product or manufacturer) or class (communications, photo/MTP). */
     private static String phoneLike(UsbDevice d) {
         String p = product(d), m = "";
         try {
             m = d.getManufacturerName();
         } catch (Throwable ignored) {
         }
-        if (phoneName(p)) return "nome \"" + p + "\"";
-        if (phoneName(m)) return "produttore \"" + m + "\"";
-        if (d.getDeviceClass() == 2) return "classe 2 (comunicazioni)";
+        if (phoneName(p)) return "name \"" + p + "\"";
+        if (phoneName(m)) return "manufacturer \"" + m + "\"";
+        if (d.getDeviceClass() == 2) return "class 2 (communications)";
         try {
             for (int i = 0; i < d.getInterfaceCount(); i++) {
                 int c = d.getInterface(i).getInterfaceClass();
-                if (c == 6) return "interfaccia classe 6 (foto/MTP)";
-                if (c == 2) return "interfaccia classe 2 (comunicazioni)";
+                if (c == 6) return "interface class 6 (photo/MTP)";
+                if (c == 2) return "interface class 2 (communications)";
             }
         } catch (Throwable ignored) {
         }
@@ -306,8 +306,8 @@ public final class DongleWatch {
     }
 
     /**
-     * Dispositivi esclusi dal riavvio, con il motivo (scritti in dongle.escluso): Apple, modalità accessorio Android
-     * (18d1:2d00–2d05), dispositivi che si presentano come telefono o già visti come telefono. "" se nessuno.
+     * Devices excluded from the restart, with the reason (written in dongle.escluso): Apple, Android accessory mode
+     * (18d1:2d00–2d05), devices presenting themselves as a phone or already seen as a phone. "" if none.
      */
     private String excluded() {
         Set<String> s = learned(), ph = phones();
@@ -315,22 +315,22 @@ public final class DongleWatch {
         for (UsbDevice d : devices()) {
             if (systemDevice(d) || isDongleVid(d.getVendorId()) || dongleName(product(d))) continue;
             String serial = serial(d);
-            if (!serial.isEmpty() && s.contains(serial) && !ph.contains(serial)) continue;   // dongle già riconosciuto
+            if (!serial.isEmpty() && s.contains(serial) && !ph.contains(serial)) continue;   // dongle already recognized
             int vid = d.getVendorId(), pid = d.getProductId();
             String why = null;
-            if (!serial.isEmpty() && ph.contains(serial)) why = "già visto in una sessione con il nome di un telefono";
-            else if (vid == APPLE_VID) why = "Apple (05ac), non riconosciuto come dongle";
+            if (!serial.isEmpty() && ph.contains(serial)) why = "already seen in a session with a phone name";
+            else if (vid == APPLE_VID) why = "Apple (05ac), not recognized as a dongle";
             else if (vid == GOOGLE_AOAP_VID && pid >= 0x2D00 && pid <= 0x2D05)
-                why = "modalità accessorio Android (18d1:" + Integer.toHexString(pid) + "), non riconosciuto come dongle";
+                why = "Android accessory mode (18d1:" + Integer.toHexString(pid) + "), not recognized as a dongle";
             else {
                 String ph2 = phoneLike(d);
-                if (ph2 != null) why = "si presenta come telefono (" + ph2 + ")";
+                if (ph2 != null) why = "presents itself as a phone (" + ph2 + ")";
             }
             if (why == null) continue;
-            sb.append(sb.length() == 0 ? "" : "; ").append(describe(d)).append(" escluso: ").append(why);
+            sb.append(sb.length() == 0 ? "" : "; ").append(describe(d)).append(" excluded: ").append(why);
         }
         String v = sb.toString();
-        if (!v.isEmpty()) Diag.put("dongle.escluso", v);
+        if (!v.isEmpty()) Diag.put("dongle.excluded", v);
         return v;
     }
 
@@ -343,7 +343,7 @@ public final class DongleWatch {
         }
     }
 
-    /** Dispositivi di sistema sempre collegati (root hub, modem, STM32) o hub: mai dongle né telefoni. */
+    /** Always-connected system devices (root hub, modem, STM32) or hubs: never dongles nor phones. */
     private static boolean systemDevice(UsbDevice d) {
         int v = d.getVendorId();
         return d.getDeviceClass() == 9 || v == 0x1D6B || v == 0x05C6 || v == 0x0483;
@@ -387,14 +387,14 @@ public final class DongleWatch {
             } catch (Throwable ignored) {
             }
             sb.append(sb.length() == 0 ? "" : " | ").append(describe(d)).append(m == null || m.isEmpty() ? "" : " (" + m + ")")
-                    .append(" classe ").append(d.getDeviceClass());
+                    .append(" class ").append(d.getDeviceClass());
         }
-        Diag.put("usb.dispositivi", sb.length() == 0 ? "nessuno" : sb.toString());
+        Diag.put("usb.devices", sb.length() == 0 ? "none" : sb.toString());
     }
 
-    // ---- azioni ----------------------------------------------------------------------------
+    // ---- actions ---------------------------------------------------------------------------
 
-    /** Permesso USB concesso dal launcher stesso (MANAGE_USB, firma di sistema), senza finestra di conferma. */
+    /** USB permission granted by the launcher itself (MANAGE_USB, system signature), without a confirmation dialog. */
     private void grant(UsbDevice d) {
         try {
             UsbManager um = (UsbManager) ctx.getSystemService(Context.USB_SERVICE);
@@ -404,7 +404,7 @@ public final class DongleWatch {
         }
     }
 
-    /** Dopo un reset o una riaccensione della porta: registra se il dongle ricompare sul bus (1.x). */
+    /** After a port reset or power cycle: records whether the dongle reappears on the bus (1.x). */
     private void checkReappear(String tag, int vid, int pid) {
         bg.postDelayed(() -> {
             try {
@@ -414,15 +414,15 @@ public final class DongleWatch {
                     if (isDongleVid(x.getVendorId())) any = true;
                     if (vid != 0 && x.getVendorId() == vid && x.getProductId() == pid) found = true;
                 }
-                String esito = vid != 0 ? (found ? "ricomparso" : "NON ricomparso") : (any ? "un dongle è visibile" : "nessun dongle visibile");
-                Diag.put(tag, esito + " 8 s dopo il reset");
+                String outcome = vid != 0 ? (found ? "reappeared" : "did NOT reappear") : (any ? "a dongle is visible" : "no dongle visible");
+                Diag.put(tag, outcome + " 8 s after the reset");
             } catch (Throwable e) {
                 Diag.error(tag, e.toString());
             }
         }, 8000);
     }
 
-    /** Reset della porta USB (come staccare e riattaccare), lo stesso che usa il servizio Allgo. */
+    /** USB port reset (like unplugging and replugging), the same one the Allgo service uses. */
     private boolean resetUsb(UsbDevice d) {
         UsbDeviceConnection c = null;
         try {
@@ -430,7 +430,7 @@ public final class DongleWatch {
             UsbManager um = (UsbManager) ctx.getSystemService(Context.USB_SERVICE);
             c = um.openDevice(d);
             if (c == null) {
-                Diag.error("dongle.reset", "openDevice non riuscito (permesso?)");
+                Diag.error("dongle.reset", "openDevice failed (permission?)");
                 return false;
             }
             Object r = UsbDeviceConnection.class.getMethod("resetDevice").invoke(c);
@@ -447,7 +447,7 @@ public final class DongleWatch {
         }
     }
 
-    /** Ferma i servizi CarPlay/AA e riavvia RemoteUIService (il launcher poi si ricollega da solo). */
+    /** Stops the CarPlay/AA services and restarts RemoteUIService (the launcher then reconnects by itself). */
     private String restartAllgo() {
         StringBuilder sb = new StringBuilder();
         try {
@@ -460,18 +460,18 @@ public final class DongleWatch {
                     continue;
                 }
                 fs.invoke(am, p);
-                sb.append(p.substring(p.lastIndexOf('.') + 1)).append(" fermato; ");
+                sb.append(p.substring(p.lastIndexOf('.') + 1)).append(" stopped; ");
             }
         } catch (Throwable e) {
             Throwable t = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
-            return "arresto non riuscito: " + t;
+            return "stop failed: " + t;
         }
         SystemClock.sleep(1500);
         try {
             ctx.startService(new Intent().setComponent(new ComponentName("com.allgo.rui", "com.allgo.rui.RemoteUIService")));
-            sb.append("RemoteUIService riavviato");
+            sb.append("RemoteUIService restarted");
         } catch (Throwable e) {
-            sb.append("riavvio: ").append(e.getClass().getSimpleName()).append(" (si riavvia al ricollegamento)");
+            sb.append("restart: ").append(e.getClass().getSimpleName()).append(" (restarts on reconnection)");
         }
         return sb.toString();
     }

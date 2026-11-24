@@ -13,14 +13,14 @@ import java.io.InputStream;
 import java.io.OutputStream;
 
 /**
- * 1.0.4 (punto D): MG4 Store dentro il launcher (assets/MG4Store.apk, firmato con la stessa chiave platform).
+ * 1.0.4 (point D): MG4 Store inside the launcher (assets/MG4Store.apk, signed with the same platform key).
  * <ul>
- *   <li>Alla prima accensione con un launcher che lo contiene, lo Store si installa da solo, in silenzio, SOLO se manca
- *       o è più vecchio di quello contenuto. Succede una volta sola: dopo lo Store si aggiorna da solo e il launcher non
- *       lo tocca più, nemmeno se una versione nuova del launcher contiene uno Store più vecchio.</li>
- *   <li>Se l'utente lo disinstalla, il launcher non lo rimette: c'è "Installa MG4 Store" nelle impostazioni.</li>
+ *   <li>At the first power-on with a launcher that contains it, the Store installs itself, silently, ONLY if missing
+ *       or older than the bundled one. It happens only once: afterwards the Store updates itself and the launcher
+ *       no longer touches it, not even if a new launcher version contains an older Store.</li>
+ *   <li>If the user uninstalls it, the launcher does not put it back: there is "Installa MG4 Store" in the settings.</li>
  * </ul>
- * Log "store": installato vN / installato ora / installazione non riuscita (motivo) / tolto dall'utente.
+ * "store" log: installed vN / installed now / installation failed (reason) / removed by the user.
  */
 public final class StoreSetup {
     public static final String PKG = "com.mg4.store", ASSET = "MG4Store.apk";
@@ -32,7 +32,7 @@ public final class StoreSetup {
 
     private StoreSetup() {}
 
-    /** Versione installata dello Store (versionCode), -1 se non c'è. */
+    /** Installed Store version (versionCode), -1 if absent. */
     public static long installedCode(Context c) {
         try {
             return c.getPackageManager().getPackageInfo(PKG, 0).versionCode;
@@ -49,7 +49,7 @@ public final class StoreSetup {
         }
     }
 
-    /** {versionCode, versionName} dello Store contenuto nel launcher, null se manca. */
+    /** {versionCode, versionName} of the Store bundled in the launcher, null if missing. */
     static Object[] bundled(Context c) {
         java.io.File tmp = new java.io.File(c.getCacheDir(), "store-check.apk");
         try {
@@ -64,7 +64,7 @@ public final class StoreSetup {
         }
     }
 
-    /** Fork: este APK traz o MG4 Store dentro (assets/MG4Store.apk)? Os builds sem Store não mostram o botão de instalação. */
+    /** Fork: does this APK bundle the MG4 Store (assets/MG4Store.apk)? Builds without the Store do not show the install button. */
     public static boolean bundledAvailable(Context c) {
         try (InputStream in = c.getApplicationContext().getAssets().open(ASSET)) {
             return in != null;
@@ -73,38 +73,38 @@ public final class StoreSetup {
         }
     }
 
-    /** Avvio del launcher: installazione automatica una volta sola, poi solo il log. Va chiamato fuori dal thread principale. */
+    /** Launcher start: automatic installation only once, then only the log. Must be called off the main thread. */
     public static void onStart(Context ctx) {
         Context c = ctx.getApplicationContext();
         SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
         long have = installedCode(c);
         if (sp.getBoolean(K_DONE, false)) {
-            Diag.put("store", have >= 0 ? "installato v" + installedName(c) + " (si aggiorna da solo)" : "tolto dall'utente (si rimette da Impostazioni → Installa MG4 Store)");
+            Diag.put("store", have >= 0 ? "installed v" + installedName(c) + " (updates itself)" : "removed by the user (reinstall from Settings → Install MG4 Store)");
             return;
         }
         Object[] b = bundled(c);
         if (b == null) {
-            Diag.put("store", "nessuno Store dentro il launcher");
+            Diag.put("store", "no Store inside the launcher");
             return;
         }
         long code = (Long) b[0];
         if (have >= code) {
-            sp.edit().putBoolean(K_DONE, true).apply();   // da qui in poi il launcher non lo tocca più da solo
-            Diag.put("store", "installato v" + installedName(c) + " (uguale o più nuovo di quello nel launcher, v" + b[1] + ")");
+            sp.edit().putBoolean(K_DONE, true).apply();   // from here on the launcher no longer touches it by itself
+            Diag.put("store", "installed v" + installedName(c) + " (same as or newer than the one in the launcher, v" + b[1] + ")");
             return;
         }
         String before = installedName(c);
         install(c, false, (ok, msg) -> {
-            // il segno "fatto" solo se è andata bene: se non riesce si riprova alla prossima accensione
+            // the "done" mark only if it succeeded: if it fails, retry at the next power-on
             if (ok) sp.edit().putBoolean(K_DONE, true).apply();
-            Diag.put("store", ok ? "installato ora v" + b[1] + (before != null ? " (prima v" + before + ")" : "")
-                    : "installazione non riuscita (" + msg + ") · si riprova alla prossima accensione");
+            Diag.put("store", ok ? "installed now v" + b[1] + (before != null ? " (before v" + before + ")" : "")
+                    : "installation failed (" + msg + ") · retrying at next power-on");
         });
     }
 
     /**
-     * Installa lo Store contenuto nel launcher. byUser = true (pulsante nelle impostazioni): se Android chiede una
-     * conferma la mostra; all'accensione no.
+     * Installs the Store bundled in the launcher. byUser = true (button in the settings): if Android asks for a
+     * confirmation it shows it; at power-on it does not.
      */
     public static void install(Context ctx, boolean byUser, Done done) {
         Context app = ctx.getApplicationContext();
@@ -116,9 +116,9 @@ public final class StoreSetup {
                 PackageInstaller.SessionParams p = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
                 p.setAppPackageName(PKG);
                 p.setSize(tmp.length());
-                // memoria interna: il firmware MG blocca le app non di sistema sull'archivio "automatico"
+                // internal storage: the MG firmware blocks non-system apps on the "automatic" location
                 p.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
-                try {   // INSTALL_REPLACE_EXISTING (0x2) + INSTALL_INTERNAL (0x10), come "adb install -r"
+                try {   // INSTALL_REPLACE_EXISTING (0x2) + INSTALL_INTERNAL (0x10), like "adb install -r"
                     java.lang.reflect.Field f = PackageInstaller.SessionParams.class.getField("installFlags");
                     f.setInt(p, f.getInt(p) | 0x2 | 0x10);
                 } catch (Throwable ignored) {
@@ -133,9 +133,9 @@ public final class StoreSetup {
                             Intent confirm = i.getParcelableExtra(Intent.EXTRA_INTENT);
                             if (byUser && confirm != null) {
                                 app.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                                return;   // l'esito arriva dopo la conferma
+                                return;   // the result arrives after the confirmation
                             }
-                            try {   // all'accensione nessuna conferma a schermo: la sessione si chiude
+                            try {   // at power-on no on-screen confirmation: the session is closed
                                 pi.abandonSession(id);
                             } catch (Exception ignored) {
                             }
@@ -146,9 +146,9 @@ public final class StoreSetup {
                         }
                         //noinspection ResultOfMethodCallIgnored
                         tmp.delete();
-                        String msg = st == PackageInstaller.STATUS_PENDING_USER_ACTION ? "Android chiede una conferma"
+                        String msg = st == PackageInstaller.STATUS_PENDING_USER_ACTION ? "Android asks for confirmation"
                                 : i.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-                        done.done(st == PackageInstaller.STATUS_SUCCESS, msg == null ? "codice " + st : msg);
+                        done.done(st == PackageInstaller.STATUS_SUCCESS, msg == null ? "code " + st : msg);
                     }
                 };
                 app.registerReceiver(rcv, new IntentFilter(action));

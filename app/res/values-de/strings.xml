@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Als Standard-Startseite verwenden</string>
     <string name="home_default_sub" formatted="false">MG4 Launcher öffnet sich beim Einschalten und mit der Home-Taste</string>
     <string name="home_default_off_sub" formatted="false">Aus: die originale MG-Startseite wird verwendet</string>
-    <string name="officina_until_sub">Werkstattmodus bis %1$s</string>
-    <string name="officina_title" formatted="false">Werkstattmodus</string>
-    <string name="officina_sub" formatted="false">Einige Tage nutzt das Auto die originale MG-Startseite, danach kehrt der Launcher von selbst zurück</string>
+    <string name="workshop_until_sub">Werkstattmodus bis %1$s</string>
+    <string name="workshop_title" formatted="false">Werkstattmodus</string>
+    <string name="workshop_sub" formatted="false">Einige Tage nutzt das Auto die originale MG-Startseite, danach kehrt der Launcher von selbst zurück</string>
     <string name="days_1" formatted="false">1 Tag</string>
     <string name="days_3" formatted="false">3 Tage</string>
     <string name="days_7" formatted="false">7 Tage</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Beibehalten</string>
     <string name="confirm_home_off_title" formatted="false">Originale MG-Startseite verwenden?</string>
     <string name="confirm_home_off_msg" formatted="false">Die MG-Startseite wird zum Standard, auch beim Einschalten. Die MG-Startseite zeigt MG4 Launcher nicht in ihren Apps: Zum Zurückkehren brauchst du einen Computer (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Wenn du es nur für ein paar Tage brauchst, nutze den Werkstattmodus: Der Launcher kehrt von selbst zurück.</string>
-    <string name="confirm_officina_title" formatted="false">Werkstattmodus aktivieren?</string>
-    <string name="confirm_officina_msg">Bis %1$s nutzt das Auto die originale MG-Startseite, Updates sind pausiert. Danach kehrt MG4 Launcher von selbst zurück, wie zuvor.</string>
-    <string name="officina_active_title" formatted="false">Werkstattmodus aktiv</string>
-    <string name="officina_active_msg">Werkstattmodus aktiv bis %1$s. Möchtest du ihn deaktivieren?</string>
+    <string name="confirm_workshop_title" formatted="false">Werkstattmodus aktivieren?</string>
+    <string name="confirm_workshop_msg">Bis %1$s nutzt das Auto die originale MG-Startseite, Updates sind pausiert. Danach kehrt MG4 Launcher von selbst zurück, wie zuvor.</string>
+    <string name="workshop_active_title" formatted="false">Werkstattmodus aktiv</string>
+    <string name="workshop_active_msg">Werkstattmodus aktiv bis %1$s. Möchtest du ihn deaktivieren?</string>
     <string name="set_ui_size" formatted="false">GRÖSSE DER BEDIENELEMENTE</string>
     <string name="ui_size_normal" formatted="false">Normal</string>
     <string name="ui_size_large" formatted="false">Groß</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">Welches Paket möchtest du löschen?</string>
     <string name="logos_usb_title" formatted="false">Radiologos gefunden</string>
     <string name="logos_usb_msg">In %2$s liegt ein Logopaket für %1$s. Installieren? Es funktioniert auch ohne Internet.</string>
-    <string name="group_clima" formatted="false">Klima</string>
+    <string name="group_climate" formatted="false">Klima</string>
     <string name="group_comfort" formatted="false">Komfort</string>
     <string name="tap_outside_close" formatted="false">außerhalb tippen zum Schließen</string>
     <string name="lka_desc" formatted="false">Spurhalteassistent (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">Innentemperatur ausgeblendet: Das Auto liefert sie nicht (es zeigte die Außentemperatur); wir suchen sie in den Logs</string>
     <string name="newsv_4" formatted="false">CarPlay-/Android-Auto-Dongles, die sich als iPhone melden, werden jetzt erkannt und neu gestartet, wenn sie nicht starten</string>
     <string name="newsf_1" formatted="false">Lüfter auf AUS schaltet die Klimaanlage jetzt wirklich aus (vorher sprang er auf 1 zurück)</string>
-    <string name="group_guida" formatted="false">Fahren</string>
+    <string name="group_drive" formatted="false">Fahren</string>
     <string name="tile_lka" formatted="false">Spur</string>
     <string name="tile_acc" formatted="false">Assistent</string>
     <string name="tile_pedal" formatted="false">Bremspedal</string>
     <string name="recirc_in" formatted="false">Innen</string>
     <string name="recirc_out" formatted="false">Außen</string>
-    <string name="guida_stopped" formatted="false">Nur bei stehendem Auto änderbar</string>
+    <string name="drive_stopped" formatted="false">Nur bei stehendem Auto änderbar</string>
     <string name="set_inside_none" formatted="false">Nicht verfügbar: Das Auto sendet sie nicht an den Bildschirm. Der früher gelesene „Umgebungs“-Wert war in Wirklichkeit die Außentemperatur</string>
     <string name="newsg_1" formatted="false">Neue Fahren-Taste in der Leiste: LKA, One Pedal, Assistent (Aus/ACC/TJA) und Bremspedal (Comfort/Medium/Sport) in einem Feld</string>
     <string name="newsg_2" formatted="false">Assistent und Bremspedal lassen sich aus Sicherheitsgründen nur bei stehendem Auto ändern</string>

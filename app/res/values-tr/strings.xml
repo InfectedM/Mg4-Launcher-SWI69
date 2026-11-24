@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Varsayılan ana ekran olarak kullan</string>
     <string name="home_default_sub" formatted="false">MG4 Launcher açılışta ve Ana ekran düğmesiyle açılır</string>
     <string name="home_default_off_sub" formatted="false">Kapalı: orijinal MG ana ekranı kullanılır</string>
-    <string name="officina_until_sub">Servis modu %1$s tarihine kadar</string>
-    <string name="officina_title" formatted="false">Servis modu</string>
-    <string name="officina_sub" formatted="false">Birkaç gün araç orijinal MG ana ekranını kullanır, sonra başlatıcı kendiliğinden geri gelir</string>
+    <string name="workshop_until_sub">Servis modu %1$s tarihine kadar</string>
+    <string name="workshop_title" formatted="false">Servis modu</string>
+    <string name="workshop_sub" formatted="false">Birkaç gün araç orijinal MG ana ekranını kullanır, sonra başlatıcı kendiliğinden geri gelir</string>
     <string name="days_1" formatted="false">1 gün</string>
     <string name="days_3" formatted="false">3 gün</string>
     <string name="days_7" formatted="false">7 gün</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Açık bırak</string>
     <string name="confirm_home_off_title" formatted="false">Orijinal MG ana ekranı kullanılsın mı?</string>
     <string name="confirm_home_off_msg" formatted="false">MG ana ekranı, açılışta da varsayılan olur. MG ana ekranı uygulamaları arasında MG4 Launcher\'ı göstermez: geri dönmek için bilgisayar gerekir (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Yalnızca birkaç gün içinse Servis modunu kullan: başlatıcı kendiliğinden geri gelir.</string>
-    <string name="confirm_officina_title" formatted="false">Servis modu açılsın mı?</string>
-    <string name="confirm_officina_msg">%1$s tarihine kadar araç orijinal MG ana ekranını kullanacak ve güncellemeler duraklatılacak. Süre bitince MG4 Launcher kendiliğinden, eskisi gibi geri gelir.</string>
-    <string name="officina_active_title" formatted="false">Servis modu açık</string>
-    <string name="officina_active_msg">Servis modu %1$s tarihine kadar açık. Kapatmak istiyor musun?</string>
+    <string name="confirm_workshop_title" formatted="false">Servis modu açılsın mı?</string>
+    <string name="confirm_workshop_msg">%1$s tarihine kadar araç orijinal MG ana ekranını kullanacak ve güncellemeler duraklatılacak. Süre bitince MG4 Launcher kendiliğinden, eskisi gibi geri gelir.</string>
+    <string name="workshop_active_title" formatted="false">Servis modu açık</string>
+    <string name="workshop_active_msg">Servis modu %1$s tarihine kadar açık. Kapatmak istiyor musun?</string>
     <string name="set_ui_size" formatted="false">KONTROL BOYUTU</string>
     <string name="ui_size_normal" formatted="false">Normal</string>
     <string name="ui_size_large" formatted="false">Büyük</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">Hangi paketi silmek istiyorsunuz?</string>
     <string name="logos_usb_title" formatted="false">Radyo logoları bulundu</string>
     <string name="logos_usb_msg">%2$s içinde %1$s için logo paketi var. Yüklensin mi? İnternetsiz de çalışır.</string>
-    <string name="group_clima" formatted="false">Klima</string>
+    <string name="group_climate" formatted="false">Klima</string>
     <string name="group_comfort" formatted="false">Konfor</string>
     <string name="tap_outside_close" formatted="false">kapatmak için dışarı dokunun</string>
     <string name="lka_desc" formatted="false">Şerit takip asistanı (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">İç sıcaklık gizlendi: araç bunu sağlamıyor (dış sıcaklığı gösteriyordu); kayıtlarda arıyoruz</string>
     <string name="newsv_4" formatted="false">iPhone olarak görünen CarPlay/Android Auto adaptörleri artık tanınıyor ve başlamazsa yeniden başlatılıyor</string>
     <string name="newsf_1" formatted="false">Fan KAPALI konumunda artık klimayı gerçekten kapatıyor (önceden 1\'e dönüyordu)</string>
-    <string name="group_guida" formatted="false">Sürüş</string>
+    <string name="group_drive" formatted="false">Sürüş</string>
     <string name="tile_lka" formatted="false">Şerit</string>
     <string name="tile_acc" formatted="false">Asistan</string>
     <string name="tile_pedal" formatted="false">Fren pedalı</string>
     <string name="recirc_in" formatted="false">İç</string>
     <string name="recirc_out" formatted="false">Dış</string>
-    <string name="guida_stopped" formatted="false">Yalnızca araç dururken değiştirilebilir</string>
+    <string name="drive_stopped" formatted="false">Yalnızca araç dururken değiştirilebilir</string>
     <string name="set_inside_none" formatted="false">Mevcut değil: araç bunu ekrana göndermiyor. Önceden okunan «ortam» değeri aslında dış sıcaklıktı</string>
     <string name="newsg_1" formatted="false">Çubukta yeni Sürüş düğmesi: LKA, One Pedal, asistan (Kapalı/ACC/TJA) ve fren pedalı (Comfort/Medium/Sport) tek panelde</string>
     <string name="newsg_2" formatted="false">Güvenlik için asistan ve fren pedalı yalnızca araç dururken değiştirilir</string>

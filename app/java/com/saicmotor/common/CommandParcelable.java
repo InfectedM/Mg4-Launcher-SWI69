@@ -5,13 +5,13 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 /**
- * Copia del comando "cambio sorgente" delle app originali SWI69 R45 (stesso nome di classe e stesso formato,
- * così l'app Media originale lo legge con la sua classe). La home MG lo manda a com.saicmotor.media
- * (MediaService) con startService, extra "command".
- * Ordine nel Parcel: evento, pacchetto, tipo di sorgente, stato, Bundle.
+ * Copy of the "switch source" command of the original SWI69 R45 apps (same class name and same format,
+ * so the original Media app reads it with its own class). The MG home sends it to com.saicmotor.media
+ * (MediaService) with startService, extra "command".
+ * Order in the Parcel: event, package, source type, state, Bundle.
  */
 public class CommandParcelable implements Parcelable {
-    /** MODE_EVENT_SWITCH_SOURCE_ONLY, ..._PLAY, ..._PAUSE (ModeConstants della home originale). */
+    /** MODE_EVENT_SWITCH_SOURCE_ONLY, ..._PLAY, ..._PAUSE (ModeConstants of the original home). */
     public static final int SWITCH_SOURCE = 32769, SWITCH_SOURCE_PLAY = 32773, SWITCH_SOURCE_PAUSE = 32774;
     /** MEDIA_TYPE_BT_MUSIC. */
     public static final int TYPE_BT_MUSIC = 2;

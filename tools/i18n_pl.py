@@ -1,8 +1,8 @@
 # -*- coding: utf-8 -*-
-"""Testi polacchi di MG4 Launcher (values-pl). Prima traduzione, da far rivedere a un madrelingua.
+"""Polish texts of MG4 Launcher (values-pl). First translation, to be reviewed by a native speaker.
 
-Le voci mancanti usano l'inglese. tools/i18n.py li unisce alle altre lingue; tools/i18n_export.py prepara il file
-da mandare al revisore e rilegge le correzioni.
+Missing entries fall back to English. tools/i18n.py merges them with the other languages; tools/i18n_export.py prepares
+the file to send to the reviewer and reads the corrections back.
 """
 
 PL = {
@@ -86,9 +86,9 @@ PL = {
     "home_default_title": "Użyj jako domyślnego ekranu",
     "home_default_sub": "MG4 Launcher otwiera się po włączeniu i przyciskiem Home",
     "home_default_off_sub": "Wył.: używany jest oryginalny ekran MG",
-    "officina_until_sub": "Tryb serwisowy do %1$s",
-    "officina_title": "Tryb serwisowy",
-    "officina_sub": "Przez kilka dni samochód używa oryginalnego ekranu MG, potem launcher wraca sam",
+    "workshop_until_sub": "Tryb serwisowy do %1$s",
+    "workshop_title": "Tryb serwisowy",
+    "workshop_sub": "Przez kilka dni samochód używa oryginalnego ekranu MG, potem launcher wraca sam",
     "days_1": "1 dzień",
     "days_3": "3 dni",
     "days_7": "7 dni",
@@ -99,10 +99,10 @@ PL = {
     "btn_keep": "Zostaw włączony",
     "confirm_home_off_title": "Użyć oryginalnego ekranu MG?",
     "confirm_home_off_msg": "Ekran MG stanie się domyślny, także po włączeniu. Ekran MG nie pokazuje MG4 Launchera wśród aplikacji: aby wrócić, potrzebny będzie komputer (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Jeśli to tylko na kilka dni, użyj trybu serwisowego: launcher wróci sam.",
-    "confirm_officina_title": "Włączyć tryb serwisowy?",
-    "confirm_officina_msg": "Do %1$s samochód będzie używał oryginalnego ekranu MG, a aktualizacje zostaną wstrzymane. Po tym czasie MG4 Launcher wróci sam, jak wcześniej.",
-    "officina_active_title": "Tryb serwisowy jest włączony",
-    "officina_active_msg": "Tryb serwisowy jest włączony do %1$s. Wyłączyć go?",
+    "confirm_workshop_title": "Włączyć tryb serwisowy?",
+    "confirm_workshop_msg": "Do %1$s samochód będzie używał oryginalnego ekranu MG, a aktualizacje zostaną wstrzymane. Po tym czasie MG4 Launcher wróci sam, jak wcześniej.",
+    "workshop_active_title": "Tryb serwisowy jest włączony",
+    "workshop_active_msg": "Tryb serwisowy jest włączony do %1$s. Wyłączyć go?",
     "set_ui_size": "ROZMIAR PRZYCISKÓW",
     "ui_size_normal": "Normalny",
     "ui_size_large": "Duży",
@@ -285,7 +285,7 @@ PL = {
     'logos_delete_pick': 'Który pakiet usunąć?',
     'logos_usb_title': 'Znaleziono logo stacji',
     'logos_usb_msg': 'W %2$s jest pakiet logo dla %1$s. Zainstalować? Działa też bez internetu.',
-    'group_clima': 'Klimatyzacja',
+    'group_climate': 'Klimatyzacja',
     'group_comfort': 'Komfort',
     'tap_outside_close': 'dotknij poza, aby zamknąć',
     'lka_desc': 'Asystent pasa ruchu (LKA)',
@@ -337,13 +337,13 @@ PL = {
     "newsv_3": 'Temperatura wewnętrzna ukryta: auto jej nie podaje (pokazywała zewnętrzną); szukamy jej w logach',
     "newsv_4": 'Dongle CarPlay/Android Auto widoczne jako iPhone są teraz rozpoznawane i restartowane, gdy nie startują',
     "newsf_1": 'Wentylator na OFF teraz naprawdę wyłącza klimatyzację (wcześniej wracał do 1)',
-    'group_guida': 'Jazda',
+    'group_drive': 'Jazda',
     'tile_lka': 'Pas ruchu',
     'tile_acc': 'Asystent',
     'tile_pedal': 'Pedał hamulca',
     'recirc_in': 'Wewnętrzny',
     'recirc_out': 'Zewnętrzny',
-    'guida_stopped': 'Można zmienić tylko na postoju',
+    'drive_stopped': 'Można zmienić tylko na postoju',
     'set_inside_none': 'Niedostępna: samochód nie przesyła jej na ekran. Odczytywana wcześniej wartość «otoczenia» była w rzeczywistości temperaturą zewnętrzną',
     'newsg_1': 'Nowy przycisk Jazda na pasku: LKA, One Pedal, asystent (Wył./ACC/TJA) i pedał hamulca (Comfort/Medium/Sport) w jednym panelu',
     'newsg_2': 'Asystenta i pedał hamulca można zmienić tylko na postoju, dla bezpieczeństwa',
@@ -368,7 +368,7 @@ PL = {
     'newsh_6': 'Ustawienia: usunięto puste miejsce między Panelem auta a Dolnym paskiem',
     'newsh_7': 'Przy otwartym MG4 Clima systemowy panel klimatyzacji zamyka się sam poleceniem systemu',
 
-    # recuperate dalla 0.3.11 pubblicata
+    # recovered from the published 0.3.11
     'set_apps_size': 'ROZMIAR APLIKACJI',
     'news_v098_1': "Restart dongla: telefony podłączone kablem (iPhone, Android Auto) nie są już resetowane, tylko prawdziwe dongle bezprzewodowe",
     'news_v098_2': 'Uprawnienie do prędkości nadawane automatycznie i nowe certyfikaty główne Sectigo/USERTrust dla logo, aktualizacji i dzienników',
@@ -395,7 +395,7 @@ PL = {
     'cam360_hidden': 'Skryty',
     'cam360_pick_app': 'Wybierz aplikację',
 
-    # novità 0.4.0
+    # what's new 0.4.0
     'news_v040_1': 'Jednostka odległości w milach: zasięg i odległości w km lub milach, albo automatycznie jak w desce rozdzielczej',
     'news_v040_2': 'Fizyczny przycisk Home zamyka teraz wszystkie otwarte wyskakujące okna w launcherze',
     'news_v040_3': 'Nowe ikony klimatyzacji (styl ISO) na pasku i w wyskakujących oknach Klimatyzacja/Komfort, z rzeczywistym stanem recyrkulacji',
@@ -525,7 +525,7 @@ PL = {
     'news_v045_1': 'Animacja ładowania: startuje też przy włączonym ekranie i aucie stojącym na P; zatrzymuje się tylko w READY, w ruchu lub poza P',
     'news_v045_2': 'Kabel ładowania wykrywany lepiej; nowy test „READY odczytany” w Kontroli funkcji',
     'chk_ready': 'READY odczytany',
-    # --- fork InfectedM 0.4.6: Vidros (fecho automático, baseado no WinClose) ---
+    # --- InfectedM fork 0.4.6: Windows (automatic closing, based on WinClose) ---
     'sec_windows': 'Szyby',
     'sec_windows_sub': 'Automatyczne zamykanie, tryb każdej szyby',
     'win_auto': 'Zamykaj po wyjściu z auta',
@@ -564,15 +564,15 @@ PL = {
     'win_cancel_hint': 'Ponowne otwarcie drzwi, wyjście z P, włączenie auta lub ruszenie szyby anuluje zamykanie.',
     'win_toast_countdown': 'Szyby zamkną się za %1$d s',
     'win_toast_cancel': 'Zamykanie szyb anulowane',
-    # --- fork InfectedM 0.4.6: aquecimento inteligente da bateria (baseado no MG4Control) ---
+    # --- InfectedM fork 0.4.6: smart battery heating (based on MG4Control) ---
     'tile_bat_heat': 'Grzanie baterii',
     'bat_heat_on_hint': 'Grzanie baterii włączone: szybsze ładowanie DC, ale mniejszy zasięg. Nie wyłącza się samo: wyłącz je tutaj, gdy nie jest już potrzebne.',
-    # --- fork InfectedM 0.4.6: novidades ---
+    # --- InfectedM fork 0.4.6: what's new ---
     'news_v046_1': 'Szyby: automatyczne zamykanie po wyjściu z auta i przycisk „Zamknij teraz” (Ustawienia → Szyby), na podstawie WinClose autorstwa Skittle6938',
     'news_v046_2': 'Inteligentne grzanie baterii: nowy przycisk w grupie Jazda na pasku, na podstawie MG4Control autorstwa SliDeeN',
     'news_v046_3': 'Skrót „Ustawienia launchera” na stronie Aplikacje',
     'news_v046_4': 'Bez wysyłania logów: „Zapisz log” zapisuje teraz do Download/MG4Launcher i MG4Launcher/registos na pendrive',
-    # --- fork InfectedM 0.4.7: novidades ---
+    # --- InfectedM fork 0.4.7: what's new ---
     'news_v047_1': 'Mniej pamięci: loga stacji, okładka muzyki, obrazy auta i animacja ładowania (ok. 8–12 MB mniej)',
     'news_v047_2': 'Szyby: brak pracy w tle przy wyłączonym automatycznym zamykaniu',
     'news_v047_3': 'Czytelniejszy motyw dzienny (opony, światła przeciwmgłowe, ogrzewanie) i większe pola dotyku (Szukaj, mini odtwarzacz, Mapa/Media)',

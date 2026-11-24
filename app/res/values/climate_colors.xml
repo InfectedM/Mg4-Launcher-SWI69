@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima 1.4.0 · climate button colours, DAY theme (values-night = night theme). Icons are white:
+     the colour is applied with the tint (setColorFilter SRC_IN / setTint). -->
+<resources>
+    <color name="climate_on">#FF0B6BCB</color>              <!-- icon + border, on state -->
+    <color name="climate_on_bg">#FFDCEBFA</color>       <!-- background of the button when on -->
+    <color name="climate_off">#FF555C66</color>              <!-- icon and label, off state -->
+    <color name="climate_off_bg">#FFF1F3F5</color>       <!-- background of the button when off / unavailable -->
+    <color name="climate_unavailable">#66555C66</color>     <!-- icon and label, unavailable (off colour at 40%) -->
+    <color name="climate_warm">#FFE1621F</color>               <!-- heating on: icon + border -->
+    <color name="climate_warm_bg">#FFFFF1EA</color>
+    <color name="climate_label_on">#FF111318</color>      <!-- label below the icon, on state (bold) -->
+</resources>

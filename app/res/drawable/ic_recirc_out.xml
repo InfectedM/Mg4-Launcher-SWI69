@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- aria esterna: sagoma dell'auto con freccia che entra da fuori -->
+<!-- outside air: car outline with an arrow coming in from outside -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="24dp" android:height="24dp"
     android:viewportWidth="24" android:viewportHeight="24">

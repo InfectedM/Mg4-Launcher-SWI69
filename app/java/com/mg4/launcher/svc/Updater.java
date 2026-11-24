@@ -28,8 +28,8 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 /**
- * Aggiornamenti dal repository GitHub: legge l'ultima release, scarica l'APK allegato e lo installa
- * con PackageInstaller (il launcher è firmato con la chiave platform, quindi non serve conferma).
+ * Updates from the GitHub repository: reads the latest release, downloads the attached APK and installs it
+ * with PackageInstaller (the launcher is signed with the platform key, so no confirmation is needed).
  */
 public final class Updater {
     private static final String ACTION_RESULT = "com.mg4.launcher.INSTALL_RESULT";
@@ -38,16 +38,16 @@ public final class Updater {
         public String tag = "";
         public String name = "";
         public String notes = "";
-        public String apkUrl;       // URL API dell'allegato
+        public String apkUrl;       // API URL of the asset
         public String apkName = "";
         public long apkSize;
         public boolean newer;
-        boolean raw;                // file del repository (API contents) invece di allegato di release
-        String repo = "", path = "";  // per il download di riserva da raw.githubusercontent.com
+        boolean raw;                // repository file (contents API) instead of a release asset
+        String repo = "", path = "";  // for the fallback download from raw.githubusercontent.com
     }
 
     public interface Listener {
-        /** Messaggio di stato da mostrare (sul thread principale). */
+        /** Status message to show (on the main thread). */
         void onUpdateStatus(String text, Release r, boolean busy);
     }
 
@@ -83,13 +83,13 @@ public final class Updater {
 
     private void status(String s, Release r, boolean b) {
         busy = b;
-        Diag.put("aggiornamenti", s);
+        Diag.put("updates", s);
         main.post(() -> {
             if (listener != null) listener.onUpdateStatus(s, r, b);
         });
     }
 
-    /** Controlla l'ultima release del repository. */
+    /** Checks the repository's latest release. */
     public void check(String repo, String token) {
         if (busy) return;
         status(L.s(R.string.upd_checking), null, true);
@@ -107,7 +107,7 @@ public final class Updater {
                 status(e.getMessage(), null, false);
             } catch (Exception e) {
                 status(L.f(R.string.upd_no_connection, e.getClass().getSimpleName()), null, false);
-                if (!Offline.failed("aggiornamenti", e)) Diag.error("aggiornamenti", e.toString());
+                if (!Offline.failed("updates", e)) Diag.error("updates", e.toString());
             }
         });
     }
@@ -117,55 +117,55 @@ public final class Updater {
     }
 
     /**
-     * Controllo silenzioso in background (per il popup): non tocca lo stato mostrato nelle impostazioni e
-     * chiama {@code cb} sul thread principale solo se c'è una versione più nuova con l'APK.
+     * Silent background check (for the popup): does not touch the status shown in the settings and
+     * calls {@code cb} on the main thread only if there is a newer version with an APK.
      */
     public void checkQuiet(String repo, String token, Found cb) {
         if (busy) return;
         if (!Offline.canTry()) {
-            Diag.put("aggiornamenti.auto", "offline: rimandato");
+            Diag.put("updates.auto", "offline: postponed");
             return;
         }
         bg.post(() -> {
             try {
                 Release r = latest(repo, token);
                 Offline.ok();
-                Diag.put("aggiornamenti.auto", "ultima " + r.tag + (r.newer ? " (nuova)" : ""));
+                Diag.put("updates.auto", "latest " + r.tag + (r.newer ? " (new)" : ""));
                 if (r.newer && r.apkUrl != null) main.post(() -> cb.found(r));
             } catch (Exception e) {
-                if (Offline.failed("aggiornamenti", e)) Diag.put("aggiornamenti.auto", "offline: rimandato");
-                else Diag.put("aggiornamenti.auto", "non riuscito: " + e.getClass().getSimpleName() + " (" + Diag.netError(e) + ")");
+                if (Offline.failed("updates", e)) Diag.put("updates.auto", "offline: postponed");
+                else Diag.put("updates.auto", "failed: " + e.getClass().getSimpleName() + " (" + Diag.netError(e) + ")");
             }
         });
     }
 
-    /** Controllo silenzioso per le impostazioni: restituisce sempre l'ultima release trovata (anche se non è nuova). */
+    /** Silent check for the settings: always returns the latest release found (even if it is not newer). */
     public void checkSilent(String repo, String token, Found cb) {
         if (busy) return;
         if (!Offline.canTry()) {
-            Diag.put("aggiornamenti.controllo", "offline: rimandato");
+            Diag.put("updates.check", "offline: postponed");
             return;
         }
         bg.post(() -> {
             try {
                 Release r = latest(repo, token);
                 Offline.ok();
-                Diag.put("aggiornamenti.controllo", "ultima " + r.tag + (r.newer ? " (nuova)" : ""));
+                Diag.put("updates.check", "latest " + r.tag + (r.newer ? " (new)" : ""));
                 main.post(() -> cb.found(r));
             } catch (Exception e) {
-                if (Offline.failed("aggiornamenti", e)) Diag.put("aggiornamenti.controllo", "offline: rimandato");
-                else Diag.put("aggiornamenti.controllo", "non riuscito: " + e.getClass().getSimpleName() + " (" + Diag.netError(e) + ")");
+                if (Offline.failed("updates", e)) Diag.put("updates.check", "offline: postponed");
+                else Diag.put("updates.check", "failed: " + e.getClass().getSimpleName() + " (" + Diag.netError(e) + ")");
             }
         });
     }
 
     /**
-     * Scarica l'APK della release e lo installa. L'APK resta in memoria e va direttamente nella sessione
-     * di installazione: nessun file temporaneo da salvare (era il punto che non riusciva sull'auto).
+     * Downloads the release APK and installs it. The APK stays in memory and goes straight into the install
+     * session: no temporary file to save (that was the step that failed on the car).
      */
     public void install(Release r, String token) {
         if (busy || r == null || r.apkUrl == null) return;
-        if (HomeMode.officina(ctx)) return;   // aggiornamenti sospesi durante la modalità officina
+        if (HomeMode.workshop(ctx)) return;   // updates suspended during workshop mode
         status(L.f(R.string.upd_downloading, r.apkName), r, true);
         bg.post(() -> {
             byte[] apk;
@@ -173,16 +173,16 @@ public final class Updater {
                 apk = downloadWithFallback(r, token);
             } catch (HttpError e) {
                 status(e.getMessage(), r, false);
-                Diag.error("aggiornamenti.download", e.getMessage());
+                Diag.error("updates.download", e.getMessage());
                 return;
             } catch (Exception e) {
                 status(L.f(R.string.upd_download_failed, describe(e)), r, false);
-                Diag.error("aggiornamenti.download", Diag.trace(e));
+                Diag.error("updates.download", Diag.trace(e));
                 return;
             }
             if (!isApk(apk)) {
                 status(L.f(R.string.upd_invalid_apk, apk.length), r, false);
-                Diag.error("aggiornamenti.download", "file non valido, " + apk.length + " byte");
+                Diag.error("updates.download", "invalid file, " + apk.length + " bytes");
                 return;
             }
             String version = checkPackage(apk);
@@ -195,7 +195,7 @@ public final class Updater {
                 installApk(apk);
             } catch (Exception e) {
                 status(L.f(R.string.upd_install_failed, describe(e)), r, false);
-                Diag.error("aggiornamenti.installazione", Diag.trace(e));
+                Diag.error("updates.install", Diag.trace(e));
             }
         });
     }
@@ -210,8 +210,8 @@ public final class Updater {
     }
 
     /**
-     * File del repository: prima raw.githubusercontent.com (nessun limite di richieste, come nella SWI69 0.2.x),
-     * poi l'API di GitHub. Allegati delle release: solo l'API.
+     * Repository files: first raw.githubusercontent.com (no request limit, as in SWI69 0.2.x),
+     * then the GitHub API. Release assets: API only.
      */
     private byte[] downloadWithFallback(Release r, String token) throws Exception {
         if (r.raw && !r.repo.isEmpty()) {
@@ -219,25 +219,25 @@ public final class Updater {
                 byte[] b = download("https://raw.githubusercontent.com/" + r.repo + "/main/" + r.path, r, "", "application/octet-stream");
                 if (isApk(b)) return b;
             } catch (Exception e) {
-                Diag.error("aggiornamenti.download", "raw.githubusercontent.com: " + describe(e) + " → provo l'API di GitHub");
+                Diag.error("updates.download", "raw.githubusercontent.com: " + describe(e) + " → trying the GitHub API");
             }
         }
         Exception first;
         try {
             byte[] b = download(r.apkUrl, r, token, r.raw ? "application/vnd.github.raw" : "application/octet-stream");
             if (!r.raw || isApk(b)) return b;
-            first = new IOException("non è un APK (" + b.length + " byte)");
+            first = new IOException("not an APK (" + b.length + " bytes)");
         } catch (Exception e) {
             first = e;
         }
         if (!r.raw || r.repo.isEmpty()) throw first;
-        Diag.error("aggiornamenti.download", "API GitHub: " + describe(first) + " → provo raw.githubusercontent.com");
+        Diag.error("updates.download", "GitHub API: " + describe(first) + " → trying raw.githubusercontent.com");
         return download("https://raw.githubusercontent.com/" + r.repo + "/main/" + r.path, r, "", "application/octet-stream");
     }
 
     /**
-     * Controlla nome del pacchetto e versione dell'APK scaricato. Serve un file per leggerlo: se non si
-     * riesce a scriverlo il controllo si salta (la sessione accetta comunque solo questo pacchetto).
+     * Checks the package name and version of the downloaded APK. A file is needed to read it: if it cannot
+     * be written the check is skipped (the session only accepts this package anyway).
      */
     private String checkPackage(byte[] apk) {
         File[] dirs = {ctx.getCacheDir(), ctx.getFilesDir(), ctx.getExternalCacheDir()};
@@ -255,7 +255,7 @@ public final class Updater {
                 if (!ctx.getPackageName().equals(pi.packageName)) return null;
                 return pi.versionName;
             } catch (Exception e) {
-                Diag.error("aggiornamenti.controllo", dir + ": " + describe(e));
+                Diag.error("updates.check", dir + ": " + describe(e));
                 f.delete();
             }
         }
@@ -271,8 +271,8 @@ public final class Updater {
     }
 
     /**
-     * Prima la cartella releases/ del repository (latest.json + APK, caricati con un normale push),
-     * poi le Release di GitHub.
+     * First the repository's releases/ folder (latest.json + APK, uploaded with a normal push),
+     * then the GitHub Releases.
      */
     private Release latest(String repo, String token) throws Exception {
         Release fromRepo = null;
@@ -297,15 +297,15 @@ public final class Updater {
     private Release latestFromRepo(String repo, String token) throws Exception {
         String base = "https://api.github.com/repos/" + repo + "/contents/";
         JSONObject o = null;
-        // 1) raw.githubusercontent.com: nessun limite di richieste (le API di GitHub senza token ne hanno 60 all'ora)
+        // 1) raw.githubusercontent.com: no request limit (the GitHub API without a token allows 60 per hour)
         try {
             HttpURLConnection rc = open("https://raw.githubusercontent.com/" + repo + "/main/releases/latest.json", "", "*/*");
             if (rc.getResponseCode() == 200) o = new JSONObject(readAll(rc.getInputStream()));
             rc.disconnect();
         } catch (Exception e) {
-            Diag.putQuiet("aggiornamenti.raw", describe(e));
+            Diag.putQuiet("updates.raw", describe(e));
         }
-        // 2) API di GitHub
+        // 2) GitHub API
         if (o == null) {
             HttpURLConnection c = open(base + "releases/latest.json", token, "application/vnd.github.raw");
             int code = c.getResponseCode();
@@ -371,7 +371,7 @@ public final class Updater {
     }
 
     private byte[] download(String url, Release r, String token, String accept) throws Exception {
-        // l'allegato risponde con un redirect verso lo storage di GitHub: lo si segue senza il token
+        // the asset answers with a redirect to GitHub's storage: it is followed without the token
         HttpURLConnection c = open(url, token, accept);
         c.setInstanceFollowRedirects(false);
         int code = c.getResponseCode();
@@ -404,7 +404,7 @@ public final class Updater {
         } finally {
             c.disconnect();
         }
-        Diag.put("aggiornamenti.scaricati", bo.size() + " byte");
+        Diag.put("updates.downloaded", bo.size() + " bytes");
         return bo.toByteArray();
     }
 
@@ -413,14 +413,14 @@ public final class Updater {
         PackageInstaller.SessionParams p = new PackageInstaller.SessionParams(PackageInstaller.SessionParams.MODE_FULL_INSTALL);
         p.setAppPackageName(ctx.getPackageName());
         p.setSize(apk.length);
-        // memoria interna esplicita: il firmware MG blocca le app non di sistema sull'archivio interno "automatico"
+        // explicit internal storage: the MG firmware blocks non-system apps on the "automatic" internal storage
         p.setInstallLocation(PackageInfo.INSTALL_LOCATION_INTERNAL_ONLY);
-        // come "adb install -r -f": INSTALL_REPLACE_EXISTING (0x2) + INSTALL_INTERNAL (0x10)
+        // like "adb install -r -f": INSTALL_REPLACE_EXISTING (0x2) + INSTALL_INTERNAL (0x10)
         try {
             java.lang.reflect.Field f = PackageInstaller.SessionParams.class.getField("installFlags");
             f.setInt(p, f.getInt(p) | 0x2 | 0x10);
         } catch (Throwable t) {
-            Diag.error("aggiornamenti.flag", t.toString());
+            Diag.error("updates.flag", t.toString());
         }
         int id = pi.createSession(p);
         try (PackageInstaller.Session s = pi.openSession(id)) {
@@ -449,7 +449,7 @@ public final class Updater {
         public void onReceive(Context c, Intent i) {
             int st = i.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
             if (st == PackageInstaller.STATUS_PENDING_USER_ACTION) {
-                // senza il permesso di sistema Android chiede conferma: si mostra la schermata standard
+                // without the system permission Android asks for confirmation: the standard screen is shown
                 Intent confirm = i.getParcelableExtra(Intent.EXTRA_INTENT);
                 if (confirm != null) ctx.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
                 status(L.s(R.string.upd_confirm), null, true);
@@ -463,7 +463,7 @@ public final class Updater {
                 status(L.s(R.string.upd_installed), null, false);
             } else {
                 String msg = i.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-                Diag.error("aggiornamenti.installazione", "stato " + st + ": " + msg);
+                Diag.error("updates.install", "state " + st + ": " + msg);
                 status(L.f(R.string.upd_install_failed, msg == null ? L.f(R.string.upd_error_code, st) : msg), null, false);
             }
         }
@@ -488,7 +488,7 @@ public final class Updater {
         return bo.toString("UTF-8");
     }
 
-    /** Confronta versioni tipo "v0.3.0" e "0.2.0" numero per numero. */
+    /** Compares versions like "v0.3.0" and "0.2.0" number by number. */
     static int compare(String a, String b) {
         int[] x = nums(a), y = nums(b);
         for (int i = 0; i < Math.max(x.length, y.length); i++) {
@@ -511,32 +511,32 @@ public final class Updater {
         return out;
     }
 
-    // ---- 0.4.2 (punto 12): controllo automatico, aggiornamento forzato e avvisi da remoto --------------------------
-    // Solo indirizzi HTTPS del repository del launcher (raw.githubusercontent.com/<repo>/main/releases/...).
+    // ---- 0.4.2 (point 12): automatic check, forced update and remote notices ------------------------------------
+    // Only HTTPS addresses of the launcher's repository (raw.githubusercontent.com/<repo>/main/releases/...).
 
-    // fork: as atualizações vêm do repositório InfectedM (a versão original do Ernesto não substitui esta)
+    // fork: updates come from the InfectedM repository (Ernesto's original version does not replace this one)
     public static final String OWN_REPO = "InfectedM/Mg4-Launcher-SWI69";
     private static final String RAW = "https://raw.githubusercontent.com/" + OWN_REPO + "/main/";
-    /** 0.4.4: indirizzo dei file del proprio repository (animazioni.json, pacchetti dell'animazione). */
+    /** 0.4.4: address of the files in our own repository (animazioni.json, animation packs). */
     public static final String OWN_RAW = RAW;
     private static final int MAX_FORCED_TRIES = 3;
 
-    /** Esito del controllo automatico (sul thread principale). */
+    /** Outcome of the automatic check (on the main thread). */
     public interface Auto {
-        /** Versione nuova disponibile (per l'avviso discreto con il pulsante Aggiorna). */
+        /** New version available (for the unobtrusive notice with the Update button). */
         void onNewVersion(Release r);
 
-        /** Avvisi da remoto da mostrare. */
+        /** Remote notices to show. */
         void onNotices(java.util.List<Notice> list);
     }
 
-    /** Un avviso di releases/avvisi.json. */
+    /** A notice from releases/avvisi.json. */
     public static final class Notice {
         public String id = "";
         public boolean important, updateButton;
         public org.json.JSONObject text;
 
-        /** Testo nella lingua del launcher, inglese come riserva. */
+        /** Text in the launcher's language, English as fallback. */
         public String text(String lang) {
             if (text == null) return "";
             String t = text.optString(lang, "");
@@ -546,19 +546,19 @@ public final class Updater {
         }
     }
 
-    private volatile String autoState = "mai";
-    /** Per la diagnostica avvisi.stato. */
-    public volatile String noticeIds = "", noticeShown = "mostrati - · confermati -";
+    private volatile String autoState = "never";
+    /** For the notices.state diagnostics. */
+    public volatile String noticeIds = "", noticeShown = "shown - · confirmed -";
 
     private void autoDiag(String s) {
         autoState = s;
-        Diag.put("aggiornamento.stato", s);
+        Diag.put("update.state", s);
     }
 
-    /** Controllo automatico (all'accensione dopo 2 minuti e poi ogni 6 ore). Non blocca l'interfaccia. */
+    /** Automatic check (2 minutes after power-on, then every 6 hours). Does not block the UI. */
     public void autoCheck(String lang, Auto cb) {
         if (!Offline.canTry()) {
-            autoDiag("ultimo controllo " + now() + " · offline: rimandato");
+            autoDiag("last check " + now() + " · offline: postponed");
             return;
         }
         bg.post(() -> {
@@ -568,8 +568,8 @@ public final class Updater {
                 o = new org.json.JSONObject(fetch(RAW + "releases/latest.json"));
                 Offline.ok();
             } catch (Exception e) {
-                Offline.failed("aggiornamenti", e);
-                autoDiag("ultimo controllo " + when + " · latest.json non letto (" + e.getClass().getSimpleName() + ")");
+                Offline.failed("updates", e);
+                autoDiag("last check " + when + " · latest.json not read (" + e.getClass().getSimpleName() + ")");
                 notices(lang, cb);
                 return;
             }
@@ -578,7 +578,7 @@ public final class Updater {
             String cur = currentVersion();
             boolean newer = compare(ver, cur) > 0 && !apk.isEmpty();
             boolean forced = newer && !min.isEmpty() && compare(cur, min) < 0;
-            String base = "ultimo controllo " + when + " · installata " + cur + " · trovata " + ver + " · minima " + (min.isEmpty() ? "-" : min);
+            String base = "last check " + when + " · installed " + cur + " · found " + ver + " · minimum " + (min.isEmpty() ? "-" : min);
             if (newer) {
                 Release r = new Release();
                 r.tag = ver;
@@ -592,16 +592,16 @@ public final class Updater {
                 r.path = apk;
                 r.newer = true;
                 if (forced) forced(r, base);
-                else autoDiag(base + " · esito: nuova versione, avviso mostrato");
+                else autoDiag(base + " · result: new version, notice shown");
                 main.post(() -> cb.onNewVersion(r));
             } else {
-                autoDiag(base + " · esito: già aggiornato");
+                autoDiag(base + " · result: already up to date");
             }
             notices(lang, cb);
         });
     }
 
-    /** Tentativi di aggiornamento forzato già fatti per una versione. */
+    /** Forced update attempts already made for a version. */
     private int forcedTries(String ver) {
         return ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getInt("aggiornamento.tentativi." + ver, 0);
     }
@@ -609,61 +609,61 @@ public final class Updater {
     private int forcedWaits;
 
     /**
-     * Aggiornamento forzato ("minima" più nuova dell'installata): solo ad auto ferma, APK della stessa chiave e della
-     * dimensione indicata, al massimo 3 tentativi per versione.
+     * Forced update ("minima" newer than the installed one): only with the car stopped, APK with the same key and the
+     * stated size, at most 3 attempts per version.
      */
     private void forced(Release r, String base) {
         int tries = forcedTries(r.tag);
         if (tries >= MAX_FORCED_TRIES) {
-            autoDiag(base + " · forzato: FERMATO dopo " + tries + " tentativi non riusciti (solo avviso)");
+            autoDiag(base + " · forced: STOPPED after " + tries + " failed attempts (notice only)");
             return;
         }
-        if (busy || HomeMode.officina(ctx)) {
-            autoDiag(base + " · forzato: rimandato (" + (busy ? "aggiornamento già in corso" : "modalità officina") + ")");
+        if (busy || HomeMode.workshop(ctx)) {
+            autoDiag(base + " · forced: postponed (" + (busy ? "update already in progress" : "workshop mode") + ")");
             return;
         }
         float v = VehicleClient.speedKmh();
         int g = VehicleClient.gear();
         if (Float.isNaN(v) && g == Integer.MIN_VALUE) {
-            autoDiag(base + " · forzato: NON forzato, velocità e marcia non leggibili (solo avviso)");
+            autoDiag(base + " · forced: NOT forced, speed and gear unreadable (notice only)");
             return;
         }
         if (!VehicleClient.surelyStopped()) {
-            // in marcia: si riprova ogni minuto (al massimo per un'ora), mai durante la guida
+            // moving: retry every minute (for at most an hour), never while driving
             if (forcedWaits++ < 60) {
-                autoDiag(base + " · forzato: in attesa dell'auto ferma (velocità " + (Float.isNaN(v) ? "?" : Math.round(v) + " km/h") + ", marcia " + (g == Integer.MIN_VALUE ? "?" : g) + ")");
+                autoDiag(base + " · forced: waiting for the car to stop (speed " + (Float.isNaN(v) ? "?" : Math.round(v) + " km/h") + ", gear " + (g == Integer.MIN_VALUE ? "?" : g) + ")");
                 bg.postDelayed(() -> forced(r, base), 60_000);
             } else {
-                autoDiag(base + " · forzato: auto mai ferma per un'ora, riprovo al prossimo controllo");
+                autoDiag(base + " · forced: car never stopped for an hour, retrying at the next check");
                 forcedWaits = 0;
             }
             return;
         }
         forcedWaits = 0;
         if (!r.path.startsWith("releases/") || r.path.contains("..")) {
-            autoDiag(base + " · forzato: percorso APK non valido (" + r.path + ")");
+            autoDiag(base + " · forced: invalid APK path (" + r.path + ")");
             return;
         }
         ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).edit().putInt("aggiornamento.tentativi." + r.tag, tries + 1).apply();
-        String t = "tentativo " + (tries + 1) + "/" + MAX_FORCED_TRIES;
+        String t = "attempt " + (tries + 1) + "/" + MAX_FORCED_TRIES;
         busy = true;
         try {
             byte[] apk = download(RAW + r.path, r, "", "application/octet-stream");
-            if (!isApk(apk)) throw new IOException("file non valido (" + apk.length + " byte)");
-            if (r.apkSize > 0 && apk.length != r.apkSize) throw new IOException("dimensione " + apk.length + " invece di " + r.apkSize);
+            if (!isApk(apk)) throw new IOException("invalid file (" + apk.length + " bytes)");
+            if (r.apkSize > 0 && apk.length != r.apkSize) throw new IOException("size " + apk.length + " instead of " + r.apkSize);
             String why = sameSignature(apk);
             if (why != null) throw new IOException(why);
-            autoDiag(base + " · forzato: " + t + " · verificato (dimensione e firma), installo");
+            autoDiag(base + " · forced: " + t + " · verified (size and signature), installing");
             busy = false;
             status(L.f(R.string.upd_installing, r.tag), r, true);
             installApk(apk);
         } catch (Exception e) {
             busy = false;
-            autoDiag(base + " · forzato: " + t + " NON riuscito: " + describe(e));
+            autoDiag(base + " · forced: " + t + " FAILED: " + describe(e));
         }
     }
 
-    /** null se l'APK è dello stesso pacchetto e con la stessa chiave del launcher installato, altrimenti il motivo. */
+    /** null if the APK has the same package and key as the installed launcher, otherwise the reason. */
     @SuppressWarnings("deprecation")
     private String sameSignature(byte[] apk) {
         File f = new File(ctx.getCacheDir(), "update-firma.apk");
@@ -674,18 +674,18 @@ public final class Updater {
             PackageManager pm = ctx.getPackageManager();
             PackageInfo a = pm.getPackageArchiveInfo(f.getPath(), PackageManager.GET_SIGNATURES);
             PackageInfo me = pm.getPackageInfo(ctx.getPackageName(), PackageManager.GET_SIGNATURES);
-            if (a == null) return "APK non leggibile";
-            if (!ctx.getPackageName().equals(a.packageName)) return "pacchetto diverso (" + a.packageName + ")";
-            if (a.signatures == null || a.signatures.length == 0 || me.signatures == null || me.signatures.length == 0) return "firma non leggibile";
-            return a.signatures[0].equals(me.signatures[0]) ? null : "firma diversa da quella del launcher installato";
+            if (a == null) return "APK unreadable";
+            if (!ctx.getPackageName().equals(a.packageName)) return "different package (" + a.packageName + ")";
+            if (a.signatures == null || a.signatures.length == 0 || me.signatures == null || me.signatures.length == 0) return "signature unreadable";
+            return a.signatures[0].equals(me.signatures[0]) ? null : "signature differs from the installed launcher";
         } catch (Exception e) {
-            return "controllo firma non riuscito: " + e.getClass().getSimpleName();
+            return "signature check failed: " + e.getClass().getSimpleName();
         } finally {
             f.delete();
         }
     }
 
-    /** releases/avvisi.json: avvisi per questa versione (vuoto o assente = nessuno, senza errori visibili). */
+    /** releases/avvisi.json: notices for this version (empty or missing = none, with no visible errors). */
     private void notices(String lang, Auto cb) {
         java.util.List<Notice> out = new java.util.ArrayList<>();
         String cur = currentVersion();
@@ -699,7 +699,7 @@ public final class Updater {
                 JSONArray vs = n.optJSONArray("versioni");
                 boolean match = vs == null || vs.length() == 0;
                 for (int k = 0; vs != null && k < vs.length(); k++) if (cur.equals(vs.optString(k))) match = true;
-                ids.append(ids.length() == 0 ? "" : ",").append(n.optString("id")).append(match ? "" : "(altra versione)");
+                ids.append(ids.length() == 0 ? "" : ",").append(n.optString("id")).append(match ? "" : "(other version)");
                 if (!match) continue;
                 Notice x = new Notice();
                 x.id = n.optString("id");
@@ -708,21 +708,21 @@ public final class Updater {
                 x.text = n.optJSONObject("testo");
                 if (!x.text(lang).isEmpty()) out.add(x);
             }
-            noticeIds = ids.length() == 0 ? "nessuno" : ids.toString();
+            noticeIds = ids.length() == 0 ? "none" : ids.toString();
         } catch (Exception e) {
-            noticeIds = "file assente o non leggibile (" + e.getClass().getSimpleName() + ")";
+            noticeIds = "file missing or unreadable (" + e.getClass().getSimpleName() + ")";
         }
-        Diag.put("avvisi.stato", "letti " + noticeIds + " · " + noticeShown);
+        Diag.put("notices.state", "read " + noticeIds + " · " + noticeShown);
         if (!out.isEmpty()) main.post(() -> cb.onNotices(out));
     }
 
-    /** 0.4.4: GET di un file piccolo di testo del proprio repository (animazioni.json). */
+    /** 0.4.4: GET of a small text file from our own repository (animazioni.json). */
     public static String getText(String url) throws IOException {
         return fetch(url);
     }
 
     private static String fetch(String url) throws IOException {
-        if (!url.startsWith(RAW)) throw new IOException("indirizzo non consentito");
+        if (!url.startsWith(RAW)) throw new IOException("address not allowed");
         HttpURLConnection c = open(url, "", "*/*");
         try {
             int code = c.getResponseCode();
@@ -737,12 +737,12 @@ public final class Updater {
         return new java.text.SimpleDateFormat("dd/MM HH:mm", java.util.Locale.ITALY).format(new java.util.Date());
     }
 
-    /** true se il launcher ha il permesso di installare senza conferma (firmato con la chiave platform). */
+    /** true if the launcher has permission to install without confirmation (signed with the platform key). */
     public boolean canInstallSilently() {
         return ctx.checkSelfPermission("android.permission.INSTALL_PACKAGES") == PackageManager.PERMISSION_GRANTED;
     }
 
-    /** 0.4.3 (Controllo funzioni): legge latest.json e avvisi.json senza toccare lo stato degli aggiornamenti. */
+    /** 0.4.3 (Feature check): reads latest.json and avvisi.json without touching the update status. */
     public static String[] probeRemote() {
         String[] out = new String[2];
         try {

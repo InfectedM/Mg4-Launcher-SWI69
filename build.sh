@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-# Compila MG4 Launcher (SWI69) senza Gradle: aapt2 -> javac -> D8 -> firma (v1+v2).
-# Uso: ./build.sh            (versione da version.properties)
+# Builds MG4 Launcher (SWI69) without Gradle: aapt2 -> javac -> D8 -> signing (v1+v2).
+# Usage: ./build.sh            (version from version.properties)
 set -euo pipefail
 
 ROOT="$(cd "$(dirname "$0")" && pwd)"
@@ -15,27 +15,27 @@ KEY_ALIAS="${KEY_ALIAS:-platform}"
 source "$ROOT/version.properties"   # VERSION_CODE, VERSION_NAME
 OUT_NAME="MG4Launcher-$VERSION_NAME.apk"
 
-# --- strumenti esterni (esclusi da git): se mancano li scarico dalle fonti ufficiali Google ---
-# Versioni fissate e hash SHA-256 controllati. D8 8.5.35 è la versione usata per gli APK già pubblicati.
+# --- external tools (excluded from git): if missing, download them from the official Google sources ---
+# Pinned versions with verified SHA-256 hashes. D8 8.5.35 is the version used for the APKs already published.
 PLATFORM_URL="https://dl.google.com/android/repository/platform-28_r06.zip"
 PLATFORM_SHA256="8452dbbf9668a428abb243c4f02a943b7aa83af3cca627629a15c4c09f28e7bd"
 ANDROID_JAR_SHA256="d20853d289a5161d9cf1c1268d7923076487d4fa68c970b0733e2d5a0ccfc3c5"
 R8_VERSION="8.5.35"
 R8_URL="https://dl.google.com/dl/android/maven2/com/android/tools/r8/$R8_VERSION/r8-$R8_VERSION.jar"
 R8_SHA256="4733945987ee0a840fafc34080b135259e01678412e07212b23f706334290294"
-# libreria di firma (serve solo se d8.jar non la contiene già)
+# signing library (needed only if d8.jar does not already contain it)
 APKSIG_VERSION="8.5.2"
 APKSIG_URL="https://dl.google.com/dl/android/maven2/com/android/tools/build/apksig/$APKSIG_VERSION/apksig-$APKSIG_VERSION.jar"
 APKSIG_SHA256="c4f6fdf2148490296f422a7eb37647ea11d1c3b02f1f2349c33ce257f3c29b1f"
 
-manca_strumento() {  # $1 = file da allegare, $2 = descrizione
+missing_tool() {  # $1 = file to provide, $2 = description
   echo
-  echo "ERRORE: non riesco a procurarmi tools/$1."
-  echo "  Allega il file tools/$1 ($2) e rilancia ./build.sh."
+  echo "ERROR: cannot obtain tools/$1."
+  echo "  Provide the file tools/$1 ($2) and run ./build.sh again."
   exit 1
 }
 
-hash_ok() {  # $1 = file, $2 = sha256 atteso
+hash_ok() {  # $1 = file, $2 = expected sha256
   [ "$(sha256sum "$1" | cut -d' ' -f1)" = "$2" ]
 }
 
@@ -43,39 +43,39 @@ TMP_DL="$(mktemp -d)"
 trap 'rm -rf "$TMP_DL"' EXIT
 
 if [ ! -f "$T/android.jar" ]; then
-  echo "==> tools/android.jar mancante: scarico la piattaforma Android API 28 (platform-28_r06)"
+  echo "==> tools/android.jar missing: downloading the Android API 28 platform (platform-28_r06)"
   if curl -fsSL --retry 3 -o "$TMP_DL/platform.zip" "$PLATFORM_URL" \
      && hash_ok "$TMP_DL/platform.zip" "$PLATFORM_SHA256" \
      && unzip -q -o "$TMP_DL/platform.zip" android-9/android.jar -d "$TMP_DL" \
      && hash_ok "$TMP_DL/android-9/android.jar" "$ANDROID_JAR_SHA256"; then
     mv "$TMP_DL/android-9/android.jar" "$T/android.jar"
-    echo "    android.jar scaricato e verificato"
+    echo "    android.jar downloaded and verified"
   else
-    manca_strumento "android.jar" "android.jar della piattaforma Android API 28, dall'Android SDK"
+    missing_tool "android.jar" "android.jar of the Android API 28 platform, from the Android SDK"
   fi
 fi
 
 if [ ! -f "$T/d8.jar" ]; then
-  echo "==> tools/d8.jar mancante: scarico R8/D8 $R8_VERSION da Google Maven"
+  echo "==> tools/d8.jar missing: downloading R8/D8 $R8_VERSION from Google Maven"
   if curl -fsSL --retry 3 -o "$TMP_DL/r8.jar" "$R8_URL" \
      && hash_ok "$TMP_DL/r8.jar" "$R8_SHA256"; then
     mv "$TMP_DL/r8.jar" "$T/d8.jar"
-    echo "    d8.jar scaricato e verificato"
+    echo "    d8.jar downloaded and verified"
   else
-    manca_strumento "d8.jar" "D8/R8 $R8_VERSION, com.android.tools:r8 da Google Maven"
+    missing_tool "d8.jar" "D8/R8 $R8_VERSION, com.android.tools:r8 from Google Maven"
   fi
 fi
 
 SIGN_CP="$T/d8.jar"
 if ! unzip -l "$T/d8.jar" 'com/android/apksig/ApkSigner.class' >/dev/null 2>&1; then
   if [ ! -f "$T/apksig.jar" ]; then
-    echo "==> tools/apksig.jar mancante: scarico apksig $APKSIG_VERSION da Google Maven"
+    echo "==> tools/apksig.jar missing: downloading apksig $APKSIG_VERSION from Google Maven"
     if curl -fsSL --retry 3 -o "$TMP_DL/apksig.jar" "$APKSIG_URL" \
        && hash_ok "$TMP_DL/apksig.jar" "$APKSIG_SHA256"; then
       mv "$TMP_DL/apksig.jar" "$T/apksig.jar"
-      echo "    apksig.jar scaricato e verificato"
+      echo "    apksig.jar downloaded and verified"
     else
-      manca_strumento "apksig.jar" "libreria di firma com.android.tools.build:apksig da Google Maven"
+      missing_tool "apksig.jar" "signing library com.android.tools.build:apksig from Google Maven"
     fi
   fi
   SIGN_CP="$T/d8.jar:$T/apksig.jar"
@@ -87,35 +87,35 @@ mkdir -p "$OUT/res" "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/tools"
 SRC="$APP/java"
 MANIFEST="$APP/AndroidManifest.xml"
 RENAME=()
-# pacchetto di loghi radio integrato (app/assets/loghi)
+# built-in radio logo pack (app/assets/loghi)
 ASSETS=()
 if [ -d "$APP/assets" ]; then ASSETS=(-A "$APP/assets"); fi
 
-# 1.0.4: MG4 Store dentro il launcher (assets/MG4Store.apk). L'APK dello Store sta in tools/ (escluso da git, come gli
-# altri file di tools/); si può indicare un altro percorso con STORE_APK=...
-# Fork InfectedM: o Store é OPCIONAL. Sem tools/MG4Store.apk o launcher compila na mesma, sem o Store dentro
-# (o botão "Instalar MG4 Store" não aparece). Com o ficheiro presente tem de estar assinado com a chave platform.
+# 1.0.4: MG4 Store bundled inside the launcher (assets/MG4Store.apk). The Store APK lives in tools/ (excluded from git,
+# like the other files in tools/); another path can be given with STORE_APK=...
+# InfectedM fork: the Store is OPTIONAL. Without tools/MG4Store.apk the launcher still builds, just without the Store
+# (the "Install MG4 Store" button does not appear). If the file is present it must be signed with the platform key.
 STORE_APK="${STORE_APK:-$T/MG4Store.apk}"
 if [ ! -f "$STORE_APK" ]; then
-  echo "==> MG4 Store: não encontrado ($STORE_APK) — compilo sem o Store dentro"
+  echo "==> MG4 Store: not found ($STORE_APK) — building without the Store"
 else
-  # deve essere firmato con la stessa chiave platform del launcher (altrimenti non si installa in silenzio)
-  # (awk legge tutto l'output, senza "exit": con pipefail una pipe chiusa in anticipo fermerebbe lo script)
+  # it must be signed with the same platform key as the launcher (otherwise it cannot be installed silently)
+  # (awk reads the whole output, without "exit": with pipefail a pipe closed early would stop the script)
   STORE_CERT="$(keytool -printcert -jarfile "$STORE_APK" 2>/dev/null | awk '/SHA256:/ && !f {print $2; f=1}' || true)"
   OWN_CERT="$(keytool -list -v -keystore "$KEYSTORE" -storepass "$KEY_PASS" -alias "$KEY_ALIAS" 2>/dev/null | awk '/SHA256:/ && !f {print $2; f=1}' || true)"
   if [ -z "$STORE_CERT" ] || [ "$STORE_CERT" != "$OWN_CERT" ]; then
-    echo "ERRORE: MG4 Store ($STORE_APK) non è firmato con la chiave platform del launcher."
+    echo "ERROR: MG4 Store ($STORE_APK) is not signed with the launcher's platform key."
     exit 1
   fi
   mkdir -p "$OUT/assets"
   rm -f "$OUT/assets/"*.apk
   cp "$STORE_APK" "$OUT/assets/MG4Store.apk"
   STORE_INFO="$("$T/aapt2" dump badging "$STORE_APK" 2>/dev/null | sed -n 1p || true)"
-  echo "==> MG4 Store incluso: ${STORE_INFO} · $(stat -c %s "$STORE_APK") byte"
+  echo "==> MG4 Store included: ${STORE_INFO} · $(stat -c %s "$STORE_APK") bytes"
   ASSETS+=(-A "$OUT/assets")
 fi
 
-echo "==> risorse (aapt2)"
+echo "==> resources (aapt2)"
 "$T/aapt2" compile --dir "$APP/res" -o "$OUT/res/compiled.zip"
 "$T/aapt2" link \
   -I "$ANDROID_JAR" \
@@ -128,11 +128,11 @@ echo "==> risorse (aapt2)"
 
 echo "==> java (javac, bytecode 8)"
 find "$SRC" "$OUT/gen" -name '*.java' > "$OUT/sources.txt"
-# API Java 8 dal JDK (lambda), API Android da android.jar
+# Java 8 API from the JDK (lambdas), Android API from android.jar
 if ! javac -nowarn -encoding UTF-8 --release 8 -classpath "$ANDROID_JAR" \
      -d "$OUT/classes" @"$OUT/sources.txt" > "$OUT/javac.log" 2>&1; then
   grep -v 'Picked up JAVA_TOOL_OPTIONS' "$OUT/javac.log"
-  echo "compilazione fallita"; exit 1
+  echo "compilation failed"; exit 1
 fi
 grep -v -E '^(Picked up JAVA_TOOL_OPTIONS|Note: )' "$OUT/javac.log" || true
 
@@ -140,13 +140,13 @@ echo "==> dex (D8)"
 find "$OUT/classes" -name '*.class' > "$OUT/classes.txt"
 java -cp "$T/d8.jar" com.android.tools.r8.D8 --release --min-api 26 \
   --lib "$ANDROID_JAR" --output "$OUT/dex" @"$OUT/classes.txt" 2>&1 | grep -v 'Picked up JAVA_TOOL_OPTIONS' || true
-test -f "$OUT/dex/classes.dex" || { echo "D8 fallito"; exit 1; }
+test -f "$OUT/dex/classes.dex" || { echo "D8 failed"; exit 1; }
 
-echo "==> pacchetto"
+echo "==> package"
 cp "$OUT/base.apk" "$OUT/unsigned.apk"
 (cd "$OUT/dex" && zip -q -X "$OUT/unsigned.apk" classes*.dex)
 
-echo "==> firma"
+echo "==> signing"
 javac -nowarn -d "$OUT/tools" -cp "$SIGN_CP" "$T/src/Sign.java" 2>&1 | grep -v 'Picked up' || true
 java -cp "$OUT/tools:$SIGN_CP" Sign "$KEYSTORE" "$KEY_PASS" "$KEY_ALIAS" \
   "$OUT/unsigned.apk" "$OUT/$OUT_NAME" 2>&1 | grep -v 'Picked up' || true

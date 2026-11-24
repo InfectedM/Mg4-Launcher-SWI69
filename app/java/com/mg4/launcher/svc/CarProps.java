@@ -11,32 +11,32 @@ import java.util.List;
 import java.util.Map;
 
 /**
- * Proprietà del veicolo lette dal CarService di Android Automotive (android.car), via reflection perché
- * android.car non fa parte dell'SDK pubblico. Serve per pressione pneumatici (TPMS) e temperatura interna,
- * che il servizio veicolo SAIC non espone. ID delle proprietà dal firmware SWI69 R45 (YFVehicleProperty, uguali alla SWI68).
+ * Vehicle properties read from the Android Automotive CarService (android.car), via reflection because
+ * android.car is not part of the public SDK. Used for tyre pressure (TPMS) and inside temperature,
+ * which the SAIC vehicle service does not expose. Property IDs from firmware SWI69 R45 (YFVehicleProperty, same as SWI68).
  */
 public final class CarProps {
-    // pressione pneumatici (INT32, area globale): AS, AD, PS, PD
+    // tyre pressure (INT32, global area): FL, FR, RL, RR
     public static final int TIRE_FL = 557847891, TIRE_FR = 557847892, TIRE_RL = 557847893, TIRE_RR = 557847894;
-    // temperatura abitacolo (FLOAT, area sedile/zona): corrente e "ambient" del clima
+    // cabin temperature (FLOAT, seat/zone area): current and the climate's "ambient"
     public static final int HVAC_TEMPERATURE_CURRENT = 358614274, HVAC_AMBIENT_TEMPERATURE = 358622506;
-    /** Validità della temperatura esterna (0 = valida, 1 = non valida), come la usa il SystemUI originale. */
+    /** Outside temperature validity (0 = valid, 1 = invalid), as used by the original SystemUI. */
     public static final int HVAC_TEMPERATURE_OUTCARV = 356525352;
 
     private final Context ctx;
     private Object car, propertyManager;
     private volatile boolean connected;
     private final Map<Integer, Integer> areas = new HashMap<>();
-    /** Tutte le aree di ogni proprietà (per la sonda della temperatura interna). */
+    /** All areas of each property (for the inside temperature probe). */
     private final Map<Integer, int[]> allAreas = new HashMap<>();
     private boolean areasRead;
     private String lastError = "";
-    /** Proprietà che l'auto rifiuta (IllegalArgumentException): non si rileggono più. */
+    /** Properties the car rejects (IllegalArgumentException): never read again. */
     private final java.util.Set<Integer> unsupported = java.util.Collections.synchronizedSet(new java.util.HashSet<>());
-    /** Proprietà negate per un permesso che l'auto non concede (SecurityException): non si rileggono più. */
+    /** Properties denied by a permission the car does not grant (SecurityException): never read again. */
     private final java.util.Set<Integer> denied = java.util.Collections.synchronizedSet(new java.util.HashSet<>());
 
-    /** Velocità del veicolo (FLOAT, m/s) e permesso che la protegge. */
+    /** Vehicle speed (FLOAT, m/s) and the permission that protects it. */
     public static final int PERF_VEHICLE_SPEED = 291504647;
     public static final String PERM_CAR_SPEED = "android.car.permission.CAR_SPEED";
 
@@ -45,13 +45,13 @@ public final class CarProps {
     }
 
     /**
-     * Permesso del CarService (es. CAR_SPEED): sull'auto è un permesso "a richiesta", che il launcher si concede da solo
-     * grazie alla firma platform (GRANT_RUNTIME_PERMISSIONS). Restituisce true se alla fine è concesso.
+     * CarService permission (e.g. CAR_SPEED): on the car it is a runtime permission, which the launcher grants itself
+     * thanks to the platform signature (GRANT_RUNTIME_PERMISSIONS). Returns true if it ends up granted.
      */
     public boolean ensurePermission(String perm) {
         String name = perm.substring(perm.lastIndexOf('.') + 1);
         if (ctx.checkSelfPermission(perm) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            Diag.put("auto.permesso." + name, "concesso");
+            Diag.put("car.permission." + name, "granted");
             return true;
         }
         String why;
@@ -65,19 +65,19 @@ public final class CarProps {
             why = c.getClass().getSimpleName() + (c.getMessage() == null ? "" : ": " + c.getMessage());
         }
         boolean ok = ctx.checkSelfPermission(perm) == android.content.pm.PackageManager.PERMISSION_GRANTED;
-        Diag.put("auto.permesso." + name, ok ? "concesso ora" : "non concesso dall'auto" + (why.isEmpty() ? "" : " (" + why + ")"));
+        Diag.put("car.permission." + name, ok ? "granted now" : "not granted by the car" + (why.isEmpty() ? "" : " (" + why + ")"));
         return ok;
     }
 
-    /** Si collega al CarService (va chiamato da un thread in background). */
+    /** Connects to the CarService (must be called from a background thread). */
     public synchronized void connect() {
         if (car != null) return;
-        // velocità (assistente di guida e pedale solo ad auto ferma): senza permesso non si prova nemmeno a leggerla
-        // 1.0.4: luci esterne (fari) per l'auto disegnata e il tema
+        // speed (driving assistant and pedal only with the car stopped): without permission it is not even attempted
+        // 1.0.4: exterior lights (headlights) for the drawn car and the theme
         ensurePermission("android.car.permission.CAR_EXTERIOR_LIGHTS");
         if (!ensurePermission(PERM_CAR_SPEED)) {
             denied.add(PERF_VEHICLE_SPEED);
-            Diag.put("auto.velocità", "non letta: l'auto non concede il permesso CAR_SPEED (scritto una sola volta)");
+            Diag.put("car.speed", "not read: the car does not grant the CAR_SPEED permission (logged only once)");
         }
         try {
             Class<?> carCls = Class.forName("android.car.Car");
@@ -95,9 +95,9 @@ public final class CarProps {
             };
             car = carCls.getMethod("createCar", Context.class, ServiceConnection.class).invoke(null, ctx, conn);
             carCls.getMethod("connect").invoke(car);
-            Diag.put("auto.carservice", "collegamento…");
+            Diag.put("car.carservice", "connecting…");
         } catch (Throwable e) {
-            error("collegamento", e);
+            error("connection", e);
         }
     }
 
@@ -108,12 +108,12 @@ public final class CarProps {
     private Object pm() throws Exception {
         if (propertyManager == null && car != null && connected) {
             propertyManager = car.getClass().getMethod("getCarManager", String.class).invoke(car, "property");
-            Diag.put("auto.carservice", propertyManager != null ? "collegato" : "nessun property manager");
+            Diag.put("car.carservice", propertyManager != null ? "connected" : "no property manager");
         }
         return propertyManager;
     }
 
-    /** Area da usare per una proprietà (0 per le globali, la prima area configurata per le altre). */
+    /** Area to use for a property (0 for global ones, the first configured area for the others). */
     private int area(int prop) {
         if (!areasRead) {
             areasRead = true;
@@ -127,21 +127,21 @@ public final class CarProps {
                         areas.put(id, ids != null && ids.length > 0 ? ids[0] : 0);
                         allAreas.put(id, ids != null && ids.length > 0 ? ids : new int[]{0});
                     }
-                    Diag.put("auto.proprietà", cfgs.size() + " disponibili; TPMS " + (areas.containsKey(TIRE_FL) ? "sì" : "no")
-                            // 0.4.3: "ambient" è la temperatura esterna, non conta come interna
-                            + ", temp. interna " + (areas.containsKey(HVAC_TEMPERATURE_CURRENT) ? "sì"
-                            : areas.containsKey(HVAC_AMBIENT_TEMPERATURE) ? "no (solo ambient = esterna)" : "no"));
+                    Diag.put("car.property", cfgs.size() + " available; TPMS " + (areas.containsKey(TIRE_FL) ? "yes" : "no")
+                            // 0.4.3: "ambient" is the outside temperature, it does not count as inside
+                            + ", inside temp. " + (areas.containsKey(HVAC_TEMPERATURE_CURRENT) ? "yes"
+                            : areas.containsKey(HVAC_AMBIENT_TEMPERATURE) ? "no (ambient only = outside)" : "no"));
                 }
             } catch (Throwable e) {
                 areasRead = false;
-                error("elenco proprietà", e);
+                error("property list", e);
             }
         }
         Integer a = areas.get(prop);
         return a == null ? 0 : a;
     }
 
-    /** Intero o Integer.MIN_VALUE se non leggibile. */
+    /** Integer, or Integer.MIN_VALUE if not readable. */
     public int getInt(int prop) {
         try {
             Object p = pm();
@@ -149,12 +149,12 @@ public final class CarProps {
             Method m = p.getClass().getMethod("getIntProperty", int.class, int.class);
             return (Integer) m.invoke(p, prop, area(prop));
         } catch (Throwable e) {
-            error("lettura " + prop, e);
+            error("read " + prop, e);
             return Integer.MIN_VALUE;
         }
     }
 
-    /** Inteiro numa área fixa (ex.: 0 para propriedades globais), Integer.MIN_VALUE se não se lê. Sem erros na diagnóstica. */
+    /** Integer at a fixed area (e.g. 0 for global properties), Integer.MIN_VALUE if not readable. No errors in the diagnostics. */
     public int getIntAt(int prop, int area) {
         try {
             Object p = pm();
@@ -166,7 +166,7 @@ public final class CarProps {
         }
     }
 
-    /** Float numa área fixa, NaN se não se lê. Sem erros na diagnóstica. */
+    /** Float at a fixed area, NaN if not readable. No errors in the diagnostics. */
     public float getFloatAt(int prop, int area) {
         try {
             Object p = pm();
@@ -178,10 +178,10 @@ public final class CarProps {
         }
     }
 
-    /** Escreve um float numa área fixa; lança a exceção do carro (quem chama decide se tenta outra área). */
+    /** Writes a float at a fixed area; throws the car's exception (the caller decides whether to try another area). */
     public void setFloatAt(int prop, int area, float value) throws Throwable {
         Object p = pm();
-        if (p == null) throw new IllegalStateException("CarService não ligado");
+        if (p == null) throw new IllegalStateException("CarService not connected");
         Method m = p.getClass().getMethod("setFloatProperty", int.class, int.class, float.class);
         try {
             m.invoke(p, prop, area, value);
@@ -190,7 +190,7 @@ public final class CarProps {
         }
     }
 
-    /** Escreve um inteiro numa área fixa; falso se não foi possível. */
+    /** Writes an integer at a fixed area; false if it was not possible. */
     public boolean setIntAt(int prop, int area, int value) {
         try {
             Object p = pm();
@@ -199,12 +199,12 @@ public final class CarProps {
             m.invoke(p, prop, area, value);
             return true;
         } catch (Throwable e) {
-            error("escrita " + prop, e);
+            error("write " + prop, e);
             return false;
         }
     }
 
-    /** Come getInt, ma senza scrivere errori nella diagnostica (proprietà che potrebbero non esistere). */
+    /** Like getInt, but without writing errors to the diagnostics (properties that may not exist). */
     public int getIntQuiet(int prop) {
         try {
             Object p = pm();
@@ -218,16 +218,16 @@ public final class CarProps {
         }
     }
 
-    /** 0.4.3 (dalla SWI68 0.4.3): NIGHT_MODE (BOOLEAN), il sistema dice che è notte. */
+    /** 0.4.3 (from SWI68 0.4.3): NIGHT_MODE (BOOLEAN), the system says it is night. */
     public static final int NIGHT_MODE = 287310855;
-    /** HEADLIGHTS_STATE (INT32): 0 spenti, 1 accesi, 2 luci diurne. */
+    /** HEADLIGHTS_STATE (INT32): 0 off, 1 on, 2 daytime running lights. */
     public static final int HEADLIGHTS_STATE = 289410560;
-    /** HEADLIGHTS_SWITCH (INT32): posizione della leva, 0 spenti, 1 accesi, 2 diurne, 3 automatico. */
+    /** HEADLIGHTS_SWITCH (INT32): stalk position, 0 off, 1 on, 2 daytime, 3 automatic. */
     public static final int HEADLIGHTS_SWITCH = 289410576;
     /** DISPLAY_BRIGHTNESS (INT32). */
     public static final int DISPLAY_BRIGHTNESS = 289409539;
 
-    /** True se la proprietà è nell'elenco dell'auto (letto una volta). */
+    /** True if the property is in the car's list (read once). */
     public synchronized boolean has(int prop) {
         try {
             area(prop);
@@ -236,7 +236,7 @@ public final class CarProps {
         return areasRead && areas.containsKey(prop);
     }
 
-    /** Intero senza errori nella diagnostica; ricorda i rifiuti dell'auto. */
+    /** Integer without errors in the diagnostics; remembers the car's rejections. */
     public int getIntSafe(int prop) {
         if (unsupported.contains(prop) || denied.contains(prop)) return Integer.MIN_VALUE;
         try {
@@ -254,7 +254,7 @@ public final class CarProps {
         }
     }
 
-    /** 0.4.2: proprietà booleana: 1 vero, 0 falso, -1 non leggibile (senza errori nella diagnostica). */
+    /** 0.4.2: boolean property: 1 true, 0 false, -1 not readable (without errors in the diagnostics). */
     public int getBoolQuiet(int prop) {
         if (unsupported.contains(prop) || denied.contains(prop)) return -1;
         try {
@@ -272,7 +272,7 @@ public final class CarProps {
         }
     }
 
-    /** 0.4.2: decimale senza errori nella diagnostica (NaN se non leggibile o non nell'elenco dell'auto). */
+    /** 0.4.2: float without errors in the diagnostics (NaN if not readable or not in the car's list). */
     public float getFloatQuiet(int prop, int areaId) {
         if (unsupported.contains(prop) || denied.contains(prop)) return Float.NaN;
         try {
@@ -287,14 +287,14 @@ public final class CarProps {
         }
     }
 
-    /** Aree configurate di una proprietà (vuoto se non c'è). */
+    /** Configured areas of a property (empty if missing). */
     public int[] areasOf(int prop) {
         area(prop);
         int[] a = allAreas.get(prop);
         return a == null ? new int[0] : a;
     }
 
-    /** Decimale o NaN se non leggibile. Dopo il primo rifiuto dell'auto la proprietà non si rilegge più. */
+    /** Float, or NaN if not readable. After the car's first rejection the property is never read again. */
     public float getFloat(int prop) {
         if (unsupported.contains(prop) || denied.contains(prop)) return Float.NaN;
         try {
@@ -305,33 +305,33 @@ public final class CarProps {
         } catch (Throwable e) {
             Throwable c = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
             if (c instanceof SecurityException) {
-                // permesso negato dall'auto (es. CAR_SPEED): una sola riga nel log, poi la proprietà non si rilegge più
+                // permission denied by the car (e.g. CAR_SPEED): a single log line, then the property is never read again
                 denied.add(prop);
-                Diag.put("auto.permessoNegato." + Integer.toHexString(prop), "non letta più in questa sessione (" + c.getMessage() + ")");
+                Diag.put("car.permissionDenied." + Integer.toHexString(prop), "no longer read this session (" + c.getMessage() + ")");
                 return Float.NaN;
             }
             if (c instanceof IllegalArgumentException) {
                 unsupported.add(prop);
-                Diag.put("auto.proprietàNonSupportata." + Integer.toHexString(prop), "non disponibile su questa auto (" + c.getClass().getSimpleName() + ")");
+                Diag.put("car.propertyUnsupported." + Integer.toHexString(prop), "not available on this car (" + c.getClass().getSimpleName() + ")");
                 return Float.NaN;
             }
-            error("lettura " + prop, e);
+            error("read " + prop, e);
             return Float.NaN;
         }
     }
 
-    // ---- sonda della temperatura interna (0.9.3) ------------------------------------------------
-    // L'auto non espone la temperatura dell'abitacolo con le proprietà standard: HVAC_TEMPERATURE_CURRENT vale sempre 0 e
-    // HVAC_AMBIENT_TEMPERATURE è la temperatura esterna. L'app iSmart però la mostra, quindi passa da qualche parte.
-    // La sonda legge tutte le proprietà decimali (tipo FLOAT) dell'auto, in tutte le aree, e scrive nei log quelle con
-    // valori da temperatura e quanto variano: una che cambia col clima acceso e non segue l'esterna è quella giusta.
+    // ---- inside temperature probe (0.9.3) ------------------------------------------------
+    // The car does not expose the cabin temperature through the standard properties: HVAC_TEMPERATURE_CURRENT is always 0 and
+    // HVAC_AMBIENT_TEMPERATURE is the outside temperature. The iSmart app does show it, though, so it goes through somewhere.
+    // The probe reads all the car's decimal (FLOAT type) properties, in all areas, and logs those with
+    // temperature-like values and how much they vary: one that changes with the climate on and does not follow outside is the right one.
 
     private static final int TYPE_MASK = 0x00FF0000, TYPE_FLOAT = 0x00600000;
-    /** Già note (impostazioni del clima, esterna): non servono alla ricerca. */
+    /** Already known (climate settings, outside): not needed for the search. */
     private static final int[] PROBE_SKIP = {358622475, 358622476, 358614275, 358622481, 291505923};
     private final Map<String, float[]> probe = new java.util.TreeMap<>();
 
-    /** Una lettura della sonda; restituisce il riassunto per la diagnostica ("" se il CarService non è pronto). */
+    /** One probe reading; returns the summary for the diagnostics ("" if the CarService is not ready). */
     public synchronized String probeInsideTemp(float outside) {
         area(0);
         if (!areasRead) return "";
@@ -367,39 +367,39 @@ public final class CarProps {
                 }
             }
         } catch (Throwable e) {
-            return "errore " + e;
+            return "error " + e;
         }
-        // candidati: valori da abitacolo che non sono l'esterna
+        // candidates: cabin-like values that are not the outside one
         for (Map.Entry<String, float[]> e : probe.entrySet()) {
             float[] r = e.getValue();
             boolean outsideLike = !Float.isNaN(outside) && Math.abs(r[2] - outside) < 0.6f;
             all.append(all.length() == 0 ? "" : " | ").append(e.getKey()).append('=').append(r[2])
-                    .append(" (").append(r[0]).append('…').append(r[1]).append(')').append(outsideLike ? " =est" : "");
+                    .append(" (").append(r[0]).append('…').append(r[1]).append(')').append(outsideLike ? " =out" : "");
         }
-        return n + " letture · " + (all.length() == 0 ? "nessun valore da temperatura" : all);
+        return n + " readings · " + (all.length() == 0 ? "no temperature-like value" : all);
     }
 
     /**
-     * 1.0.4 (punto B): luci SAIC (proprietà globali, area 0), le stesse che legge il servizio impostazioni SAIC per il
-     * tema e che MG4 Control usa (solo l'informazione, nessun codice copiato).
-     * VEH_SIDE_LGHT (INT32): luci di posizione, 3 = accese (segue i fari automatici).
-     * DIPD_BEAM_LGHT (BOOLEAN): anabbaglianti accesi.
-     * LIGHT_SWITCH_POS_STS (INT32): posizione della leva (sulla SWI68 probabilmente non esposta).
+     * 1.0.4 (point B): SAIC lights (global properties, area 0), the same ones the SAIC settings service reads for the
+     * theme and that MG4 Control uses (only the information, no code copied).
+     * VEH_SIDE_LGHT (INT32): position lights, 3 = on (follows the automatic headlights).
+     * DIPD_BEAM_LGHT (BOOLEAN): dipped beam on.
+     * LIGHT_SWITCH_POS_STS (INT32): stalk position (probably not exposed on the SWI68).
      */
     public static final int VEH_SIDE_LGHT = 557880099, DIPD_BEAM_LGHT = 555782944, LIGHT_SWITCH_POS_STS = 557880119;
-    /** 1.0.4: presa di ricarica, BMS_CHRG_PLUG_CNCTNIO (globale, INT32): 0 = cavo inserito, 1 = non inserito. */
+    /** 1.0.4: charging socket, BMS_CHRG_PLUG_CNCTNIO (global, INT32): 0 = cable plugged in, 1 = not plugged in. */
     public static final int BMS_CHRG_PLUG_CNCTNIO = 557904904;
     private Object lampManager;
     private boolean lampTried;
     private String lampWhy = "";
 
-    /** Gestore "lamp" del CarService SAIC (CarLampManager), come lo usa il launcher originale. Null se non c'è. */
+    /** "lamp" manager of the SAIC CarService (CarLampManager), as used by the original launcher. Null if missing. */
     private synchronized Object lamp() {
         if (lampManager == null && !lampTried && car != null && connected) {
             lampTried = true;
             try {
                 lampManager = car.getClass().getMethod("getCarManager", String.class).invoke(car, "lamp");
-                lampWhy = lampManager == null ? "nessun gestore lamp" : "";
+                lampWhy = lampManager == null ? "no lamp manager" : "";
             } catch (Throwable e) {
                 Throwable c = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
                 lampWhy = c.getClass().getSimpleName();
@@ -409,8 +409,8 @@ public final class CarProps {
     }
 
     /**
-     * Legge una luce: prima dal gestore "lamp", poi dal gestore delle proprietà (getProperty(Class, id, 0)).
-     * Restituisce Integer (booleani come 1/0) o null se non si legge; in why[0] la fonte o il motivo.
+     * Reads a light: first from the "lamp" manager, then from the property manager (getProperty(Class, id, 0)).
+     * Returns Integer (booleans as 1/0) or null if not readable; why[0] holds the source or the reason.
      */
     public Integer readLight(int prop, boolean bool, String[] why) {
         Class<?> cls = bool ? Boolean.class : Integer.class;
@@ -441,11 +441,11 @@ public final class CarProps {
                 err = names[i] + ": " + c.getClass().getSimpleName();
             }
         }
-        why[0] = err.isEmpty() ? (lampWhy.isEmpty() ? "non letta" : lampWhy) : err;
+        why[0] = err.isEmpty() ? (lampWhy.isEmpty() ? "not read" : lampWhy) : err;
         return null;
     }
 
-    /** Valore decimale per ogni area della proprietà (area → valore), vuoto se non c'è. Nessun errore nel log. */
+    /** Float value for each area of the property (area → value), empty if missing. No errors in the log. */
     public synchronized Map<Integer, Float> floatsAllAreas(int prop) {
         Map<Integer, Float> out = new java.util.LinkedHashMap<>();
         if (unsupported.contains(prop) || denied.contains(prop)) return out;
@@ -466,7 +466,7 @@ public final class CarProps {
         return out;
     }
 
-    /** False se la proprietà non è nell'elenco dell'auto o è stata rifiutata; null se non si sa ancora. */
+    /** False if the property is not in the car's list or was rejected; null if not known yet. */
     public Boolean available(int prop) {
         if (unsupported.contains(prop)) return false;
         if (!connected) return null;
@@ -480,18 +480,18 @@ public final class CarProps {
         String msg = what + ": " + c;
         if (!msg.equals(lastError)) {
             lastError = msg;
-            Diag.error("auto.carservice", msg);
+            Diag.error("car.carservice", msg);
         }
     }
 
     /**
-     * Pressione in bar dal valore grezzo: i sensori danno kPa (es. 250) oppure decimi/centesimi di bar.
-     * Restituisce NaN per valori fuori scala.
+     * Pressure in bar from the raw value: the sensors give kPa (e.g. 250) or tenths/hundredths of bar.
+     * Returns NaN for out-of-range values.
      */
     public static float toBar(int raw) {
         if (raw == Integer.MIN_VALUE || raw <= 0) return Float.NaN;
         if (raw >= 100 && raw <= 500) return raw / 100f;        // kPa
-        if (raw >= 10 && raw < 100) return raw / 10f;           // decimi di bar
+        if (raw >= 10 && raw < 100) return raw / 10f;           // tenths of bar
         if (raw > 500 && raw <= 5000) return raw / 1000f;       // millibar
         return Float.NaN;
     }

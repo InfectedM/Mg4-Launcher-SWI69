@@ -6,12 +6,12 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 
 /**
- * Solo verifica per la mappa in finestra (PIP), nessuna funzione: scrive nella diagnostica se le schermate del
- * navigatore e di CarPlay/Android Auto si possono incorporare (ridimensionabili, allowEmbedded) su questo firmware.
+ * Check only, for the windowed map (PIP), no feature: writes to the diagnostics whether the screens of the
+ * navigator and of CarPlay/Android Auto can be embedded (resizable, allowEmbedded) on this firmware.
  */
 public final class EmbedCheck {
     private static final String[] PACKAGES = {"com.telenav.app.arp", "com.allgo.carplay.service", "com.allgo.app.androidauto", "com.allgo.rui"};
-    /** ActivityInfo.FLAG_ALLOW_EMBEDDED (nascosto). */
+    /** ActivityInfo.FLAG_ALLOW_EMBEDDED (hidden). */
     private static final int FLAG_ALLOW_EMBEDDED = 0x80000000;
 
     private EmbedCheck() {}
@@ -19,9 +19,9 @@ public final class EmbedCheck {
     public static void log(Context c) {
         new Thread(() -> {
             PackageManager pm = c.getPackageManager();
-            Diag.put("pip.displaySecondari", pm.hasSystemFeature("android.software.activities_on_secondary_displays") ? "sì" : "no");
-            Diag.put("pip.permessoIncorpora", pm.checkPermission("android.permission.ACTIVITY_EMBEDDING", c.getPackageName())
-                    == PackageManager.PERMISSION_GRANTED ? "concesso" : "non concesso");
+            Diag.put("pip.secondaryDisplays", pm.hasSystemFeature("android.software.activities_on_secondary_displays") ? "yes" : "no");
+            Diag.put("pip.embedPermission", pm.checkPermission("android.permission.ACTIVITY_EMBEDDING", c.getPackageName())
+                    == PackageManager.PERMISSION_GRANTED ? "granted" : "not granted");
             for (String p : PACKAGES) {
                 StringBuilder sb = new StringBuilder();
                 try {
@@ -36,15 +36,15 @@ public final class EmbedCheck {
                         sb.append(sb.length() == 0 ? "" : " | ").append(a.name.substring(a.name.lastIndexOf('.') + 1))
                                 .append(" resize=").append(resize)
                                 .append((a.flags & FLAG_ALLOW_EMBEDDED) != 0 ? " embedded" : "")
-                                .append(a.exported ? "" : " privata");
+                                .append(a.exported ? "" : " private");
                         if (sb.length() > 700) break;
                     }
                 } catch (PackageManager.NameNotFoundException e) {
-                    sb.append("non installata");
+                    sb.append("not installed");
                 } catch (Throwable e) {
                     sb.append(e.getClass().getSimpleName());
                 }
-                Diag.put("pip." + p, sb.length() == 0 ? "nessuna attività esportata" : sb.toString());
+                Diag.put("pip." + p, sb.length() == 0 ? "no exported activity" : sb.toString());
             }
         }, "mg4-pip-check").start();
     }

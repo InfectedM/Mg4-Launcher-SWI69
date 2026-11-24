@@ -22,19 +22,19 @@ import java.util.LinkedHashSet;
 import java.util.Set;
 
 /**
- * Vidros: fecho automático ao sair do carro e fecho manual (funções do WinClose, reescritas para o launcher).
+ * Windows: automatic closing when leaving the car and manual closing (WinClose features, rewritten for the launcher).
  * <p>
- * Ligação ao carro (SWI69, EH32):
+ * Connection to the car (SWI69, EH32):
  * <ul>
- *   <li>READY e marcha: ICarStateService (hub com.saicmotor.caradapter, código 11) com chamadas binder diretas,
- *       como o {@link VehicleClient};</li>
- *   <li>vidros: CarVehicleSettingClient (código 8) das bibliotecas carapi da SAIC, carregadas da app da home original
- *       (com.saicmotor.launcher na SWI69): setVehicleWindowStatus(área, comando) e getVehicleWindowValue(área)
- *       (0 = fechado … 255 = aberto, só fiável em vidros com sensor);</li>
- *   <li>porta do condutor: callback ICarStateCallback registado no CarStateClient (transação 6, 0 = aberta;
- *       transação 3 = marcha).</li>
+ *   <li>READY and gear: ICarStateService (hub com.saicmotor.caradapter, code 11) with direct binder calls,
+ *       like {@link VehicleClient};</li>
+ *   <li>windows: CarVehicleSettingClient (code 8) from SAIC's carapi libraries, loaded from the original home app
+ *       (com.saicmotor.launcher on the SWI69): setVehicleWindowStatus(area, command) and getVehicleWindowValue(area)
+ *       (0 = closed … 255 = open, only reliable on windows with a sensor);</li>
+ *   <li>driver's door: ICarStateCallback callback registered on CarStateClient (transaction 6, 0 = open;
+ *       transaction 3 = gear).</li>
  * </ul>
- * Corre sempre, mesmo com o launcher em segundo plano (o processo da home não é terminado), num fio próprio.
+ * Always runs, even with the launcher in the background (the home process is not killed), on its own thread.
  */
 public final class Windows {
     private static final String HUB_PKG = "com.saicmotor.caradapter";
@@ -48,19 +48,19 @@ public final class Windows {
     private static final String STATE_CLIENT = "com.saicmotor.carapi.client.CarStateClient";
     private static final String STATE_CB_DESC = "com.saicmotor.carapi.carstate.ICarStateCallback";
     private static final int CB_GEAR = 3, CB_DOOR = 6;
-    /** Apps onde estão as bibliotecas carapi (a primeira é a da SWI69). */
+    /** Apps that contain the carapi libraries (the first is the SWI69 one). */
     private static final String[] SAIC_PKGS = {"com.saicmotor.launcher", "com.saicmotor.hmi.launcher", "com.saicmotor.carcontrol",
             "com.saicmotor.settings", "com.saicmotor.hmi", "com.saicmotor.voiceservice", "com.saicmotor.telematics"};
 
-    /** Comandos do vidro: parar, subir (enquanto se mantém), subida automática. */
+    /** Window commands: stop, up (while held), auto up. */
     private static final int CMD_STOP = 0, CMD_UP = 1, CMD_AUTO_UP = 3;
     private static final long PULSE_MS = 5000, PULSE_STEP_MS = 120;
     /**
-     * Ritmo do ciclo, conforme o que pode acontecer a seguir (antes eram 500 ms sempre, também com a função desligada):
-     * contagem a decorrer 0,5 s (bip e vidro mexido à mão); armado em P à espera da porta 1 s; em READY 2 s (armar pela
-     * velocidade, marcha); parado 5 s (só para ver o READY de uma viagem nova). Com o fecho automático desligado não se
-     * lê o estado do carro: só se prepara o controlo dos vidros para o botão "Fechar agora" (15 s até ficar pronto,
-     * depois 60 s). A porta chega por callback e acorda o ciclo logo.
+     * Loop pace, depending on what can happen next (it used to be 500 ms always, even with the feature off):
+     * countdown running 0.5 s (beep and window moved by hand); armed in P waiting for the door 1 s; in READY 2 s (arming by
+     * speed, gear); idle 5 s (only to catch the READY of a new trip). With auto-close off the car state is not
+     * read: only the window control is prepared for the "Close now" button (15 s until ready,
+     * then 60 s). The door arrives via callback and wakes the loop immediately.
      */
     private static final long LOOP_COUNTING_MS = 500, LOOP_ARMED_P_MS = 1000, LOOP_READY_MS = 2000, LOOP_IDLE_MS = 5000,
             LOOP_OFF_PENDING_MS = 15_000, LOOP_OFF_MS = 60_000;
@@ -80,7 +80,7 @@ public final class Windows {
     private Handler bg;
     private boolean started;
 
-    // bibliotecas carapi (carregadas uma vez)
+    // carapi libraries (loaded once)
     private ClassLoader saicCl;
     private String saicPkg;
     private long saicRetryAt;
@@ -88,9 +88,9 @@ public final class Windows {
     private volatile Object vsClient;
     private volatile Method setWin, getWin;
     /**
-     * 0.4.8: em alguns firmwares SWI69 o CarVehicleSettingClient já não tem setVehicleWindowStatus(int,int)
-     * (NoSuchMethodException no carro). Aí os vidros comandam-se como no MG4Control (SliDeeN): uma propriedade float
-     * por vidro no CarService (VEHICLE_DRIVERWINDOW…), mesmos valores 0 parar, 1 subir, 3 subida automática.
+     * 0.4.8: on some SWI69 firmwares CarVehicleSettingClient no longer has setVehicleWindowStatus(int,int)
+     * (NoSuchMethodException in the car). There the windows are driven as in MG4Control (SliDeeN): one float property
+     * per window in the CarService (VEHICLE_DRIVERWINDOW…), same values 0 stop, 1 up, 3 auto up.
      */
     private static final int[] WIN_PROPS = {0x11603801, 0x11603802, 0x11603803, 0x11603804};
     private static final int AREA_SAIC = 0x1000000;
@@ -109,7 +109,7 @@ public final class Windows {
     private Windows(Context c) {
         ctx = c;
         prefs = new Prefs(c);
-        hub = new ServiceLink(c, "vidros", ServiceLink.byAction(HUB_PKG, HUB_ACTION));
+        hub = new ServiceLink(c, "windows", ServiceLink.byAction(HUB_PKG, HUB_ACTION));
         hub.setOnConnected(() -> {
             if (bg != null) {
                 bg.post(this::forgetClients);
@@ -135,22 +135,22 @@ public final class Windows {
             public void close() {
                 baseline = null;
                 stopBeep();
-                closeAll("automático");
+                closeAll("automatic");
             }
 
             @Override
             public void log(String msg) {
                 lastEvent = msg;
-                Diag.put("vidros.evento", msg);
+                Diag.put("windows.event", msg);
             }
         }, this::config, this::allSurelyClosed);
     }
 
-    /** Começa a vigiar o carro (uma vez por processo). */
+    /** Starts watching the car (once per process). */
     public synchronized void start() {
         if (started) return;
         started = true;
-        HandlerThread th = new HandlerThread("mg4-vidros");
+        HandlerThread th = new HandlerThread("mg4-windows");
         th.start();
         bg = new Handler(th.getLooper());
         hub.start();
@@ -168,10 +168,10 @@ public final class Windows {
     }
 
     // =========================================================================================
-    // Estado para as definições
+    // State for the settings
     // =========================================================================================
 
-    /** Há controlo dos vidros (bibliotecas carapi carregadas e serviço do carro ligado). */
+    /** Window control is available (carapi libraries loaded and car service connected). */
     public boolean available() {
         if (propMode) return propsReady();
         return vsClient != null && setWin != null && hub.isConnected();
@@ -182,10 +182,10 @@ public final class Windows {
         return p != null && p.ready();
     }
 
-    /** Linha de estado para a secção Vidros. */
+    /** Status line for the Windows section. */
     public String statusText() {
         if (!available()) {
-            // o carro respondeu mas nenhum dos dois caminhos serve: não é "à espera", é falta de suporte
+            // the car answered but neither path works: not "waiting", but lack of support
             if (carapiNoMethod && !propsReady()) return L.s(R.string.win_status_off);
             if (carapiNoMethod) return L.s(R.string.win_status_unsupported);
             return L.s(R.string.win_status_off);
@@ -197,18 +197,18 @@ public final class Windows {
                 : L.f(R.string.win_status_not_armed, prefs.winSpeed(), prefs.winMinutes());
     }
 
-    /** Fecha agora todos os vidros que não estão em "Desligado". Falso se não há controlo dos vidros. */
+    /** Closes now all windows not set to "Off". False if there is no window control. */
     public boolean closeNow() {
         if (bg == null || !available()) return false;
         bg.post(() -> {
-            logic.cancel("fecho manual");
+            logic.cancel("manual close");
             closeAll("manual");
         });
         return true;
     }
 
     // =========================================================================================
-    // Ciclo
+    // Loop
     // =========================================================================================
 
     private final Runnable loop = new Runnable() {
@@ -217,7 +217,7 @@ public final class Windows {
             try {
                 step();
             } catch (Throwable e) {
-                Diag.error("vidros", e.toString());
+                Diag.error("windows", e.toString());
             }
             bg.postDelayed(this, nextDelayMs());
         }
@@ -231,7 +231,7 @@ public final class Windows {
         return LOOP_IDLE_MS;
     }
 
-    /** Corre o ciclo já (porta, ligação ao carro, opção mudada nas definições) em vez de esperar pelo intervalo. */
+    /** Runs the loop now (door, car connection, option changed in settings) instead of waiting for the interval. */
     public void wake() {
         Handler h = bg;
         if (h == null) return;
@@ -246,10 +246,10 @@ public final class Windows {
         IBinder h = hub.binder();
         if (h == null) return;
         if (!prefs.winAuto()) {
-            // fecho automático desligado: nenhuma leitura do carro, só o controlo para o botão "Fechar agora"
-            if (logic.counting()) logic.cancel("fecho automático desligado");
+            // auto-close off: no car reads, only the control for the "Close now" button
+            if (logic.counting()) logic.cancel("auto-close off");
             ensureClients(h, null, now);
-            Diag.putQuiet("vidros.estado", (available() ? "controlo ok (" + saicPkg + ")" : "sem controlo") + " · fecho automático desligado");
+            Diag.putQuiet("windows.state", (available() ? "control ok (" + saicPkg + ")" : "no control") + " · auto-close off");
             return;
         }
         IBinder st = query(h, BIND_STATE);
@@ -262,19 +262,19 @@ public final class Windows {
                     if (g >= 0 && g <= 11) logic.onGear(g, now);
                 }
             } catch (Exception e) {
-                Diag.error("vidros.estado", e.toString());
+                Diag.error("windows.state", e.toString());
             }
         }
         ensureClients(h, st, now);
         logic.tick(VehicleClient.speedKmh(), now);
         if (logic.counting()) {
             beep(now);
-            if (windowMoved()) logic.cancel("vidro mexido à mão");
+            if (windowMoved()) logic.cancel("window moved by hand");
         }
-        Diag.putQuiet("vidros.estado", (available() ? "controlo ok (" + saicPkg + ")" : "sem controlo")
-                + " · callback porta " + (stateCbRegistered ? "sim" : "não")
-                + " · READY " + logic.ready() + " · marcha " + logic.gear() + " · porta " + logic.door()
-                + " · armado " + (logic.armed() ? "sim" : "não") + (logic.counting() ? " · contagem" : ""));
+        Diag.putQuiet("windows.state", (available() ? "control ok (" + saicPkg + ")" : "no control")
+                + " · door callback " + (stateCbRegistered ? "yes" : "no")
+                + " · READY " + logic.ready() + " · gear " + logic.gear() + " · door " + logic.door()
+                + " · armed " + (logic.armed() ? "yes" : "no") + (logic.counting() ? " · countdown" : ""));
     }
 
     private IBinder query(IBinder h, int code) {
@@ -296,7 +296,7 @@ public final class Windows {
     }
 
     // =========================================================================================
-    // Bibliotecas carapi da SAIC
+    // SAIC carapi libraries
     // =========================================================================================
 
     private void ensureClients(IBinder h, IBinder st, long now) {
@@ -322,15 +322,15 @@ public final class Windows {
                     vsClient = client;
                     StringBuilder pos = new StringBuilder();
                     for (int a = 0; a < 4; a++) pos.append(a == 0 ? "" : " ").append(position(a));
-                    Diag.put("vidros.controlo", "pronto (" + saicPkg + ") · posições " + pos);
+                    Diag.put("windows.control", "ready (" + saicPkg + ") · positions " + pos);
                 } catch (NoSuchMethodException e) {
-                    // firmware sem a função antiga: passa ao CarService (uma só vez, sem repetir o erro de 2 em 2 s)
+                    // firmware without the old function: switch to the CarService (only once, without repeating the error every 2 s)
                     carapiNoMethod = true;
-                    Diag.put("vidros.carapi.metodos", windowMethods());
-                    Diag.error("vidros.controlo", "carapi sem " + e.getMessage() + " → propriedades do CarService");
+                    Diag.put("windows.carapi.methods", windowMethods());
+                    Diag.error("windows.control", "carapi without " + e.getMessage() + " → CarService properties");
                     tryPropMode();
                 } catch (Throwable e) {
-                    Diag.error("vidros.controlo", e.toString());
+                    Diag.error("windows.control", e.toString());
                 }
             }
         }
@@ -340,7 +340,7 @@ public final class Windows {
         }
     }
 
-    /** Liga o modo CarService se o serviço já estiver pronto (senão volta a tentar no próximo ciclo). */
+    /** Enables CarService mode if the service is already ready (otherwise retries on the next loop). */
     private void tryPropMode() {
         if (propMode || !propsReady()) return;
         CarProps p = VehicleClient.carProps();
@@ -348,11 +348,11 @@ public final class Windows {
         propMode = true;
         StringBuilder pos = new StringBuilder();
         for (int a = 0; a < 4; a++) pos.append(a == 0 ? "" : " ").append(position(a));
-        Diag.put("vidros.controlo", "pronto (CarService, como o MG4Control) · propriedade "
-                + (listed ? "na lista do carro" : "fora da lista do carro") + " · posições " + pos);
+        Diag.put("windows.control", "ready (CarService, like MG4Control) · property "
+                + (listed ? "in the car's list" : "not in the car's list") + " · positions " + pos);
     }
 
-    /** Métodos com "Window" do cliente carapi deste firmware (para a diagnóstica). */
+    /** Methods with "Window" of this firmware's carapi client (for the diagnostics). */
     private String windowMethods() {
         try {
             StringBuilder b = new StringBuilder();
@@ -365,15 +365,15 @@ public final class Windows {
                 b.append(')');
                 if (b.length() > 400) break;
             }
-            return b.length() == 0 ? "nenhum" : b.toString();
+            return b.length() == 0 ? "none" : b.toString();
         } catch (Throwable e) {
             return e.toString();
         }
     }
 
     /**
-     * Só se carrega código de apps de SISTEMA (instaladas na imagem do carro): uma app instalada pelo utilizador com um
-     * nome com.saicmotor.* nunca corre dentro do launcher (que tem permissões de sistema).
+     * Code is loaded only from SYSTEM apps (installed in the car image): a user-installed app with a
+     * com.saicmotor.* name never runs inside the launcher (which has system permissions).
      */
     private boolean isSystemApp(String pkg) {
         try {
@@ -384,7 +384,7 @@ public final class Windows {
         }
     }
 
-    /** Procura as classes carapi: primeiro nas apps conhecidas, depois (uma vez) nas com.saicmotor.* de sistema. */
+    /** Looks for the carapi classes: first in the known apps, then (once) in the system com.saicmotor.* ones. */
     private void loadSaic() {
         Set<String> pkgs = new LinkedHashSet<>();
         for (String p : SAIC_PKGS) pkgs.add(p);
@@ -399,26 +399,26 @@ public final class Windows {
         StringBuilder why = new StringBuilder();
         for (String p : pkgs) {
             if (!isSystemApp(p)) {
-                if (why.length() < 300) why.append(p).append(": não é de sistema; ");
+                if (why.length() < 300) why.append(p).append(": not a system app; ");
                 continue;
             }
             try {
-                // CONTEXT_IGNORE_SECURITY é obrigatório para carregar código de outra app; só chega aqui código de sistema
+                // CONTEXT_IGNORE_SECURITY is required to load another app's code; only system code gets here
                 Context pc = ctx.createPackageContext(p, Context.CONTEXT_INCLUDE_CODE | Context.CONTEXT_IGNORE_SECURITY);
                 ClassLoader cl = pc.getClassLoader();
                 cl.loadClass(VS_CLIENT);
                 saicCl = cl;
                 saicPkg = p;
-                Diag.put("vidros.carapi", "encontrada em " + p);
+                Diag.put("windows.carapi", "found in " + p);
                 return;
             } catch (Throwable e) {
                 if (why.length() < 300) why.append(p).append(": ").append(e.getClass().getSimpleName()).append("; ");
             }
         }
-        Diag.put("vidros.carapi", "não encontrada (" + why + ")");
+        Diag.put("windows.carapi", "not found (" + why + ")");
     }
 
-    /** Callback do estado do carro: porta do condutor (e marcha), entregues no fio dos vidros. */
+    /** Car state callback: driver's door (and gear), delivered on the windows thread. */
     private void registerStateCallback(IBinder st) {
         try {
             Class<?> cls = saicCl.loadClass(STATE_CLIENT);
@@ -432,7 +432,7 @@ public final class Windows {
                 }
             }
             if (reg == null) {
-                Diag.put("vidros.porta", "registerListener não existe no CarStateClient");
+                Diag.put("windows.door", "registerListener does not exist in CarStateClient");
                 return;
             }
             Binder cb = new Binder() {
@@ -447,7 +447,7 @@ public final class Windows {
                                 if (code == CB_DOOR) logic.onDoor(v, now);
                                 else logic.onGear(v, now);
                             });
-                            wake();   // uma contagem pode ter começado: o ciclo passa logo a 0,5 s
+                            wake();   // a countdown may have started: the loop switches to 0.5 s right away
                         }
                     } catch (Throwable ignored) {
                     }
@@ -468,20 +468,20 @@ public final class Windows {
             });
             reg.invoke(client, proxy);
             stateCbRegistered = true;
-            Diag.put("vidros.porta", "callback registado (" + reg.getName() + ")");
+            Diag.put("windows.door", "callback registered (" + reg.getName() + ")");
         } catch (Throwable e) {
-            Diag.error("vidros.porta", e.toString());
+            Diag.error("windows.door", e.toString());
         }
     }
 
     // =========================================================================================
-    // Vidros
+    // Windows
     // =========================================================================================
 
-    /** Posição de um vidro (0 fechado … 255 aberto), -1 se não se lê. */
+    /** Position of a window (0 closed … 255 open), -1 if not readable. */
     private float position(int area) {
         if (propMode) {
-            // só o vidro do condutor tem sensor (0 fechado … 100 aberto); os outros dão 127,5 / 255 fixos
+            // only the driver's window has a sensor (0 closed … 100 open); the others give fixed 127.5 / 255
             CarProps p = VehicleClient.carProps();
             if (p == null) return -1f;
             float v = p.getFloatAt(WIN_PROPS[area], propArea);
@@ -503,7 +503,7 @@ public final class Windows {
         return p;
     }
 
-    /** Só vidros em AUTO têm sensor: se todos estão em AUTO e lidos fechados, não há nada a fazer. */
+    /** Only AUTO windows have a sensor: if all are AUTO and read as closed, there is nothing to do. */
     private boolean allSurelyClosed() {
         for (int a = 0; a < 4; a++) {
             if (prefs.winMode(a) != Prefs.WIN_AUTO) return false;
@@ -513,7 +513,7 @@ public final class Windows {
         return true;
     }
 
-    /** Durante a contagem: um vidro com sensor que se mexe quer dizer que alguém está a usar os botões. */
+    /** During the countdown: a window with a sensor that moves means someone is using the buttons. */
     private boolean windowMoved() {
         float[] b = baseline;
         if (b == null) return false;
@@ -533,16 +533,16 @@ public final class Windows {
                 p.setFloatAt(WIN_PROPS[area], propArea, c);
             } catch (Throwable e) {
                 if (propArea == 0) {
-                    Diag.error("vidros.comando", "vidro " + area + " → " + c + ": " + e);
+                    Diag.error("windows.command", "window " + area + " → " + c + ": " + e);
                     return;
                 }
-                // área dos serviços SAIC recusada: tenta a área 0 (como o MG4Control) e fica com ela se funcionar
+                // SAIC services area rejected: try area 0 (like MG4Control) and keep it if it works
                 try {
                     p.setFloatAt(WIN_PROPS[area], 0, c);
                     propArea = 0;
-                    Diag.put("vidros.area", "0x1000000 recusada (" + e + ") → área 0");
+                    Diag.put("windows.area", "0x1000000 refused (" + e + ") → area 0");
                 } catch (Throwable e2) {
-                    Diag.error("vidros.comando", "vidro " + area + " → " + c + ": " + e2);
+                    Diag.error("windows.command", "window " + area + " → " + c + ": " + e2);
                 }
             }
             return;
@@ -550,15 +550,15 @@ public final class Windows {
         try {
             setWin.invoke(vsClient, area, c);
         } catch (Throwable e) {
-            Diag.error("vidros.comando", "vidro " + area + " → " + c + ": " + e);
+            Diag.error("windows.command", "window " + area + " → " + c + ": " + e);
         }
     }
 
-    /** Fecha os vidros segundo o modo de cada um: AUTO = subida automática; PULSO = "subir" mantido 5 s; DESLIGADO = nada. */
+    /** Closes the windows according to each one's mode: AUTO = auto up; PULSE = "up" held for 5 s; OFF = nothing. */
     private void closeAll(String why) {
         if (closing) return;
         if (!available()) {
-            Diag.put("vidros.fecho", why + ": sem controlo dos vidros");
+            Diag.put("windows.autoClose", why + ": no window control");
             return;
         }
         closing = true;
@@ -573,9 +573,9 @@ public final class Windows {
                         s.append(" ").append(a).append("=auto");
                     } else if (m == Prefs.WIN_PULSE) {
                         hold.add(a);
-                        s.append(" ").append(a).append("=pulso");
+                        s.append(" ").append(a).append("=pulse");
                     } else {
-                        s.append(" ").append(a).append("=desligado");
+                        s.append(" ").append(a).append("=off");
                     }
                 }
                 if (!hold.isEmpty()) {
@@ -586,15 +586,15 @@ public final class Windows {
                     }
                     for (int a : hold) cmd(a, CMD_STOP);
                 }
-                Diag.put("vidros.fecho", s.toString());
+                Diag.put("windows.autoClose", s.toString());
             } finally {
                 closing = false;
             }
-        }, "mg4-vidros-fecho").start();
+        }, "mg4-windows-close").start();
     }
 
     // =========================================================================================
-    // Aviso: bip e mensagem
+    // Warning: beep and message
     // =========================================================================================
 
     private void beep(long now) {
@@ -604,7 +604,7 @@ public final class Windows {
             if (tone == null) tone = new ToneGenerator(AudioManager.STREAM_NOTIFICATION, prefs.winBeepVolume());
             tone.startTone(ToneGenerator.TONE_PROP_BEEP, 200);
         } catch (Throwable e) {
-            Diag.error("vidros.bip", e.toString());
+            Diag.error("windows.beep", e.toString());
         }
     }
 

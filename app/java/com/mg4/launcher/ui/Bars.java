@@ -6,15 +6,15 @@ import android.graphics.Paint;
 import android.graphics.Path;
 import android.view.View;
 
-/** Barre orizzontali arrotondate (batteria, avanzamento brano) e sfondo stilizzato della mappa. */
+/** Rounded horizontal bars (battery, track progress) and the stylized map background. */
 public final class Bars {
     private Bars() {}
 
     public static final class Progress extends View {
         private final Paint track = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint fill = new Paint(Paint.ANTI_ALIAS_FLAG);
-        private float value;          // 0..1, < 0 = sconosciuto
-        private float limit = -1;     // tacca opzionale (limite di ricarica)
+        private float value;          // 0..1, < 0 = unknown
+        private float limit = -1;     // optional tick mark (charge limit)
         private final Paint mark = new Paint(Paint.ANTI_ALIAS_FLAG);
 
         public Progress(Context c) {
@@ -56,7 +56,7 @@ public final class Bars {
         }
     }
 
-    /** Sfondo decorativo "mappa" (strade stilizzate) per il pannello di navigazione. */
+    /** Decorative "map" background (stylized roads) for the navigation panel. */
     public static final class MapDecor extends View {
         private final Paint major = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint minor = new Paint(Paint.ANTI_ALIAS_FLAG);
@@ -102,7 +102,7 @@ public final class Bars {
         }
     }
 
-    /** Tacche del segnale (rete mobile): 4 barre crescenti, "level" piene. */
+    /** Signal bars (mobile network): 4 increasing bars, "level" of them filled. */
     public static final class Signal extends View {
         private final Paint on = new Paint(Paint.ANTI_ALIAS_FLAG);
         private final Paint off = new Paint(Paint.ANTI_ALIAS_FLAG);

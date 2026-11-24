@@ -12,14 +12,14 @@ import android.provider.Settings;
 import android.text.TextUtils;
 
 /**
- * Disinstallazione del launcher dall'auto, senza computer (0.8.6-beta).
- * Prima rimette la home MG originale e toglie il servizio di accessibilità del launcher, poi chiede ad Android di
- * disinstallare il pacchetto (PackageInstaller.uninstall: DELETE_PACKAGES, concesso dalla firma platform).
- * Se non è possibile si apre la conferma di sistema (ACTION_DELETE).
+ * Uninstalling the launcher from the car, without a computer (0.8.6-beta).
+ * First it restores the original MG home and removes the launcher's accessibility service, then asks Android to
+ * uninstall the package (PackageInstaller.uninstall: DELETE_PACKAGES, granted by the platform signature).
+ * If that is not possible, the system confirmation opens (ACTION_DELETE).
  * <p>
- * 1.0.4 (issue #29): prima di tutto il segno "disinstallazione in corso" (HomeLock non spegne più la home MG), poi la
- * home MG riattivata, predefinita e verificata (3 tentativi); solo dopo la richiesta di disinstallazione. Se la home
- * MG non torna accesa il launcher NON si toglie. Se la disinstallazione non riesce o è annullata, il segno si toglie.
+ * 1.0.4 (issue #29): first of all the "uninstall in progress" marker (HomeLock no longer disables the MG home), then the
+ * MG home re-enabled, set as default and verified (3 attempts); only then the uninstall request. If the MG home
+ * does not come back on, the launcher is NOT removed. If the uninstall fails or is cancelled, the marker is removed.
  */
 public final class SelfUninstall {
     private static final String ACTION_RESULT = "com.mg4.launcher.UNINSTALL_RESULT";
@@ -34,62 +34,62 @@ public final class SelfUninstall {
     public static void run(Context c, Result result) {
         Context app = c.getApplicationContext();
         android.os.Handler main = new android.os.Handler(android.os.Looper.getMainLooper());
-        // 0) issue #29: segno "disinstallazione in corso" su disco PRIMA di tutto. Da qui HomeLock non spegne più la
-        //    home MG, nemmeno se il launcher torna davanti mentre la conferma di sistema è a schermo.
+        // 0) issue #29: "uninstall in progress" marker on disk BEFORE anything else. From here HomeLock no longer disables
+        //    the MG home, not even if the launcher comes back to the front while the system confirmation is on screen.
         HomeLock.beginUninstall(app);
-        Diag.put("disinstalla", "richiesta · segno disinstallazione in corso");
+        Diag.put("uninstall", "requested · marking uninstall in progress");
         new Thread(() -> {
-            // 1) home MG riattivata, rimessa come predefinita e VERIFICATA (fino a 3 tentativi)
+            // 1) MG home re-enabled, set back as default and VERIFIED (up to 3 attempts)
             boolean ok = false;
             String home = "";
             for (int i = 1; i <= 3 && !ok; i++) {
-                HomeLock.release(app, "disinstalla, tentativo " + i);
+                HomeLock.release(app, "uninstall, attempt " + i);
                 try {
                     HomeDefault.setMg(app);
                 } catch (Throwable e) {
-                    Diag.error("disinstalla.home", e.toString());
+                    Diag.error("uninstall.home", e.toString());
                 }
                 ok = !HomeLock.mgDisabled(app);
                 home = defaultHome(app);
                 if (!ok) SystemClock.sleep(700);
             }
             if (!ok) {
-                // la home MG non torna accesa: NON si disinstalla, altrimenti l'auto resterebbe senza home
+                // the MG home does not come back on: do NOT uninstall, otherwise the car would be left without a home
                 HomeLock.endUninstall(app);
-                Diag.put("disinstalla", "fermata: home MG ancora disattivata dopo 3 tentativi · launcher non tolto");
-                HomeLock.apply(app, "disinstallazione fermata");
+                Diag.put("uninstall", "stopped: MG home still disabled after 3 attempts · launcher not removed");
+                HomeLock.apply(app, "uninstall stopped");
                 main.post(() -> {
-                    if (result != null) result.onFailed("home MG non riattivata");
+                    if (result != null) result.onFailed("MG home not re-enabled");
                 });
                 return;
             }
-            Diag.put("disinstalla", "segno · home MG riattivata e verificata · predefinita: " + home);
+            Diag.put("uninstall", "mark · MG home re-enabled and verified · default: " + home);
             main.post(() -> uninstall(app, result));
-        }, "mg4-disinstalla").start();
+        }, "mg4-uninstall").start();
     }
 
-    /** Pacchetto della home predefinita in questo momento, per il log. */
+    /** Package of the current default home, for the log. */
     private static String defaultHome(Context c) {
         try {
             android.content.pm.ResolveInfo r = c.getPackageManager().resolveActivity(
                     new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME), android.content.pm.PackageManager.MATCH_DEFAULT_ONLY);
-            return r == null || r.activityInfo == null ? "nessuna" : r.activityInfo.packageName;
+            return r == null || r.activityInfo == null ? "none" : r.activityInfo.packageName;
         } catch (Throwable e) {
             return "?";
         }
     }
 
-    /** Disinstallazione non riuscita o annullata: via il segno e tutto come prima. */
+    /** Uninstall failed or cancelled: remove the marker and restore everything as before. */
     private static void undo(Context app, String why, Result result) {
         HomeLock.endUninstall(app);
-        Diag.put("disinstalla", "esito: non disinstallato (" + why + ") · segno tolto, launcher come prima");
-        new Thread(() -> HomeLock.apply(app, "disinstallazione annullata"), "mg4-homelock").start();
+        Diag.put("uninstall", "result: not uninstalled (" + why + ") · mark removed, launcher as before");
+        new Thread(() -> HomeLock.apply(app, "uninstall cancelled"), "mg4-homelock").start();
         BootAccessibility.ensureEnabled(app);
         if (result != null) result.onFailed(why);
     }
 
     private static void uninstall(Context app, Result result) {
-        // 2) servizio di accessibilità del launcher tolto dall'elenco (gli altri restano)
+        // 2) launcher's accessibility service removed from the list (the others stay)
         try {
             String me = new ComponentName(app, BootAccessibility.class).flattenToString();
             String cur = Settings.Secure.getString(app.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
@@ -103,23 +103,23 @@ public final class SelfUninstall {
                 Settings.Secure.putString(app.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES, keep.toString());
             }
         } catch (Throwable e) {
-            Diag.error("disinstalla.accessibilita", e.toString());
+            Diag.error("uninstall.accessibility", e.toString());
         }
-        // 3) disinstallazione
+        // 3) uninstall
         try {
             app.registerReceiver(new BroadcastReceiver() {
                 @Override
                 public void onReceive(Context ctx, Intent i) {
                     int st = i.getIntExtra(PackageInstaller.EXTRA_STATUS, PackageInstaller.STATUS_FAILURE);
                     String msg = i.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
-                    Diag.put("disinstalla", "esito " + st + (msg == null ? "" : " " + msg));
+                    Diag.put("uninstall", "result " + st + (msg == null ? "" : " " + msg));
                     if (st == PackageInstaller.STATUS_PENDING_USER_ACTION) {
                         Intent confirm = i.getParcelableExtra(Intent.EXTRA_INTENT);
                         if (confirm != null) {
                             confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                             try {
                                 ctx.startActivity(confirm);
-                                return;   // l'esito arriva dopo la conferma (o l'annullamento)
+                                return;   // the result arrives after the confirmation (or cancellation)
                             } catch (Exception ignored) {
                             }
                         }
@@ -128,17 +128,17 @@ public final class SelfUninstall {
                         ctx.getApplicationContext().unregisterReceiver(this);
                     } catch (Exception ignored) {
                     }
-                    if (st != PackageInstaller.STATUS_SUCCESS) undo(app, msg == null ? "codice " + st : msg, result);
+                    if (st != PackageInstaller.STATUS_SUCCESS) undo(app, msg == null ? "code " + st : msg, result);
                 }
             }, new IntentFilter(ACTION_RESULT));
             PendingIntent pi = PendingIntent.getBroadcast(app, 0,
                     new Intent(ACTION_RESULT).setPackage(app.getPackageName()), PendingIntent.FLAG_UPDATE_CURRENT);
             app.getPackageManager().getPackageInstaller().uninstall(app.getPackageName(), pi.getIntentSender());
-            Diag.put("disinstalla", "inviata a PackageInstaller");
+            Diag.put("uninstall", "sent to PackageInstaller");
         } catch (Throwable e) {
-            Diag.error("disinstalla", e.toString());
+            Diag.error("uninstall", e.toString());
             try {
-                // conferma di sistema: nessun esito di ritorno, il segno scade da solo dopo 10 minuti
+                // system confirmation: no result comes back, the marker expires by itself after 10 minutes
                 Intent del = new Intent(Intent.ACTION_DELETE, android.net.Uri.parse("package:" + app.getPackageName()))
                         .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 app.startActivity(del);

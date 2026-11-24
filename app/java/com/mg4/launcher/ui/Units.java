@@ -4,54 +4,54 @@ import com.mg4.launcher.L;
 import com.mg4.launcher.svc.Diag;
 
 /**
- * 1.0.0: unità delle distanze. L'auto dà l'autonomia sempre in km (servizio di ricarica) e il navigatore le distanze in
- * metri; se il quadro è in miglia si convertono qui, invece di cambiare solo la scritta.
- * Fonte dell'unità in "Automatica": il quadro (servizio di ricarica, 0 km / 1 miglia), altrimenti il navigatore
- * (1 km, 2 miglia).
+ * 1.0.0: distance units. The car always gives the range in km (charging service) and the navigator gives distances in
+ * meters; if the instrument cluster is in miles they are converted here, instead of just changing the label.
+ * Unit source in "Automatic": the cluster (charging service, 0 km / 1 miles), otherwise the navigator
+ * (1 km, 2 miles).
  */
 public final class Units {
     public static final double KM_TO_MI = 0.621371;
-    /** Unità del navigatore MG: 1 km, 2 miglia, -1 non letta. Scritta da NavClient. */
+    /** MG navigator unit: 1 km, 2 miles, -1 not read. Written by NavClient. */
     public static volatile int navUnit = -1;
     private static String lastDiag = "";
 
     private Units() {}
 
-    /** True se le distanze vanno mostrate in miglia (scelta dell'utente, o come il quadro). */
-    public static boolean miles(Prefs p, int quadro) {
+    /** True if distances should be shown in miles (user's choice, or same as the cluster). */
+    public static boolean miles(Prefs p, int cluster) {
         String pref = p.distUnit();
         boolean mi;
         String source;
         if (Prefs.DIST_KM.equals(pref)) {
             mi = false;
-            source = "scelta km";
+            source = "chosen km";
         } else if (Prefs.DIST_MI.equals(pref)) {
             mi = true;
-            source = "scelta miglia";
-        } else if (quadro >= 0) {
-            mi = quadro == 1;
-            source = "quadro " + quadro;
+            source = "chosen miles";
+        } else if (cluster >= 0) {
+            mi = cluster == 1;
+            source = "cluster " + cluster;
         } else if (navUnit > 0) {
             mi = navUnit == 2;
-            source = "navigatore " + navUnit;
+            source = "navigator " + navUnit;
         } else {
             mi = false;
-            source = "nessuna fonte (km)";
+            source = "no source (km)";
         }
-        String d = source + " · quadro " + quadro + " · navigatore " + navUnit + " · mostrata " + (mi ? "mi" : "km");
+        String d = source + " · cluster " + cluster + " · navigator " + navUnit + " · shown " + (mi ? "mi" : "km");
         if (!d.equals(lastDiag)) {
             lastDiag = d;
-            Diag.put("veicolo.unitaDistanza", d);
+            Diag.put("vehicle.distanceUnit", d);
         }
         return mi;
     }
 
-    /** Autonomia (km dall'auto) nell'unità mostrata, arrotondata. */
+    /** Range (km from the car) in the displayed unit, rounded. */
     public static int range(int km, boolean mi) {
         return mi ? (int) Math.round(km * KM_TO_MI) : km;
     }
 
-    /** Distanza del navigatore: "350 m" / "1,2 km" / "0,3 mi" / "12 mi". */
+    /** Navigator distance: "350 m" / "1,2 km" / "0,3 mi" / "12 mi". */
     public static String distance(int meters, boolean mi) {
         if (!mi) {
             if (meters < 1000) return meters + " m";

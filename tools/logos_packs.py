@@ -1,23 +1,27 @@
 #!/usr/bin/env python3
-"""Crea i pacchetti dei loghi radio per paese (loghi/<CC>.zip + loghi/indice.json).
+"""Builds the radio logo packs per country (loghi/<CC>.zip + loghi/indice.json).
 
-Ingresso: una cartella con una sottocartella (o uno zip) per paese, chiamata "CC - Nome" (es. "IT - Italia"),
-con i PNG e un indice.csv (colonne file, nome, uuid, stream, homepage, generi, logo_originale), come quelle
-scaricate da Radio Browser.
+Input: a folder with one subfolder (or one zip) per country, named "CC - Name" (e.g. "IT - Italia"),
+containing the PNGs and an indice.csv (columns file, nome, uuid, stream, homepage, generi, logo_originale), like the
+ones downloaded from Radio Browser.
 
-Per ogni paese:
-  1. pulisce l'elenco: file vuoti o rotti, doppioni (stesso nome normalizzato o stessa immagine), varianti tecniche
-     (Mobile, 48kbps, AAC, HQ...) e sottocanali tematici quando c'è la stazione principale;
-  2. riduce ogni logo a 256x256 al massimo (proporzioni e trasparenza mantenute) in WebP (Android 9 lo legge);
-  3. rinomina con il nome normalizzato del launcher (minuscole, solo lettere e cifre: "RTL 102.5" -> rtl1025);
-  4. scrive alias.txt (nomi alternativi e nomi RDS brevi -> file);
-  5. crea loghi/<CC>.zip e aggiorna loghi/indice.json (nome del paese nelle lingue del launcher, versione, dimensione,
-     SHA-256, numero di loghi).
-Alla fine stampa il riepilogo (loghi e peso prima e dopo) e le principali stazioni FM nazionali che mancano.
+For each country:
+  1. cleans up the list: empty or broken files, duplicates (same normalized name or same image), technical variants
+     (Mobile, 48kbps, AAC, HQ...) and themed sub-channels when the main station is present;
+  2. shrinks each logo to at most 256x256 (aspect ratio and transparency kept) as WebP (Android 9 can read it);
+  3. renames it with the launcher's normalized name (lowercase, letters and digits only: "RTL 102.5" -> rtl1025);
+  4. writes alias.txt (alternative names and short RDS names -> file);
+  5. creates loghi/<CC>.zip and updates loghi/indice.json (country name in the launcher's languages, version, size,
+     SHA-256, number of logos).
+At the end it writes the summary riepilogo.md (logos and size before and after) and the major national FM stations
+that are missing.
 
-Uso: python3 tools/loghi_pacchetti.py <cartella_ingresso> <cartella_uscita> [--paesi IT,PL] [--versione 1]
-     [--alias-extra tools/loghi_alias_extra.txt] [--anteprima cartella]
-Serve Pillow (e Babel per i nomi dei paesi): pip3 install pillow babel
+Usage: python3 tools/logos_packs.py <input_folder> <output_folder> [--countries IT,PL] [--version 1]
+       [--alias-extra tools/logos_alias_extra.txt] [--major tools/logos_major.txt] [--preview folder] [--overwrite]
+Requires Pillow (and Babel for the country names): pip3 install pillow babel
+
+Note: the generated files (indice.json and its keys, alias.txt, riepilogo.md and its section headings) keep their
+Italian names and text: they are a data format read by the launcher and by logos_refine.py.
 """
 import argparse
 import csv
@@ -37,29 +41,29 @@ MAX = 256
 WEBP_QUALITY = 82
 
 # ---------------------------------------------------------------------------------------------------------------
-# nomi
+# names
 
 
 def norm(s):
-    """Nome normalizzato del launcher (StationLogos.norm): senza accenti, minuscolo, solo lettere e cifre."""
+    """The launcher's normalized name (StationLogos.norm): no accents, lowercase, letters and digits only."""
     s = unicodedata.normalize("NFD", s or "")
     s = "".join(ch for ch in s if unicodedata.category(ch) != "Mn")
     s = s.replace("ł", "l").replace("Ł", "L").replace("ø", "o").replace("Ø", "O").replace("ß", "ss").replace("ı", "i")
     return re.sub(r"[^a-z0-9]", "", s.lower())
 
 
-# varianti tecniche dello stesso flusso: si tolgono se esiste la stazione principale
+# technical variants of the same stream: removed if the main station exists
 TECH = re.compile(r"(\[[^\]]*\]|\((?:[^)]*kbps|[^)]*aac|[^)]*mp3|[^)]*hq|[^)]*mobile|[^)]*low|[^)]*high)[^)]*\)|"
                   r"\b(mobile|\d+\s*k(?:bps|b)?|aac\+?|he-?aac|mp3|ogg|opus|hq|hd|lq|low|high quality|hi-?fi|"
                   r"stream|backup|alt(?:ernative)?|ssl|https?|\+1|test)\b)", re.I)
-# prefissi di gruppo che Radio Browser mette davanti al nome (GEDI - Radio Capital)
+# group prefixes that Radio Browser puts in front of the name (GEDI - Radio Capital)
 PREFIX = re.compile(r"^(gedi|rai|mediaset|rtl group|radiomediaset|ens)\s*[-–:|]\s*", re.I)
-# parole troppo generiche per essere una "stazione principale" di cui togliere i sottocanali
+# words too generic to be a "main station" whose sub-channels get removed
 GENERIC = {"radio", "fm", "webradio", "radioweb", "music", "hits", "the", "radiofm", "net", "online", "tv"}
 
 
 def find_key(name, present, alias=None):
-    """File del pacchetto per un nome: uguale, con o senza "radio" davanti/dietro, oppure tramite gli alias."""
+    """Pack file for a name: identical, with or without "radio" before/after, or through the aliases."""
     k = norm(name)
     alias = alias or {}
     for c in (k, "radio" + k, k[5:] if k.startswith("radio") else None, k + "radio", k + "fm"):
@@ -79,14 +83,14 @@ def clean_name(n):
 
 
 def base_name(n):
-    """Nome senza le parti tecniche (bitrate, Mobile, AAC...)."""
+    """Name without the technical parts (bitrate, Mobile, AAC...)."""
     b = TECH.sub(" ", n)
     b = re.sub(r"[-–,;:|]+\s*$", "", re.sub(r"\s+", " ", b)).strip()
     return b
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# immagini
+# images
 
 
 def load(data):
@@ -98,7 +102,7 @@ def load(data):
 
 
 def ahash(im, size=12):
-    """Impronta dell'immagine (media su 12x12, colori e trasparenza): stessa impronta = stesso logo."""
+    """Image fingerprint (average over 12x12, colors and transparency): same fingerprint = same logo."""
     bg = Image.new("RGBA", im.size, (255, 255, 255, 255))
     bg.alpha_composite(im)
     small = bg.convert("L").resize((size, size), Image.BILINEAR)
@@ -109,7 +113,7 @@ def ahash(im, size=12):
 
 
 def shrink(im):
-    """Taglia i bordi trasparenti, riduce a 256 px al massimo e codifica in WebP con trasparenza."""
+    """Crops transparent borders, shrinks to at most 256 px and encodes as WebP with transparency."""
     bbox = im.getchannel("A").getbbox()
     if bbox:
         im = im.crop(bbox)
@@ -122,11 +126,11 @@ def shrink(im):
 
 
 # ---------------------------------------------------------------------------------------------------------------
-# sorgenti (cartelle o zip)
+# sources (folders or zips)
 
 
 class Source:
-    """Una cartella "CC - Nome" oppure lo zip che la contiene."""
+    """A "CC - Name" folder, or the zip that contains it."""
 
     def __init__(self, path):
         self.path = path
@@ -134,7 +138,7 @@ class Source:
         if self.zip:
             names = [n for n in self.zip.namelist() if n.endswith("indice.csv")]
             if not names:
-                raise ValueError("indice.csv mancante in " + path)
+                raise ValueError("indice.csv missing in " + path)
             self.prefix = names[0][: -len("indice.csv")]
             folder = self.prefix.rstrip("/").split("/")[-1]
         else:
@@ -153,7 +157,7 @@ class Source:
         return open(p, "rb").read() if os.path.exists(p) else None
 
     def rows(self):
-        data = self.read("indice.csv") or b""   # cartella vuota (es. GG, JE): nessun logo
+        data = self.read("indice.csv") or b""   # empty folder (e.g. GG, JE): no logos
         return list(csv.DictReader(io.StringIO(data.decode("utf-8-sig"))))
 
 
@@ -163,6 +167,7 @@ class Source:
 def build_country(src, extra_alias, preview=None):
     rows = src.rows()
     before_n, before_bytes = 0, 0
+    # categories and notes of removed logos end up in riepilogo.md, so they stay in Italian like the rest of it
     dropped = {"rotti": [], "varianti": [], "sottocanali": [], "doppioni": []}
     items = []
     for r in rows:
@@ -171,7 +176,7 @@ def build_country(src, extra_alias, preview=None):
             before_n += 1
             before_bytes += len(data)
         name = clean_name(r.get("nome") or r["file"].rsplit("_", 1)[0])
-        if len(norm(name)) > 40:   # nomi-spam lunghissimi: nessuna stazione vera si chiama così
+        if len(norm(name)) > 40:   # very long spam names: no real station is called like that
             dropped["rotti"].append(name[:40] + "… (nome troppo lungo)")
             continue
         if not data:
@@ -184,7 +189,7 @@ def build_country(src, extra_alias, preview=None):
             continue
         items.append({"name": name, "base": base_name(name), "img": im, "hash": ahash(im), "orig": r.get("nome", "")})
 
-    # 1) varianti tecniche: stesso nome base di un'altra voce senza parti tecniche
+    # 1) technical variants: same base name as another entry without technical parts
     plain = {norm(i["name"]) for i in items if i["base"] == i["name"]}
     keep = []
     for i in items:
@@ -192,11 +197,11 @@ def build_country(src, extra_alias, preview=None):
             dropped["varianti"].append(i["name"])
         else:
             if i["base"] != i["name"]:
-                i["name"] = i["base"]  # solo la variante: tiene il nome pulito
+                i["name"] = i["base"]  # only the variant exists: keep the cleaned name
             keep.append(i)
     items = keep
 
-    # 2) doppioni per nome normalizzato: tiene l'immagine più grande, gli altri nomi diventano alias
+    # 2) duplicates by normalized name: keep the largest image, the other names become aliases
     byname = {}
     for i in items:
         k = norm(i["name"])
@@ -214,7 +219,7 @@ def build_country(src, extra_alias, preview=None):
                 byname[k] = i
     items = list(byname.values())
 
-    # 3) sottocanali tematici: nome che inizia con il nome di un'altra stazione (es. "Virgin Radio Hard Rock")
+    # 3) themed sub-channels: name starting with another station's name (e.g. "Virgin Radio Hard Rock")
     keys = {norm(i["name"]) for i in items}
     mains = sorted((k for k in keys if len(k) >= 4 and k not in GENERIC), key=len, reverse=True)
     keep = []
@@ -227,7 +232,7 @@ def build_country(src, extra_alias, preview=None):
             keep.append(i)
     items = keep
 
-    # 4) doppioni per immagine: stesso logo con nomi diversi → un file, gli altri nomi alias
+    # 4) duplicates by image: same logo under different names → one file, the other names become aliases
     byhash = {}
     for i in items:
         h = i["hash"]
@@ -243,7 +248,7 @@ def build_country(src, extra_alias, preview=None):
             byhash[h] = i
     items = sorted(byhash.values(), key=lambda x: norm(x["name"]))
 
-    # 5) riduzione e alias
+    # 5) shrinking and aliases
     files = {}
     alias = {}
     for i in items:
@@ -276,7 +281,7 @@ def country_names(cc, fallback):
 
 
 def read_extra_alias(path):
-    """File "CC | nome trasmesso = file" (righe vuote e # ignorate)."""
+    """File of "CC | broadcast name = file" lines (empty lines and # lines are ignored)."""
     out = {}
     if not path or not os.path.exists(path):
         return out
@@ -291,7 +296,7 @@ def read_extra_alias(path):
 
 
 def read_major(path):
-    """File "CC | nome stazione" delle principali stazioni FM nazionali (per l'elenco di quelle mancanti)."""
+    """File of "CC | station name" lines for the major national FM stations (to list the missing ones)."""
     out = {}
     if not path or not os.path.exists(path):
         return out
@@ -305,51 +310,52 @@ def read_major(path):
 
 
 def main():
-    ap = argparse.ArgumentParser()
-    ap.add_argument("ingresso")
-    ap.add_argument("uscita")
-    ap.add_argument("--paesi", default="")
-    ap.add_argument("--versione", type=int, default=1)
+    ap = argparse.ArgumentParser(description="Builds the radio logo packs per country (loghi/<CC>.zip + indice.json).")
+    ap.add_argument("input", help="folder with one \"CC - Name\" subfolder or zip per country")
+    ap.add_argument("output", help="output folder (e.g. loghi)")
+    ap.add_argument("--countries", default="", help="comma-separated country codes to build (default: all)")
+    ap.add_argument("--version", type=int, default=1, help="pack version written to indice.json")
     here = os.path.dirname(os.path.abspath(__file__))
-    ap.add_argument("--alias-extra", default=os.path.join(here, "loghi_alias_extra.txt"))
-    ap.add_argument("--principali", default=os.path.join(here, "loghi_principali.txt"))
-    ap.add_argument("--anteprima", default="")
-    ap.add_argument("--sovrascrivi", action="store_true", help="rifà anche i paesi già presenti nella cartella di uscita")
+    ap.add_argument("--alias-extra", default=os.path.join(here, "logos_alias_extra.txt"), help="extra RDS/DAB aliases file")
+    ap.add_argument("--major", default=os.path.join(here, "logos_major.txt"), help="major national FM stations file")
+    ap.add_argument("--preview", default="", help="folder where to also write every shrunk logo, for a visual check")
+    ap.add_argument("--overwrite", action="store_true", help="also rebuild the countries already in the output folder")
     args = ap.parse_args()
 
-    wanted = {p.strip().upper() for p in args.paesi.split(",") if p.strip()}
+    wanted = {p.strip().upper() for p in args.countries.split(",") if p.strip()}
     extra = read_extra_alias(args.alias_extra)
-    major = read_major(args.principali)
-    os.makedirs(args.uscita, exist_ok=True)
-    idx_path = os.path.join(args.uscita, "indice.json")
-    index = json.load(open(idx_path)) if os.path.exists(idx_path) else {"versione": args.versione, "paesi": []}
-    index["versione"] = args.versione
+    major = read_major(args.major)
+    os.makedirs(args.output, exist_ok=True)
+    idx_path = os.path.join(args.output, "indice.json")
+    index = json.load(open(idx_path)) if os.path.exists(idx_path) else {"versione": args.version, "paesi": []}
+    index["versione"] = args.version
     report = []
 
-    entries = sorted(os.listdir(args.ingresso))
+    entries = sorted(os.listdir(args.input))
     for e in entries:
-        p = os.path.join(args.ingresso, e)
+        p = os.path.join(args.input, e)
         if not (os.path.isdir(p) or e.endswith(".zip")) or e.startswith("."):
             continue
         try:
             src = Source(p)
         except Exception as ex:
-            print("salto", e, ex)
+            print("skipping", e, ex)
             continue
         if wanted and src.cc not in wanted:
             continue
-        if os.path.exists(os.path.join(args.uscita, src.cc + ".zip")) and not args.sovrascrivi:
-            print("salto", src.cc, "(pacchetto già presente; --sovrascrivi per rifarlo)")
+        if os.path.exists(os.path.join(args.output, src.cc + ".zip")) and not args.overwrite:
+            print("skipping", src.cc, "(pack already present; use --overwrite to rebuild it)")
             continue
-        preview = {} if args.anteprima else None
+        preview = {} if args.preview else None
         files, alias, dropped, bn, bb = build_country(src, extra, preview)
         if not files:
             report.append((src.cc, src.label, bn, bb, 0, 0, dropped, []))
             continue
-        alias_txt = "# Loghi radio %s (%s), pacchetto %d\n# nome trasmesso = file (senza estensione)\n" % (src.cc, src.label, args.versione)
+        # alias.txt header kept in Italian: it is part of the pack read by the launcher
+        alias_txt = "# Loghi radio %s (%s), pacchetto %d\n# nome trasmesso = file (senza estensione)\n" % (src.cc, src.label, args.version)
         alias_txt += "".join("%s = %s\n" % (a, t) for a, t in sorted(alias.items()))
-        zpath = os.path.join(args.uscita, src.cc + ".zip")
-        with zipfile.ZipFile(zpath, "w", zipfile.ZIP_STORED) as z:   # WebP è già compresso
+        zpath = os.path.join(args.output, src.cc + ".zip")
+        with zipfile.ZipFile(zpath, "w", zipfile.ZIP_STORED) as z:   # WebP is already compressed
             for n, d in sorted(files.items()):
                 z.writestr(n, d)
             z.writestr("alias.txt", alias_txt, compress_type=zipfile.ZIP_DEFLATED)
@@ -357,22 +363,23 @@ def main():
         sha = hashlib.sha256(open(zpath, "rb").read()).hexdigest()
         index["paesi"] = [x for x in index["paesi"] if x["codice"] != src.cc] + [{
             "codice": src.cc, "nomi": country_names(src.cc, src.label), "file": src.cc + ".zip",
-            "versione": args.versione, "dimensione": size, "sha256": sha, "loghi": len(files), "alias": len(alias)}]
+            "versione": args.version, "dimensione": size, "sha256": sha, "loghi": len(files), "alias": len(alias)}]
         present = {k[:-5] for k in files}
         missing = [m for m in major.get(src.cc, []) if not find_key(m, present, alias)]
         report.append((src.cc, src.label, bn, bb, len(files), size, dropped, missing))
         if preview is not None:
-            os.makedirs(args.anteprima, exist_ok=True)
+            os.makedirs(args.preview, exist_ok=True)
             for k, d in preview.items():
-                open(os.path.join(args.anteprima, src.cc + "_" + k + ".webp"), "wb").write(d)
-        print("%s %-24s %4d → %4d loghi   %6.1f MB → %5.2f MB" % (src.cc, src.label, bn, len(files), bb / 1e6, size / 1e6))
+                open(os.path.join(args.preview, src.cc + "_" + k + ".webp"), "wb").write(d)
+        print("%s %-24s %4d → %4d logos   %6.1f MB → %5.2f MB" % (src.cc, src.label, bn, len(files), bb / 1e6, size / 1e6))
         sys.stdout.flush()
 
     index["paesi"].sort(key=lambda x: x["codice"])
     json.dump(index, open(idx_path, "w"), ensure_ascii=False, indent=1)
-    rpath = os.path.join(args.uscita, "riepilogo.md")
+    rpath = os.path.join(args.output, "riepilogo.md")
+    # riepilogo.md text kept in Italian: logos_refine.py looks for its section headings
     with open(rpath, "w", encoding="utf-8") as f:
-        f.write("# Pacchetti loghi radio (versione %d)\n\n| Paese | Loghi prima | MB prima | Loghi dopo | MB dopo | Tolti |\n|---|---:|---:|---:|---:|---|\n" % args.versione)
+        f.write("# Pacchetti loghi radio (versione %d)\n\n| Paese | Loghi prima | MB prima | Loghi dopo | MB dopo | Tolti |\n|---|---:|---:|---:|---:|---|\n" % args.version)
         for cc, label, bn, bb, an, ab, dr, _ in report:
             f.write("| %s %s | %d | %.1f | %d | %.2f | %s |\n" % (cc, label, bn, bb / 1e6, an, ab / 1e6,
                     ", ".join("%s %d" % (k, len(v)) for k, v in dr.items() if v)))
@@ -386,7 +393,7 @@ def main():
             for k, v in dr.items():
                 if v:
                     f.write("- %s: %s\n" % (k, "; ".join(v)))
-    print("riepilogo:", rpath)
+    print("summary:", rpath)
 
 
 if __name__ == "__main__":

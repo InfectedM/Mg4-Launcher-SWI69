@@ -13,8 +13,8 @@ import android.os.Looper;
 import android.os.Parcel;
 
 /**
- * Stato delle connessioni per gli indicatori in alto a destra: Bluetooth, Wi-Fi e rete mobile della T-Box (4G).
- * Il 4G (solo dove esiste il servizio engmode, cioè non sulla SWI69) si legge come la barra di stato originale: servizio engmode → "system_hardware" → getMobileNetworkInfoBean.
+ * Connection status for the top-right indicators: Bluetooth, Wi-Fi and the T-Box mobile network (4G).
+ * 4G (only where the engmode service exists, i.e. not on the SWI69) is read like the original status bar: engmode service → "system_hardware" → getMobileNetworkInfoBean.
  */
 public final class ConnClient {
     private static final String ENG_PKG = "com.saicmotor.service.engmode";
@@ -23,14 +23,14 @@ public final class ConnClient {
     private static final int ENG_GET_SERVICE = 1;
     private static final String HW = "com.saicmotor.sdk.engmode.ISystemHardwareManager";
     private static final int HW_GET_MOBILE = 3;
-    /** Soglie della barra originale (SignalController): 0..4 tacche. */
+    /** Thresholds of the original bar (SignalController): 0..4 bars. */
     private static final int[] SIGNAL_STEPS = {0, 3, 5, 8, 12};
 
     public static final class State {
         public boolean btOn, btConnected;
         public boolean wifiConnected;
         public int wifiLevel;          // 0..3
-        public int mobileType = -1;    // 0 nessuna rete, 2 = 2G, 3 = 3G, 4 = 4G; -1 sconosciuto
+        public int mobileType = -1;    // 0 no network, 2 = 2G, 3 = 3G, 4 = 4G; -1 unknown
         public int mobileLevel;        // 0..4
     }
 
@@ -67,7 +67,7 @@ public final class ConnClient {
             thread.start();
             bg = new Handler(thread.getLooper());
         }
-        // la SWI69 non ha il servizio engmode della SWI68: senza di esso niente 4G (e nessun tentativo ripetuto)
+        // the SWI69 lacks the SWI68's engmode service: without it, no 4G (and no repeated attempts)
         boolean hasEng;
         try {
             ctx.getPackageManager().getPackageInfo(ENG_PKG, 0);
@@ -76,7 +76,7 @@ public final class ConnClient {
             hasEng = false;
         }
         if (hasEng) eng.start();
-        else Diag.put("conn.4g", "non disponibile su questo firmware");
+        else Diag.put("conn.4g", "not available on this firmware");
         resume();
     }
 
@@ -107,7 +107,7 @@ public final class ConnClient {
 
     private void poll() {
         State s = new State();
-        // Bluetooth: acceso e collegato a un telefono
+        // Bluetooth: on and connected to a phone
         try {
             BluetoothAdapter bt = BluetoothAdapter.getDefaultAdapter();
             if (bt != null) {
@@ -120,7 +120,7 @@ public final class ConnClient {
         } catch (Throwable e) {
             Diag.error("conn.bluetooth", e.toString());
         }
-        // Wi-Fi: collegato a una rete e intensità 0..3
+        // Wi-Fi: connected to a network and strength 0..3
         try {
             ConnectivityManager cm = (ConnectivityManager) ctx.getSystemService(Context.CONNECTIVITY_SERVICE);
             NetworkInfo ni = cm != null ? cm.getNetworkInfo(ConnectivityManager.TYPE_WIFI) : null;
@@ -133,7 +133,7 @@ public final class ConnClient {
         } catch (Throwable e) {
             Diag.error("conn.wifi", e.toString());
         }
-        // rete mobile della T-Box
+        // T-Box mobile network
         try {
             IBinder e = eng.binder();
             if (e != null) {
@@ -153,22 +153,22 @@ public final class ConnClient {
             hw = null;
             Diag.error("conn.4g", e.toString());
         }
-        Diag.putQuiet("conn.bt/wifi/rete", (s.btConnected ? "BT collegato" : s.btOn ? "BT acceso" : "BT spento")
+        Diag.putQuiet("conn.bt/wifi/network", (s.btConnected ? "BT connected" : s.btOn ? "BT on" : "BT off")
                 + " · " + (s.wifiConnected ? "Wi-Fi " + s.wifiLevel + "/3" : "Wi-Fi no")
-                + " · " + (s.mobileType < 0 ? "rete ?" : s.mobileType == 0 ? "nessuna rete" : s.mobileType + "G " + s.mobileLevel + "/4"));
+                + " · " + (s.mobileType < 0 ? "network ?" : s.mobileType == 0 ? "no network" : s.mobileType + "G " + s.mobileLevel + "/4"));
         last = s;
         main.post(() -> {
             if (listener != null) listener.onConn(s);
         });
     }
 
-    /** MobileNetworkInfoBean: operatore, standard, intensità (stringa), area, IMSI, roaming, stato T-Box. */
+    /** MobileNetworkInfoBean: operator, standard, strength (string), area, IMSI, roaming, T-Box state. */
     private static int[] readMobile(Parcel p) {
-        p.readString();                       // operatore
+        p.readString();                       // operator
         int standard = p.readInt();
         String strength = p.readString();
-        p.readInt();                          // codice area
-        p.readString();                       // IMSI (non usato)
+        p.readInt();                          // area code
+        p.readString();                       // IMSI (unused)
         p.readInt();                          // roaming
         int tbox = p.readInt();
         if (tbox <= 0 || strength == null) return new int[]{0, 0};

@@ -1,5 +1,5 @@
-# Principali stazioni FM nazionali per paese: servono solo a elencare quelle che mancano nei pacchetti.
-# formato: CC | nome della stazione (confrontato con il nome normalizzato dei loghi e con gli alias)
+# Major national FM stations per country: used only to list the ones missing from the packs.
+# format: CC | station name (compared with the normalized logo names and with the aliases)
 IT | RTL 102.5
 IT | Radio Deejay
 IT | Radio 105

@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Użyj jako domyślnego ekranu</string>
     <string name="home_default_sub" formatted="false">MG4 Launcher otwiera się po włączeniu i przyciskiem Home</string>
     <string name="home_default_off_sub" formatted="false">Wył.: używany jest oryginalny ekran MG</string>
-    <string name="officina_until_sub">Tryb serwisowy do %1$s</string>
-    <string name="officina_title" formatted="false">Tryb serwisowy</string>
-    <string name="officina_sub" formatted="false">Przez kilka dni samochód używa oryginalnego ekranu MG, potem launcher wraca sam</string>
+    <string name="workshop_until_sub">Tryb serwisowy do %1$s</string>
+    <string name="workshop_title" formatted="false">Tryb serwisowy</string>
+    <string name="workshop_sub" formatted="false">Przez kilka dni samochód używa oryginalnego ekranu MG, potem launcher wraca sam</string>
     <string name="days_1" formatted="false">1 dzień</string>
     <string name="days_3" formatted="false">3 dni</string>
     <string name="days_7" formatted="false">7 dni</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Zostaw włączony</string>
     <string name="confirm_home_off_title" formatted="false">Użyć oryginalnego ekranu MG?</string>
     <string name="confirm_home_off_msg" formatted="false">Ekran MG stanie się domyślny, także po włączeniu. Ekran MG nie pokazuje MG4 Launchera wśród aplikacji: aby wrócić, potrzebny będzie komputer (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Jeśli to tylko na kilka dni, użyj trybu serwisowego: launcher wróci sam.</string>
-    <string name="confirm_officina_title" formatted="false">Włączyć tryb serwisowy?</string>
-    <string name="confirm_officina_msg">Do %1$s samochód będzie używał oryginalnego ekranu MG, a aktualizacje zostaną wstrzymane. Po tym czasie MG4 Launcher wróci sam, jak wcześniej.</string>
-    <string name="officina_active_title" formatted="false">Tryb serwisowy jest włączony</string>
-    <string name="officina_active_msg">Tryb serwisowy jest włączony do %1$s. Wyłączyć go?</string>
+    <string name="confirm_workshop_title" formatted="false">Włączyć tryb serwisowy?</string>
+    <string name="confirm_workshop_msg">Do %1$s samochód będzie używał oryginalnego ekranu MG, a aktualizacje zostaną wstrzymane. Po tym czasie MG4 Launcher wróci sam, jak wcześniej.</string>
+    <string name="workshop_active_title" formatted="false">Tryb serwisowy jest włączony</string>
+    <string name="workshop_active_msg">Tryb serwisowy jest włączony do %1$s. Wyłączyć go?</string>
     <string name="set_ui_size" formatted="false">ROZMIAR PRZYCISKÓW</string>
     <string name="ui_size_normal" formatted="false">Normalny</string>
     <string name="ui_size_large" formatted="false">Duży</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">Który pakiet usunąć?</string>
     <string name="logos_usb_title" formatted="false">Znaleziono logo stacji</string>
     <string name="logos_usb_msg">W %2$s jest pakiet logo dla %1$s. Zainstalować? Działa też bez internetu.</string>
-    <string name="group_clima" formatted="false">Klimatyzacja</string>
+    <string name="group_climate" formatted="false">Klimatyzacja</string>
     <string name="group_comfort" formatted="false">Komfort</string>
     <string name="tap_outside_close" formatted="false">dotknij poza, aby zamknąć</string>
     <string name="lka_desc" formatted="false">Asystent pasa ruchu (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">Temperatura wewnętrzna ukryta: auto jej nie podaje (pokazywała zewnętrzną); szukamy jej w logach</string>
     <string name="newsv_4" formatted="false">Dongle CarPlay/Android Auto widoczne jako iPhone są teraz rozpoznawane i restartowane, gdy nie startują</string>
     <string name="newsf_1" formatted="false">Wentylator na OFF teraz naprawdę wyłącza klimatyzację (wcześniej wracał do 1)</string>
-    <string name="group_guida" formatted="false">Jazda</string>
+    <string name="group_drive" formatted="false">Jazda</string>
     <string name="tile_lka" formatted="false">Pas ruchu</string>
     <string name="tile_acc" formatted="false">Asystent</string>
     <string name="tile_pedal" formatted="false">Pedał hamulca</string>
     <string name="recirc_in" formatted="false">Wewnętrzny</string>
     <string name="recirc_out" formatted="false">Zewnętrzny</string>
-    <string name="guida_stopped" formatted="false">Można zmienić tylko na postoju</string>
+    <string name="drive_stopped" formatted="false">Można zmienić tylko na postoju</string>
     <string name="set_inside_none" formatted="false">Niedostępna: samochód nie przesyła jej na ekran. Odczytywana wcześniej wartość «otoczenia» była w rzeczywistości temperaturą zewnętrzną</string>
     <string name="newsg_1" formatted="false">Nowy przycisk Jazda na pasku: LKA, One Pedal, asystent (Wył./ACC/TJA) i pedał hamulca (Comfort/Medium/Sport) w jednym panelu</string>
     <string name="newsg_2" formatted="false">Asystenta i pedał hamulca można zmienić tylko na postoju, dla bezpieczeństwa</string>

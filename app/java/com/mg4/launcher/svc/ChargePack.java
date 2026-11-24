@@ -18,27 +18,27 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * 1.0.4 (punto F): pacchetti dell'animazione di ricarica. Le clip NON sono nell'APK: si scarica solo lo zip del colore
- * scelto nelle impostazioni, da releases/animazioni.json di questo repository (pacchetti nella cartella animazioni/ del repository).
+ * 1.0.4 (point F): charging animation packs. The clips are NOT in the APK: only the zip of the color chosen in the
+ * settings is downloaded, from releases/animazioni.json of this repository (packs in the repository's animazioni/ folder).
  * <ul>
- *   <li>in background, con ripresa se il download si interrompe (Range), controllo sha256 e dimensione;</li>
- *   <li>se si cambia colore si scarica il nuovo e si cancella il vecchio;</li>
- *   <li>se animazioni.json o il pacchetto non ci sono: niente animazione, nessun errore a schermo.</li>
+ *   <li>in the background, resuming if the download is interrupted (Range), with sha256 and size check;</li>
+ *   <li>if the color changes, the new one is downloaded and the old one deleted;</li>
+ *   <li>if animazioni.json or the pack is missing: no animation, no error on screen.</li>
  * </ul>
- * Le 8 clip si estraggono in files/animazione/&lt;colore&gt;/ (carica-&lt;colore&gt;-&lt;giorno|notte&gt;-&lt;fase&gt;.mp4).
+ * The 8 clips are extracted into files/animazione/&lt;color&gt;/ (carica-&lt;color&gt;-&lt;giorno|notte&gt;-&lt;phase&gt;.mp4).
  */
 public final class ChargePack {
     public static final String[] PHASES = {"aggancio", "loop", "finita", "sgancio"};
     private static final String JSON_URL = Updater.OWN_RAW + "releases/animazioni.json";
     private static final long CHECK_EVERY_MS = 12 * 60 * 60_000L, RETRY_MISSING_MS = 15 * 60_000L;
 
-    private static volatile String state = "non controllato";
+    private static volatile String state = "not checked";
     private static volatile boolean busy;
     private static volatile boolean failed;
 
     private ChargePack() {}
 
-    /** "Arctic White" → "arctic-white" (nomi dei file e degli zip). */
+    /** "Arctic White" → "arctic-white" (file and zip names). */
     public static String slug(String color) {
         return color.trim().toLowerCase(Locale.ROOT).replace(' ', '-');
     }
@@ -51,13 +51,13 @@ public final class ChargePack {
         return new File(root(c), slug(color));
     }
 
-    /** Clip di una fase, null se il pacchetto del colore non è completo. */
+    /** Clip of a phase, null if the color pack is not complete. */
     public static File clip(Context c, String color, boolean day, String phase) {
         File f = new File(dir(c, color), "carica-" + slug(color) + "-" + (day ? "giorno" : "notte") + "-" + phase + ".mp4");
         return f.isFile() && f.length() > 0 ? f : null;
     }
 
-    /** True se ci sono tutte le 8 clip del colore. */
+    /** True if all 8 clips of the color are present. */
     public static boolean complete(Context c, String color) {
         for (String ph : PHASES) {
             if (clip(c, color, true, ph) == null || clip(c, color, false, ph) == null) return false;
@@ -78,35 +78,35 @@ public final class ChargePack {
     }
 
     /**
-     * Controlla il pacchetto del colore scelto e, se serve, lo scarica (thread a parte). force = true salta l'attesa
-     * tra un controllo e l'altro (cambio di colore).
+     * Checks the pack of the chosen color and downloads it if needed (separate thread). force = true skips the wait
+     * between one check and the next (color change).
      */
     public static synchronized void ensure(Context ctx, String color, boolean force) {
         Context c = ctx.getApplicationContext();
         SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
         if (busy) return;
         busy = true;
-        // tutto (cartelle, controllo, download) fuori dal thread principale
+        // everything (folders, check, download) off the main thread
         new Thread(() -> {
             try {
                 removeOthers(c, color);
-                // 0.4.4 (correzione B): ogni 12 ore (o forzato) si guarda se su GitHub il pacchetto è cambiato
+                // 0.4.4 (fix B): every 12 hours (or when forced) check whether the pack changed on GitHub
                 String key = "animControllo." + slug(color);
                 long last = sp.getLong(key, 0);
                 boolean due = force || last <= 0 || System.currentTimeMillis() - last >= CHECK_EVERY_MS;
                 if (complete(c, color)) {
-                    // pacchetto in uso: con il cavo inserito non si sostituisce (l'animazione potrebbe girare)
+                    // pack in use: not replaced while the cable is plugged in (the animation might be playing)
                     boolean plugged = VehicleClient.cablePluggedNow();
                     if (due && !plugged) sp.edit().putLong(key, System.currentTimeMillis()).apply();
                     if (!due || plugged || !changed(c, color)) {
-                        state = "pacchetto " + color + " presente";
+                        state = "pack " + color + " present";
                         failed = false;
                         buildFrames(c, color);
                         generation++;
                         return;
                     }
                 } else {
-                    // pacchetto assente: dopo un tentativo non riuscito si riprova dopo 15 minuti, non dopo 12 ore
+                    // pack missing: after a failed attempt, retry after 15 minutes, not after 12 hours
                     long lastTry = sp.getLong(key + ".tentativo", 0);
                     if (!force && lastTry > 0 && System.currentTimeMillis() - lastTry < RETRY_MISSING_MS) return;
                     sp.edit().putLong(key + ".tentativo", System.currentTimeMillis()).apply();
@@ -118,10 +118,10 @@ public final class ChargePack {
             } finally {
                 busy = false;
             }
-        }, "mg4-animazione").start();
+        }, "mg4-animation").start();
     }
 
-    /** Fotogrammi di tutte le clip del colore (una volta sola: poi ChargeFrames li trova già pronti). */
+    /** Frames of all clips of the color (only once: afterwards ChargeFrames finds them ready). */
     private static void buildFrames(Context c, String color) {
         java.util.List<File> all = new java.util.ArrayList<>();
         for (String ph : PHASES) {
@@ -131,7 +131,7 @@ public final class ChargePack {
         ChargeFrames.build(all.toArray(new File[0]));
     }
 
-    /** Fotogrammi delle clip di una cartella di prova (chiavetta). */
+    /** Frames of the clips in a test folder (USB stick). */
     public static String buildFramesIn(File dir, String slug) {
         java.util.List<File> all = new java.util.ArrayList<>();
         for (String ph : PHASES) {
@@ -141,10 +141,10 @@ public final class ChargePack {
         return ChargeFrames.build(all.toArray(new File[0]));
     }
 
-    /** Cresce quando il pacchetto cambia (scaricato, cancellato): chi tiene in memoria complete() lo ricalcola. */
+    /** Increases when the pack changes (downloaded, deleted): whoever caches complete() recomputes it. */
     public static volatile int generation;
 
-    /** Si tiene solo il colore scelto: le cartelle e gli zip parziali degli altri colori si cancellano. */
+    /** Only the chosen color is kept: folders and partial zips of the other colors are deleted. */
     private static void removeOthers(Context c, String color) {
         File[] list = root(c).listFiles();
         if (list == null) return;
@@ -163,12 +163,12 @@ public final class ChargePack {
         f.delete();
     }
 
-    /** File con l'impronta sha256 del pacchetto installato, nella cartella del colore. */
+    /** File with the sha256 fingerprint of the installed pack, in the color folder. */
     private static final String SHA_FILE = "sha256";
 
     /**
-     * 0.4.4 (correzione B): voce del colore in animazioni.json; null se il json non si legge o il colore non c'è.
-     * Da chiamare solo dal thread di lavoro (rete).
+     * 0.4.4 (fix B): the color's entry in animazioni.json; null if the json cannot be read or the color is missing.
+     * Call only from the worker thread (network).
      */
     private static JSONObject entry(String color) throws Exception {
         JSONObject j = new JSONObject(Updater.getText(JSON_URL));
@@ -177,9 +177,9 @@ public final class ChargePack {
     }
 
     /**
-     * 0.4.4 (correzione B): true se il pacchetto installato è diverso da quello di animazioni.json (va riscaricato).
-     * Json illeggibile o voce senza sha256 → false. Cartella senza il file "sha256" (pacchetti scaricati dalla 0.4.4 in
-     * giù non ce l'hanno): si scrive quello attuale e false, senza riscaricare.
+     * 0.4.4 (fix B): true if the installed pack differs from the one in animazioni.json (must be downloaded again).
+     * Unreadable json or entry without sha256 → false. Folder without the "sha256" file (packs downloaded by 0.4.4 and
+     * earlier do not have it): the current one is written and false is returned, without downloading again.
      */
     private static boolean changed(Context c, String color) {
         String want;
@@ -201,7 +201,7 @@ public final class ChargePack {
         } catch (Exception ex) {
             return false;
         }
-        Diag.put("ricarica.pacchetto", "pacchetto " + color + " cambiato su GitHub: si riscarica");
+        Diag.put("charge.pack", "pack " + color + " changed on GitHub: downloading again");
         return true;
     }
 
@@ -210,13 +210,13 @@ public final class ChargePack {
         try {
             entry = entry(color);
         } catch (Exception e) {
-            state = "pacchetto " + color + " assente (animazioni.json non disponibile)";
-            Diag.put("ricarica.pacchetto", state);
+            state = "pack " + color + " absent (animazioni.json unavailable)";
+            Diag.put("charge.pack", state);
             return;
         }
         if (entry == null) {
-            state = "pacchetto " + color + " assente (non c'è in animazioni.json)";
-            Diag.put("ricarica.pacchetto", state);
+            state = "pack " + color + " absent (not in animazioni.json)";
+            Diag.put("charge.pack", state);
             return;
         }
         String url = entry.optString("url", ""), sha = entry.optString("sha256", "").toLowerCase(Locale.ROOT);
@@ -225,39 +225,39 @@ public final class ChargePack {
         //noinspection ResultOfMethodCallIgnored
         root.mkdirs();
         File part = new File(root, slug(color) + ".zip.part");
-        state = "pacchetto " + color + " in download";
-        Diag.put("ricarica.pacchetto", state);
+        state = "pack " + color + " downloading";
+        Diag.put("charge.pack", state);
         try {
             fetch(url, part, size);
             String got = sha256(part);
             if (!got.equals(sha) || size > 0 && part.length() != size) {
                 //noinspection ResultOfMethodCallIgnored
-                part.delete();   // la prossima volta si riscarica da zero
-                throw new java.io.IOException("sha256 o dimensione diversi");
+                part.delete();   // next time it is downloaded from scratch
+                throw new java.io.IOException("sha256 or size mismatch");
             }
             File tmp = new File(root, slug(color) + ".tmp");
             deleteTree(tmp);
             int clips = extract(part, tmp, "carica-" + slug(color) + "-");
-            // 0.4.4: si controlla il contenuto prima di toccare il pacchetto in uso (8 clip: 4 fasi × giorno/notte)
+            // 0.4.4: the content is checked before touching the pack in use (8 clips: 4 phases × day/night)
             if (clips < PHASES.length * 2) {
                 deleteTree(tmp);
-                throw new java.io.IOException("pacchetto incompleto (" + clips + " clip)");
+                throw new java.io.IOException("incomplete pack (" + clips + " clip)");
             }
             File dst = dir(c, color);
-            // scambio sicuro: il vecchio diventa .old, il nuovo prende il suo posto, poi il vecchio si cancella
+            // safe swap: the old one becomes .old, the new one takes its place, then the old one is deleted
             File old = new File(root, slug(color) + ".old");
             deleteTree(old);
             boolean hadOld = dst.exists();
             if (hadOld && !dst.renameTo(old)) {
                 deleteTree(tmp);
-                throw new java.io.IOException("cartella vecchia non rinominata");
+                throw new java.io.IOException("old folder not renamed");
             }
             if (!tmp.renameTo(dst)) {
-                if (hadOld) old.renameTo(dst);   // si rimette il pacchetto di prima
-                throw new java.io.IOException("cartella non rinominata");
+                if (hadOld) old.renameTo(dst);   // put the previous pack back
+                throw new java.io.IOException("folder not renamed");
             }
             deleteTree(old);
-            // 0.4.4 (correzione B): impronta del pacchetto appena controllato, per accorgersi quando cambia su GitHub
+            // 0.4.4 (fix B): fingerprint of the pack just checked, to notice when it changes on GitHub
             try {
                 java.nio.file.Files.write(new File(dst, SHA_FILE).toPath(), sha.getBytes("UTF-8"));
             } catch (Exception ignored) {
@@ -265,16 +265,16 @@ public final class ChargePack {
             //noinspection ResultOfMethodCallIgnored
             part.delete();
             failed = !complete(c, color);
-            state = failed ? "pacchetto " + color + " incompleto" : "pacchetto " + color + " presente (scaricato ora)";
+            state = failed ? "pack " + color + " incomplete" : "pack " + color + " present (just downloaded)";
         } catch (Exception e) {
-            failed = !complete(c, color);   // 0.4.4: se il pacchetto vecchio c'è ancora l'animazione continua con quello
-            state = "pacchetto " + color + " · errore di download: " + e.getClass().getSimpleName()
-                    + (e.getMessage() == null ? "" : " " + e.getMessage()) + " (riprende la prossima volta)";
+            failed = !complete(c, color);   // 0.4.4: if the old pack is still there, the animation keeps using it
+            state = "pack " + color + " · download error: " + e.getClass().getSimpleName()
+                    + (e.getMessage() == null ? "" : " " + e.getMessage()) + " (resumes next time)";
         }
-        Diag.put("ricarica.pacchetto", state);
+        Diag.put("charge.pack", state);
     }
 
-    /** Download con ripresa: se c'è già una parte del file si chiede solo il resto (Range). */
+    /** Resumable download: if part of the file is already there, only the rest is requested (Range). */
     private static void fetch(String url, File part, long size) throws Exception {
         long have = part.isFile() ? part.length() : 0;
         if (size > 0 && have > size) {
@@ -295,11 +295,11 @@ public final class ChargePack {
             if (code >= 300 && code < 400) {
                 String loc = con.getHeaderField("Location");
                 con.disconnect();
-                if (loc == null) throw new java.io.IOException("redirect senza indirizzo");
+                if (loc == null) throw new java.io.IOException("redirect without location");
                 u = new URL(new URL(u), loc).toString();
                 continue;
             }
-            if (code == 416) {   // il file parziale è già completo (o sbagliato): lo decide lo sha256, altrimenti si riparte da zero
+            if (code == 416) {   // the partial file is already complete (or wrong): sha256 decides, otherwise start from scratch
                 con.disconnect();
                 return;
             }
@@ -317,7 +317,7 @@ public final class ChargePack {
             }
             return;
         }
-        throw new java.io.IOException("troppi redirect");
+        throw new java.io.IOException("too many redirects");
     }
 
     static String sha256(File f) throws Exception {
@@ -332,7 +332,7 @@ public final class ChargePack {
         return sb.toString();
     }
 
-    /** Estrae solo le clip .mp4 con il prefisso atteso, senza cartelle (niente percorsi strani dentro lo zip). */
+    /** Extracts only the .mp4 clips with the expected prefix, without folders (no odd paths inside the zip). */
     static int extract(File zip, File to, String prefix) throws Exception {
         //noinspection ResultOfMethodCallIgnored
         to.mkdirs();
@@ -353,11 +353,11 @@ public final class ChargePack {
         return n;
     }
 
-    // ---- prova da chiavetta USB ---------------------------------------------------------------
+    // ---- test from USB stick -----------------------------------------------------------------
 
     /**
-     * Prova dalla modalità tecnica: cerca sulla chiavetta USB uno zip animazione-&lt;colore&gt;.zip (nella cartella
-     * principale), lo estrae in files/animazione/prova/ e restituisce {cartella, colore}. Null se non c'è.
+     * Test from technical mode: looks on the USB stick for an animazione-&lt;color&gt;.zip (in the root
+     * folder), extracts it into files/animazione/prova/ and returns {folder, color}. Null if there is none.
      */
     public static Object[] loadFromUsb(Context c) {
         java.util.List<File> roots = new java.util.ArrayList<>();
@@ -374,16 +374,16 @@ public final class ChargePack {
             deleteTree(to);
             try {
                 int n = extract(zip, to, "carica-" + sl + "-");
-                Diag.put("ricarica.prova", "zip " + zip.getName() + " dalla chiavetta (" + r.getName() + ") · " + n + " clip");
+                Diag.put("charge.test", "zip " + zip.getName() + " from USB stick (" + r.getName() + ") · " + n + " clip");
                 if (n > 0) return new Object[]{to, sl};
             } catch (Exception e) {
-                Diag.put("ricarica.prova", "zip " + zip.getName() + " non letto: " + e.getClass().getSimpleName());
+                Diag.put("charge.test", "zip " + zip.getName() + " not read: " + e.getClass().getSimpleName());
             }
         }
         return null;
     }
 
-    /** Clip di una fase nella cartella di prova (slug del colore già pronto). */
+    /** Clip of a phase in the test folder (color slug already prepared). */
     public static File clipIn(File dir, String slug, boolean day, String phase) {
         File f = new File(dir, "carica-" + slug + "-" + (day ? "giorno" : "notte") + "-" + phase + ".mp4");
         return f.isFile() && f.length() > 0 ? f : null;

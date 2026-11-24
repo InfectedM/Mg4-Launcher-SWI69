@@ -8,9 +8,9 @@ import android.util.Log;
 import com.mg4.launcher.ui.Prefs;
 
 /**
- * Imposta il token GitHub da computer, senza scriverlo sullo schermo dell'auto:
- * adb shell am broadcast -n com.mg4.launcher/.svc.TokenReceiver --es token ghp_xxx [--es repo utente/repo]
- * Protetto da DUMP: lo possono inviare solo adb (shell) e il sistema.
+ * Sets the GitHub token from a computer, without typing it on the car screen:
+ * adb shell am broadcast -n com.mg4.launcher/.svc.TokenReceiver --es token ghp_xxx [--es repo user/repo]
+ * Protected by DUMP: only adb (shell) and the system can send it.
  */
 public final class TokenReceiver extends BroadcastReceiver {
     @Override
@@ -20,7 +20,7 @@ public final class TokenReceiver extends BroadcastReceiver {
         String repo = i.getStringExtra("repo");
         if (tok != null) p.setGithubToken(tok);
         if (repo != null) p.setUpdateRepo(repo);
-        Log.i("MG4L", "token GitHub " + (tok == null ? "invariato" : tok.isEmpty() ? "rimosso" : "salvato") + ", repo " + p.updateRepo());
+        Log.i("MG4L", "GitHub token " + (tok == null ? "unchanged" : tok.isEmpty() ? "removed" : "saved") + ", repo " + p.updateRepo());
         setResultData("ok: repo " + p.updateRepo());
     }
 }

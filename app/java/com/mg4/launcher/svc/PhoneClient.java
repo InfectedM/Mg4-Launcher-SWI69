@@ -11,17 +11,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 0.4.3 (punto 7): telefono Bluetooth per i "Preferiti telefono" del riquadro sotto la stazione.
+ * 0.4.3 (point 7): Bluetooth phone for the "Phone favourites" in the box below the station.
  * <ul>
- *   <li>SWI69 (R45): non c'è il servizio com.saicmotor.service.btcall della SWI68. L'app Telefono originale
- *       (com.saicmotor.btphone, BTCall_eh32_ll) espone BTPhoneService con l'azione com.saicmotor.btphone.voice e
- *       l'interfaccia com.saicmotor.btphone.IVoiceBTPhoneService (quella che usa l'assistente vocale):
- *       1 = chiama il numero (0 = avviata, 128 numero vuoto, 129 numero non valido, 131 rifiutata).</li>
- *   <li>telefono collegato: profilo Bluetooth HFP lato auto (16) collegato, come fa l'app Telefono.</li>
- *   <li>rubrica: il Bluetooth (PBAP) la scarica nei contatti di Android; l'app Telefono la legge da lì
- *       (ContactsContract Phone), così come qui.</li>
+ *   <li>SWI69 (R45): there is no com.saicmotor.service.btcall service as on the SWI68. The original Phone app
+ *       (com.saicmotor.btphone, BTCall_eh32_ll) exposes BTPhoneService with the action com.saicmotor.btphone.voice and
+ *       the interface com.saicmotor.btphone.IVoiceBTPhoneService (the one used by the voice assistant):
+ *       1 = call the number (0 = started, 128 empty number, 129 invalid number, 131 rejected).</li>
+ *   <li>phone connected: car-side Bluetooth HFP profile (16) connected, as the Phone app does.</li>
+ *   <li>contacts: Bluetooth (PBAP) downloads them into the Android contacts; the Phone app reads them from there
+ *       (ContactsContract Phone), as done here.</li>
  * </ul>
- * La chiamata la fa il servizio telefono: al launcher non serve CALL_PHONE. Nei log mai nomi né numeri.
+ * The call is placed by the phone service: the launcher does not need CALL_PHONE. Never names or numbers in the logs.
  */
 public final class PhoneClient {
     public interface Listener {
@@ -40,7 +40,7 @@ public final class PhoneClient {
     private static final String PKG = "com.saicmotor.btphone", ACTION = "com.saicmotor.btphone.voice";
     private static final String DESC = "com.saicmotor.btphone.IVoiceBTPhoneService";
     private static final int PLACE_CALL = 1;
-    /** BluetoothProfile.HEADSET_CLIENT (nascosto): 16. */
+    /** BluetoothProfile.HEADSET_CLIENT (hidden): 16. */
     private static final int PROFILE_HFP_CLIENT = 16;
     private static final String HFP_CHANGED = "android.bluetooth.headsetclient.profile.action.CONNECTION_STATE_CHANGED";
 
@@ -57,10 +57,10 @@ public final class PhoneClient {
 
     private PhoneClient(Context c) {
         ctx = c.getApplicationContext();
-        HandlerThread t = new HandlerThread("mg4-telefono");
+        HandlerThread t = new HandlerThread("mg4-phone");
         t.start();
         work = new Handler(t.getLooper());
-        link = new ServiceLink(ctx, "telefono", ServiceLink.byAction(PKG, ACTION));
+        link = new ServiceLink(ctx, "phone", ServiceLink.byAction(PKG, ACTION));
         link.setOnConnected(this::refresh);
     }
 
@@ -69,7 +69,7 @@ public final class PhoneClient {
         return instance;
     }
 
-    /** Si collega al servizio (contato: si scollega quando l'ultimo utilizzatore chiama stop). */
+    /** Connects to the service (ref-counted: disconnects when the last user calls stop). */
     public synchronized void start(Listener l) {
         if (l != null && !listeners.contains(l)) listeners.add(l);
         if (users++ == 0) {
@@ -109,7 +109,7 @@ public final class PhoneClient {
         return link.binder() != null;
     }
 
-    /** Telefono collegato in Bluetooth (HFP). */
+    /** Phone connected via Bluetooth (HFP). */
     public boolean phoneConnected() {
         return btState == 2;
     }
@@ -118,12 +118,12 @@ public final class PhoneClient {
         return btState;
     }
 
-    /** Stato della rubrica: 2 = ci sono contatti, 0 = vuota, -1 = non letta. */
+    /** Contacts state: 2 = there are contacts, 0 = empty, -1 = not read. */
     public int syncState() {
         return syncState;
     }
 
-    /** Rilegge lo stato del telefono (sul thread del telefono). */
+    /** Re-reads the phone state (on the phone thread). */
     public void refresh() {
         work.post(() -> {
             int bs;
@@ -137,7 +137,7 @@ public final class PhoneClient {
             }
             boolean changed = bs != btState;
             btState = bs;
-            Diag.put("telefono.stato", (link.binder() == null ? "servizio telefono non collegato · " : "servizio telefono collegato · ")
+            Diag.put("phone.state", (link.binder() == null ? "phone service not connected · " : "phone service connected · ")
                     + "Bluetooth " + btTxt(bs));
             if (changed) notifyListeners();
         });
@@ -145,9 +145,9 @@ public final class PhoneClient {
 
     private static String btTxt(int s) {
         switch (s) {
-            case 0: return "spento";
-            case 1: return "acceso, nessun telefono";
-            case 2: return "telefono collegato";
+            case 0: return "off";
+            case 1: return "on, no phone";
+            case 2: return "phone connected";
             default: return "?";
         }
     }
@@ -158,7 +158,7 @@ public final class PhoneClient {
         });
     }
 
-    /** Numero pulito come fa l'app Telefono: niente spazi, trattini, parentesi. */
+    /** Number cleaned as the Phone app does: no spaces, dashes, parentheses. */
     public static String clean(String n) {
         if (n == null) return "";
         StringBuilder sb = new StringBuilder();
@@ -166,25 +166,25 @@ public final class PhoneClient {
         return sb.toString();
     }
 
-    /** Chiama il numero tramite il servizio telefono. Risultato nel log senza il numero. */
+    /** Calls the number through the phone service. Result in the log without the number. */
     public void call(String number, java.util.function.Consumer<Boolean> done) {
         String n = clean(number);
         work.post(() -> {
             boolean ok = false;
             String why;
             IBinder b = link.binder();
-            if (n.isEmpty()) why = "numero vuoto";
-            else if (b == null) why = "servizio telefono non collegato";
+            if (n.isEmpty()) why = "empty number";
+            else if (b == null) why = "phone service not connected";
             else {
                 try {
                     Integer r = Rpc.call(b, DESC, PLACE_CALL, p -> p.writeString(n), Parcel::readInt);
                     ok = r != null && r == 0;
-                    why = ok ? "avviata" : "rifiutata dal servizio (codice " + r + ": telefono non collegato o numero non valido)";
+                    why = ok ? "started" : "refused by the service (code " + r + ": phone not connected or invalid number)";
                 } catch (Exception e) {
-                    why = "errore " + e.getClass().getSimpleName();
+                    why = "error " + e.getClass().getSimpleName();
                 }
             }
-            Diag.put("telefono.chiamata", why + " · " + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ITALY).format(new java.util.Date()));
+            Diag.put("phone.call", why + " · " + new java.text.SimpleDateFormat("HH:mm:ss", java.util.Locale.ITALY).format(new java.util.Date()));
             if (done != null) {
                 boolean res = ok;
                 main.post(() -> done.accept(res));
@@ -193,8 +193,8 @@ public final class PhoneClient {
     }
 
     /**
-     * Rubrica del telefono collegato (nome + numero, senza doppioni), in ordine alfabetico. Vuota se il telefono non
-     * è collegato o la rubrica non è sincronizzata. Da chiamare fuori dal thread principale.
+     * Contacts of the connected phone (name + number, no duplicates), in alphabetical order. Empty if the phone is not
+     * connected or the contacts are not synced. To be called off the main thread.
      */
     public List<Contact> contacts() {
         List<Contact> out = new ArrayList<>();
@@ -211,16 +211,16 @@ public final class PhoneClient {
                 out.add(new Contact(name, num));
             }
             syncState = out.isEmpty() ? 0 : 2;
-            Diag.put("telefono.rubrica", out.size() + " numeri letti");
+            Diag.put("phone.contacts", out.size() + " numbers read");
         } catch (Throwable e) {
-            Diag.error("telefono.rubrica", e.getClass().getSimpleName());
+            Diag.error("phone.contacts", e.getClass().getSimpleName());
         } finally {
             if (c != null) c.close();
         }
         return out;
     }
 
-    /** Il launcher è un'app di sistema: il permesso della rubrica se lo concede da solo (come la posizione). */
+    /** The launcher is a system app: it grants itself the contacts permission (like location). */
     static void ensureContactsPermission(Context c) {
         String perm = "android.permission.READ_CONTACTS";
         if (c.checkSelfPermission(perm) == android.content.pm.PackageManager.PERMISSION_GRANTED) return;

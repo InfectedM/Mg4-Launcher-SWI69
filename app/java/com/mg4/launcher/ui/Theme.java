@@ -2,15 +2,15 @@ package com.mg4.launcher.ui;
 
 import android.content.Context;
 
-/** Colori del launcher (stessi valori del mockup approvato). */
+/** Launcher colors (same values as the approved mockup). */
 public final class Theme {
     public final boolean day;
     public final int bg, panel, text, sub, track, chip, battery, accent, onAccent, overlay, map, road, roadMinor, glow, shadow;
     /**
-     * Fork: cores de aviso por tema. As antigas (âmbar FFB020, verde 34C77B, laranja FF7A3D) foram escolhidas para fundo
-     * escuro e de dia ficavam com contraste 1,6–2,3:1 (o nevoeiro traseiro ligado via-se pior do que desligado).
-     * Dia: warn 4,5:1 e fogFront 4,5:1 sobre o chip; heat = laranja de dia do MG4 Clima (clima_caldo), 3,2:1 (ícones).
-     * Noite: valores de sempre.
+     * Fork: warning colors per theme. The old ones (amber FFB020, green 34C77B, orange FF7A3D) were picked for a dark
+     * background and by day had 1.6–2.3:1 contrast (rear fog light on looked worse than off).
+     * Day: warn 4.5:1 and fogFront 4.5:1 on the chip; heat = MG4 Clima day orange (clima_caldo), 3.2:1 (icons).
+     * Night: the usual values.
      */
     public final int warn, warnBg, heat, fogFront;
 
@@ -27,20 +27,20 @@ public final class Theme {
             roadMinor = 0xFF22252B; glow = 0xFF1F2A3A; shadow = 0x8C000000;
             warn = 0xFFFFB020; warnBg = 0xFF2E2A1F; heat = 0xFFFF7A3D; fogFront = 0xFF34C77B;
         }
-        // nessun colore d'accento: pulsanti e icone usano lo stesso colore del testo
+        // no accent color: buttons and icons use the same color as the text
         accent = text;
         onAccent = luminance(accent) > 0.6 ? 0xFF111318 : 0xFFFFFFFF;
     }
 
     /**
-     * 0.4.2 (punto 1): scelta manuale Giorno/Notte, altrimenti il tema automatico di {@link com.mg4.launcher.svc.DayNight}
-     * (uiMode se cambia davvero, NIGHT_MODE dell'auto, fari, alba/tramonto; cambio dopo 60 s stabili).
+     * 0.4.2 (point 1): manual Day/Night choice, otherwise the automatic theme from {@link com.mg4.launcher.svc.DayNight}
+     * (uiMode if it really changes, the car's NIGHT_MODE, headlights, sunrise/sunset; switch after 60 s stable).
      */
     public static Theme resolve(Context c, Prefs p) {
         return new Theme(wouldBeDay(c, p));
     }
 
-    /** Tema che si applicherebbe adesso (per ricontrollare al ritorno nel launcher). */
+    /** Theme that would apply right now (to re-check when returning to the launcher). */
     public static boolean wouldBeDay(Context c, Prefs p) {
         String mode = p.themeMode();
         if (Prefs.THEME_DAY.equals(mode)) return true;

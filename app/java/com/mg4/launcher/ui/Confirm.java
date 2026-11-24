@@ -8,7 +8,7 @@ import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/** Conferma a tutto schermo nello stile del launcher: titolo, spiegazione, "Annulla" e pulsante principale. */
+/** Full-screen confirmation in the launcher's style: title, explanation, "Cancel" and the main button. */
 public final class Confirm {
     private Confirm() {}
 
@@ -16,7 +16,7 @@ public final class Confirm {
         show(root, t, title, msg, cancel, ok, onOk, null);
     }
 
-    /** 0.4.2: come show, con un'azione anche sul tasto secondario (es. OK di un avviso da remoto). */
+    /** 0.4.2: like show, with an action on the secondary button too (e.g. OK of a remote notice). */
     public static void show(FrameLayout root, Theme t, String title, String msg, String cancel, String ok, Runnable onOk, Runnable onCancel) {
         Context c = root.getContext();
         FrameLayout dim = new Scrim(c);
@@ -49,7 +49,7 @@ public final class Confirm {
         void text(String value);
     }
 
-    /** Campo di testo (0.9.6: codice del paese dei loghi). La tastiera è quella del sistema. */
+    /** Text field (0.9.6: logo country code). The keyboard is the system one. */
     public static void input(FrameLayout root, Theme t, String title, String msg, String initial, String hint,
                              String cancel, String ok, OnText onOk) {
         Context c = root.getContext();
@@ -89,7 +89,7 @@ public final class Confirm {
         btns.setGravity(Gravity.END);
         btns.addView(button(c, t, cancel, false, v -> close.run()), Ui.lp(-2, Ui.tp(c, 60)));
         btns.addView(button(c, t, ok, true, v -> {
-            if (((Scrim) dim).closing) return;   // fork: toque duplo — o texto só se entrega uma vez
+            if (((Scrim) dim).closing) return;   // fork: double tap — the text is delivered only once
             close.run();
             onOk.text(e.getText().toString());
         }), Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));
@@ -112,8 +112,8 @@ public final class Confirm {
     }
 
     /**
-     * Scelta tra pochi valori (es. limite di ricarica, corrente): titolo, spiegazione, un pulsante per valore
-     * (quello attuale evidenziato) e "Annulla". Toccare un valore chiude e lo applica.
+     * Choice among a few values (e.g. charge limit, current): title, explanation, one button per value
+     * (the current one highlighted) and "Cancel". Tapping a value closes and applies it.
      */
     public static void pick(FrameLayout root, Theme t, String title, String msg, String[] options, int selected, String cancel, OnPick onPick) {
         Context c = root.getContext();
@@ -154,7 +154,7 @@ public final class Confirm {
         open(root, dim);
     }
 
-    /** 0.4.2: scelta da un elenco lungo (es. l'app del pulsante in alto a destra): righe che scorrono. */
+    /** 0.4.2: choice from a long list (e.g. the app for the top-right button): scrolling rows. */
     public static void list(FrameLayout root, Theme t, String title, String[] options, String cancel, OnPick onPick) {
         Context c = root.getContext();
         FrameLayout dim = new Scrim(c);
@@ -195,7 +195,7 @@ public final class Confirm {
         void set(int hour, int minute);
     }
 
-    /** 0.4.2 (punto 7d): scelta di un orario con pulsanti − / + per ore (1 h) e minuti (5 min). */
+    /** 0.4.2 (point 7d): picking a time with − / + buttons for hours (1 h) and minutes (5 min). */
     public static void time(FrameLayout root, Theme t, String title, int hour, int minute, String cancel, String ok, OnTime onSet) {
         Context c = root.getContext();
         final int[] v = {Math.max(0, Math.min(23, hour)), Math.max(0, Math.min(59, minute)) / 5 * 5};
@@ -255,13 +255,13 @@ public final class Confirm {
     }
 
     public interface OnMulti {
-        /** Indici scelti; vuoto = prima voce ("Automatico"). */
+        /** Chosen indices; empty = first item ("Automatic"). */
         void chosen(java.util.List<Integer> indices);
     }
 
     /**
-     * Scelta multipla su griglia (es. paesi dei loghi radio). La voce 0 è esclusiva ("Automatico"): sceglierla
-     * deseleziona le altre e viceversa. "Annulla" e "OK".
+     * Multiple choice on a grid (e.g. radio logo countries). Item 0 is exclusive ("Automatic"): choosing it
+     * deselects the others and vice versa. "Cancel" and "OK".
      */
     public static void multi(FrameLayout root, Theme t, String title, String msg, String[] options, boolean[] checked,
                              String cancel, String ok, OnMulti onOk) {
@@ -334,8 +334,8 @@ public final class Confirm {
     }
 
     /**
-     * 0.4.3: scelta multipla semplice (al massimo {@code max} voci, nell'ordine in cui si toccano), in 3 colonne.
-     * onOk riceve gli indici scelti nell'ordine di scelta.
+     * 0.4.3: simple multiple choice (at most {@code max} items, in the order they are tapped), in 3 columns.
+     * onOk receives the chosen indices in the order of choice.
      */
     public static void pickMany(FrameLayout root, Theme t, String title, String msg, String[] options, java.util.List<Integer> preset,
                                 int max, String cancel, String ok, OnMulti onOk) {
@@ -400,14 +400,14 @@ public final class Confirm {
         open(root, dim);
     }
 
-    /** Altezza massima di un elenco nel popup, così i pulsanti restano sempre sullo schermo. */
+    /** Maximum height of a list in the popup, so the buttons always stay on screen. */
     private static int listMaxHeight(Context c, boolean hasMsg, int wantDp) {
         int screen = c.getResources().getDisplayMetrics().heightPixels;
         int fixed = Ui.dp(c, 34 + 30 + 40 + 22 + 24 + 40) + Ui.tp(c, 60) + (hasMsg ? Ui.dp(c, 70) : 0);
         return Math.max(Ui.dp(c, 140), Math.min(Ui.dp(c, wantDp), screen - fixed));
     }
 
-    /** Avviso con elenco puntato e un solo pulsante (popup "Novità"). */
+    /** Notice with a bulleted list and a single button ("What's new" popup). */
     public static void notice(FrameLayout root, Theme t, String title, String subtitle, String[] items, String ok, Runnable onClose) {
         Context c = root.getContext();
         FrameLayout dim = new Scrim(c);
@@ -461,11 +461,11 @@ public final class Confirm {
         return b;
     }
 
-    // ---- fork: transições (150 ms a entrar, 120 ms a sair) -------------------------------------------------------
+    // ---- fork: transitions (150 ms in, 120 ms out) ---------------------------------------------------------------
 
     /**
-     * Fundo escuro dos diálogos. Ao começar a fechar intercepta todos os toques: durante a animação de saída nenhum
-     * botão recebe um segundo toque (sem isto um toque duplo repetiria comandos ao carro, ex. carregamento ou V2L).
+     * Dark backdrop of the dialogs. Once it starts closing it intercepts all touches: during the exit animation no
+     * button receives a second tap (without this a double tap would repeat car commands, e.g. charging or V2L).
      */
     static final class Scrim extends FrameLayout {
         boolean closing;
@@ -485,7 +485,7 @@ public final class Confirm {
         }
     }
 
-    /** Mostra o diálogo com uma entrada suave; tira já os que ainda estão a sair (nunca dois escurecimentos juntos). */
+    /** Shows the dialog with a smooth entrance; removes at once any still exiting (never two backdrops together). */
     private static void open(FrameLayout root, FrameLayout dim) {
         boolean swap = false;
         for (int i = root.getChildCount() - 1; i >= 0; i--) {
@@ -496,13 +496,13 @@ public final class Confirm {
             }
         }
         root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
-        // diálogo que substitui outro a fechar: o escurecimento fica logo opaco (sem piscar), só o cartão entra
+        // dialog replacing one that is closing: the backdrop is opaque right away (no flicker), only the card animates in
         animate(dim, true, null, swap);
     }
 
     /**
-     * Fecha com uma saída suave. Devolve false se já estava a fechar (a ação não deve correr outra vez). A vista sai do
-     * pai guardado agora: se entretanto já foi tirada (tecla Home), não faz nada.
+     * Closes with a smooth exit. Returns false if it was already closing (the action must not run again). The view is removed
+     * from the parent captured now: if it has meanwhile already been removed (Home key), it does nothing.
      */
     static boolean dismiss(View view) {
         if (!(view instanceof Scrim)) {
@@ -521,7 +521,7 @@ public final class Confirm {
         return true;
     }
 
-    /** Anima só o fundo (alfa da cor, sem camada de ecrã inteiro) e o cartão (com camada só do tamanho dele). */
+    /** Animates only the backdrop (color alpha, no full-screen layer) and the card (with a layer only its own size). */
     private static void animate(FrameLayout dim, boolean in, Runnable end, boolean keepBg) {
         View card = dim.getChildCount() > 0 ? dim.getChildAt(0) : null;
         android.graphics.drawable.Drawable bg = dim.getBackground();
@@ -530,7 +530,7 @@ public final class Confirm {
         a.setDuration(in ? 150 : 120);
         a.setInterpolator(new android.view.animation.PathInterpolator(0.2f, 0f, 0f, 1f));
         if (card != null) card.setLayerType(View.LAYER_TYPE_HARDWARE, null);
-        if (in) {   // valores iniciais já aplicados: o primeiro fotograma não pisca opaco
+        if (in) {   // initial values applied up front: the first frame does not flash opaque
             if (bg != null && !keepBg) bg.setAlpha(0);
             if (card != null) {
                 card.setAlpha(0f);

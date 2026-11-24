@@ -11,20 +11,20 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Avvio sicuro (0.9.6 / 0.3.9 / 0.2.6): la home MG ha una priorità che le app installate non possono battere e il
- * firmware la apre per nome all'accensione. Come fa MG4Dash, si disattiva SOLO la sua schermata principale (il resto
- * dell'app MG, con i suoi servizi, resta attivo): così è Android stesso ad aprire il nostro launcher all'accensione e
- * col tasto Home, senza inseguire la home MG.
+ * Safe start (0.9.6 / 0.3.9 / 0.2.6): the MG home has a priority that installed apps cannot beat and the
+ * firmware opens it by name at power-on. Like MG4Dash, ONLY its main screen is disabled (the rest
+ * of the MG app, with its services, stays active): so Android itself opens our launcher at power-on and
+ * with the Home key, without chasing the MG home.
  * <p>
- * La schermata MG torna attiva da sola: interruttore "home predefinita" spento, officina, apertura apposta della home
- * MG, "Disinstalla", 3 crash del launcher in 3 minuti ({@link CrashGuard}) e opzione "Avvio sicuro" spenta.
- * Firma platform: il permesso CHANGE_COMPONENT_ENABLED_STATE è concesso dalla firma.
+ * The MG screen comes back on by itself: "default home" switch off, workshop, deliberate opening of the MG
+ * home, "Disinstalla", 3 launcher crashes in 3 minutes ({@link CrashGuard}) and "Avvio sicuro" option off.
+ * Platform signature: the CHANGE_COMPONENT_ENABLED_STATE permission is granted by the signature.
  */
 public final class HomeLock {
     public static final String K_ON = "avvioSicuro";
-    /** 1.0.4 (issue #29): disinstallazione in corso (istante di inizio). Finché vale, la home MG non si spegne mai. */
+    /** 1.0.4 (issue #29): uninstall in progress (start time). While it holds, the MG home is never disabled. */
     private static final String K_UNINSTALL = "disinstallazioneInCorso";
-    /** Dopo 10 minuti senza esito (es. conferma di sistema lasciata a metà) il segno scade da solo. */
+    /** After 10 minutes without outcome (e.g. system confirmation left halfway) the mark expires by itself. */
     private static final long UNINSTALL_MAX_MS = 10 * 60_000L;
 
     private HomeLock() {}
@@ -33,17 +33,17 @@ public final class HomeLock {
         return c.getApplicationContext().getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
     }
 
-    /** Opzione "Avvio sicuro" (accesa di default). */
+    /** "Avvio sicuro" option (on by default). */
     public static boolean option(Context c) {
         return sp(c).getBoolean(K_ON, true);
     }
 
     public static void setOption(Context c, boolean on) {
         sp(c).edit().putBoolean(K_ON, on).apply();
-        new Thread(() -> apply(c, on ? "opzione accesa" : "opzione spenta"), "mg4-homelock").start();
+        new Thread(() -> apply(c, on ? "option on" : "option off"), "mg4-homelock").start();
     }
 
-    /** Disinstallazione in corso? Con il segno attivo la home MG resta accesa e la nostra non si riconferma. */
+    /** Uninstall in progress? With the mark active the MG home stays on and ours is not re-confirmed. */
     public static boolean uninstalling(Context c) {
         SharedPreferences s = sp(c);
         long at = s.getLong(K_UNINSTALL, 0);
@@ -51,21 +51,21 @@ public final class HomeLock {
         long age = System.currentTimeMillis() - at;
         if (age >= 0 && age < UNINSTALL_MAX_MS) return true;
         s.edit().remove(K_UNINSTALL).apply();
-        Diag.put("disinstalla", "segno scaduto dopo 10 minuti senza esito: launcher di nuovo normale");
+        Diag.put("uninstall", "marker expired after 10 minutes with no outcome: launcher back to normal");
         return false;
     }
 
-    /** Segno "disinstallazione in corso", scritto subito su disco (commit) prima di toccare la home. */
+    /** "Uninstall in progress" mark, written to disk right away (commit) before touching the home. */
     public static void beginUninstall(Context c) {
         sp(c).edit().putLong(K_UNINSTALL, System.currentTimeMillis()).commit();
     }
 
-    /** Toglie il segno (disinstallazione annullata o non riuscita). */
+    /** Clears the mark (uninstall cancelled or failed). */
     public static void endUninstall(Context c) {
         sp(c).edit().remove(K_UNINSTALL).commit();
     }
 
-    /** Schermata principale MG disattivata in questo momento? */
+    /** MG main screen disabled right now? */
     public static boolean mgDisabled(Context c) {
         try {
             return c.getPackageManager().getComponentEnabledSetting(HomeDefault.MG)
@@ -76,14 +76,14 @@ public final class HomeLock {
     }
 
     /**
-     * Stato giusto per le impostazioni attuali: home MG disattivata se launcher attivo + opzione accesa + nessun
-     * blocco del salvavita; altrimenti riattivata. Poi riconferma della home predefinita. Da un thread di lavoro.
+     * Correct state for the current settings: MG home disabled if launcher active + option on + no
+     * lockout from the safeguard; otherwise re-enabled. Then re-confirms the default home. From a worker thread.
      */
     public static synchronized void apply(Context c, String why) {
         Context app = c.getApplicationContext();
-        if (uninstalling(app)) {   // issue #29: mai spegnere la home MG mentre si disinstalla (conferma a schermo)
-            release(app, "disinstallazione in corso · " + why);
-            Diag.put("home.avvioSicuro", "non attivato: disinstallazione in corso (" + why + ")");
+        if (uninstalling(app)) {   // issue #29: never disable the MG home while uninstalling (on-screen confirmation)
+            release(app, "uninstall in progress · " + why);
+            Diag.put("home.safeStart", "not activated: uninstall in progress (" + why + ")");
             return;
         }
         boolean want = HomeMode.active(app) && option(app) && !CrashGuard.tripped(app);
@@ -95,35 +95,35 @@ public final class HomeLock {
     private static void lock(Context c, String why) {
         if (uninstalling(c)) return;
         if (mgDisabled(c)) {
-            Diag.put("home.avvioSicuro", "attivo (home MG disattivata)");
+            Diag.put("home.safeStart", "active (MG home disabled)");
             return;
         }
         try {
             c.getPackageManager().setComponentEnabledSetting(HomeDefault.MG,
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED, PackageManager.DONT_KILL_APP);
-            Diag.put("home.avvioSicuro", "attivato: home MG disattivata (" + why + ")");
+            Diag.put("home.safeStart", "activated: MG home disabled (" + why + ")");
         } catch (Throwable e) {
-            Diag.put("home.avvioSicuro", "non possibile: " + e);
+            Diag.put("home.safeStart", "not possible: " + e);
         }
     }
 
-    /** Riattiva la schermata principale MG (sempre sicuro da chiamare). */
+    /** Re-enables the MG main screen (always safe to call). */
     public static synchronized void release(Context c, String why) {
         Context app = c.getApplicationContext();
         if (!mgDisabled(app)) {
-            Diag.putQuiet("home.avvioSicuro", "spento (" + why + ")");
+            Diag.putQuiet("home.safeStart", "off (" + why + ")");
             return;
         }
         try {
             app.getPackageManager().setComponentEnabledSetting(HomeDefault.MG,
                     PackageManager.COMPONENT_ENABLED_STATE_DEFAULT, PackageManager.DONT_KILL_APP);
-            Diag.put("home.avvioSicuro", "home MG riattivata (" + why + ")");
+            Diag.put("home.safeStart", "MG home re-enabled (" + why + ")");
         } catch (Throwable e) {
-            Diag.put("home.avvioSicuro", "riattivazione non riuscita: " + e);
+            Diag.put("home.safeStart", "re-enabling failed: " + e);
         }
     }
 
-    /** Altri launcher installati (non nostri, non MG, non di sistema Android): possono contendersi la home. */
+    /** Other installed launchers (not ours, not MG, not Android system): they may compete for the home. */
     public static List<String> otherLaunchers(Context c) {
         List<String> out = new ArrayList<>();
         try {
@@ -141,9 +141,9 @@ public final class HomeLock {
         return out;
     }
 
-    /** true se pkg è un'altra home (MG o un altro launcher): all'accensione si sostituisce come la home MG. */
+    /** true if pkg is another home (MG or another launcher): at power-on it is replaced like the MG home. */
     public static boolean isOtherHome(Context c, String pkg) {
-        if (pkg == null || pkg.equals(c.getPackageName()) || HomeDefault.isProvision(pkg)) return false;   // prima configurazione Android: non è la home MG
+        if (pkg == null || pkg.equals(c.getPackageName()) || HomeDefault.isProvision(pkg)) return false;   // Android setup wizard: not the MG home
         if (HomeDefault.MG.getPackageName().equals(pkg)) return true;
         try {
             Intent home = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setPackage(pkg);
@@ -154,7 +154,7 @@ public final class HomeLock {
         }
     }
 
-    /** Il componente esiste su questa auto? (se no, niente da disattivare) */
+    /** Does the component exist on this car? (if not, nothing to disable) */
     public static boolean mgExists(Context c) {
         try {
             c.getPackageManager().getActivityInfo(HomeDefault.MG, PackageManager.MATCH_DISABLED_COMPONENTS);

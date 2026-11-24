@@ -10,7 +10,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.util.Log;
 
-/** Collegamento a un servizio di sistema con riconnessione automatica (servizio riavviato o non ancora pronto). */
+/** Link to a system service with automatic reconnection (service restarted or not ready yet). */
 public final class ServiceLink implements ServiceConnection, IBinder.DeathRecipient {
     private static final String TAG = "MG4L.Link";
     private static final long RETRY_MS = 3000;
@@ -76,14 +76,14 @@ public final class ServiceLink implements ServiceConnection, IBinder.DeathRecipi
             ok = false;
             Diag.error(name, "bindService: " + e);
         }
-        Diag.put(name + ".bind", ok ? "ok" : "fallito");
+        Diag.put(name + ".bind", ok ? "ok" : "failed");
         if (!ok) handler.postDelayed(this::bind, RETRY_MS * 3);
     }
 
     @Override
     public void onServiceConnected(ComponentName cn, IBinder service) {
         binder = service;
-        Diag.put(name + ".stato", "collegato");
+        Diag.put(name + ".state", "connected");
         try {
             service.linkToDeath(this, 0);
         } catch (RemoteException e) {
@@ -95,13 +95,13 @@ public final class ServiceLink implements ServiceConnection, IBinder.DeathRecipi
     @Override
     public void onServiceDisconnected(ComponentName cn) {
         binder = null;
-        Diag.put(name + ".stato", "scollegato");
+        Diag.put(name + ".state", "disconnected");
     }
 
     @Override
     public void binderDied() {
         binder = null;
-        Diag.put(name + ".stato", "servizio riavviato");
+        Diag.put(name + ".state", "service restarted");
         handler.post(() -> {
             try {
                 context.unbindService(this);

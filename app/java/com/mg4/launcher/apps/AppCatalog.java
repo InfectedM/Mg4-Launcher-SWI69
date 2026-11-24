@@ -20,16 +20,16 @@ import java.util.Locale;
 import java.util.Set;
 
 /**
- * Elenco delle app: quelle dell'auto (componenti SAIC noti, con icone disegnate) e quelle
- * installate dall'utente (lette dal sistema, aggiornate a ogni installazione/disinstallazione).
+ * App list: the car's apps (known SAIC components, with drawn icons) and those
+ * installed by the user (read from the system, refreshed on every install/uninstall).
  */
 public final class AppCatalog {
 
     public static final class App {
         public final String label;
-        public final ComponentName component;   // null = usa launchIntent
+        public final ComponentName component;   // null = use launchIntent
         public final Intent launchIntent;
-        public final int iconRes;               // 0 = icona ridisegnata dall'originale
+        public final int iconRes;               // 0 = icon redrawn from the original
         public final boolean highlight;
         public final String packageName;
 
@@ -44,7 +44,7 @@ public final class AppCatalog {
 
         public Intent intent() {
             Intent i;
-            Intent mg4 = component != null ? climaOverride(component.getPackageName()) : null;
+            Intent mg4 = component != null ? climateOverride(component.getPackageName()) : null;
             if (mg4 != null) {
                 i = mg4;
             } else if (component != null) {
@@ -57,7 +57,7 @@ public final class AppCatalog {
         }
     }
 
-    /** App dell'auto SWI69 (EH32 Color Radio), nell'ordine del launcher MG; quelle assenti non compaiono. */
+    /** SWI69 car apps (EH32 Color Radio), in the MG launcher's order; missing ones are not shown. */
     private static final String[][] CAR_APPS = {
             {"@app_vehicle", MgApps.VEHICLE_PKG, MgApps.VEHICLE_CLS, "car"},
             {"@climate", MgApps.HVAC_PKG, MgApps.HVAC_CLS, "fan"},
@@ -68,18 +68,18 @@ public final class AppCatalog {
             {"@app_files", MgApps.FILES_PKG, MgApps.FILES_CLS, "video"},
             {"@app_settings", MgApps.SETTINGS_PKG, MgApps.SETTINGS_CLS, "gear"},
             {"@app_sos", MgApps.SOS_PKG, MgApps.SOS_CLS, "sos"},
-            // scorciatoie di Android (solo se l'attività esiste davvero sull'auto)
+            // Android shortcuts (only if the activity really exists on the car)
             {"@app_android_settings", "@android_settings", "", "android_settings"},
             {"@app_android_files", "@android_files", "", "folder"},
     };
 
-    /** Gestori file possibili, nell'ordine in cui si cercano. */
+    /** Possible file managers, in the order they are searched. */
     private static final String[] FILE_PACKAGES = {"com.android.documentsui", "com.mediatek.filemanager", "com.android.fileexplorer"};
 
-    /** Navigatori possibili (dall'originale: Telenav, iGo, SAIC). */
+    /** Possible navigators (from the original: Telenav, iGo, SAIC). */
     private static final String[] NAV_PACKAGES = {"com.telenav.app.arp", "com.nng.igo.primong", "com.saicmotor.navigation"};
 
-    /** Pacchetti di sistema da non mostrare tra le app installate. */
+    /** System packages not to show among the installed apps. */
     private static final String[] HIDDEN_PREFIX = {"com.saicmotor.", "com.saic.", "com.allgo.", "com.android.", "android",
             "com.yfve.", "com.mediatek.", "com.mtk.", "com.google.android.car", "com.telenav.", "com.nng."};
 
@@ -96,14 +96,14 @@ public final class AppCatalog {
         return c.getResources().getIdentifier("ic_" + name, "drawable", c.getPackageName());
     }
 
-    /** Etichetta: "@chiave" = testo tradotto (res/values-xx/strings.xml), altrimenti nome fisso (EV Route, Spotify...). */
+    /** Label: "@key" = translated text (res/values-xx/strings.xml), otherwise a fixed name (EV Route, Spotify...). */
     private String label(String l) {
         if (!l.startsWith("@")) return l;
         int id = ctx.getResources().getIdentifier(l.substring(1), "string", ctx.getPackageName());
         return id == 0 ? l.substring(1) : com.mg4.launcher.L.s(id);
     }
 
-    /** Lingua cambiata: le etichette si rileggono alla prossima chiamata di carApps(). */
+    /** Language changed: labels are re-read on the next call to carApps(). */
     public void refreshLabels() {
     }
 
@@ -125,7 +125,7 @@ public final class AppCatalog {
                 if (si != null) out.add(new App(a[0], null, si, icon, false, targetPackage(si)));
                 continue;
             }
-            // 0.4.3: il ComponentName si crea solo con pacchetto e classe validi (prima: crash "class name is null")
+            // 0.4.3: the ComponentName is created only with a valid package and class (before: crash "class name is null")
             if (empty(a[1])) continue;
             ComponentName cn = empty(a[2]) ? null : new ComponentName(a[1], a[2]);
             if (cn != null && exists(cn)) {
@@ -142,16 +142,16 @@ public final class AppCatalog {
 
     private String sysDiag;
 
-    /** Impostazioni di Android (com.android.settings), se l'attività esiste. */
+    /** Android Settings (com.android.settings), if the activity exists. */
     private Intent androidSettingsIntent() {
         Intent i = new Intent(android.provider.Settings.ACTION_SETTINGS).setPackage("com.android.settings");
         if (pm.resolveActivity(i, 0) == null) i = new Intent(android.provider.Settings.ACTION_SETTINGS);
         boolean ok = pm.resolveActivity(i, 0) != null;
-        sysDiag = "impostazioni " + (ok ? "ok" : "assente");
+        sysDiag = "settings " + (ok ? "ok" : "missing");
         return ok ? i : null;
     }
 
-    /** Gestore file dell'auto: DocumentsUI, MediaTek, File Explorer, oppure chi apre documenti. */
+    /** The car's file manager: DocumentsUI, MediaTek, File Explorer, or whatever opens documents. */
     private Intent androidFilesIntent() {
         Intent found = null;
         for (String p : FILE_PACKAGES) {
@@ -174,8 +174,8 @@ public final class AppCatalog {
             if (pm.resolveActivity(od, 0) != null) found = od;
             else if (pm.resolveActivity(gc, 0) != null) found = gc;
         }
-        String head = sysDiag == null ? "impostazioni ?" : sysDiag;
-        Diag.put("app.sistema", head + ", file " + (found != null ? targetPackage(found) : "assente"));
+        String head = sysDiag == null ? "settings ?" : sysDiag;
+        Diag.put("app.system", head + ", file " + (found != null ? targetPackage(found) : "missing"));
         return found;
     }
 
@@ -186,7 +186,7 @@ public final class AppCatalog {
         return ri != null && ri.activityInfo != null ? ri.activityInfo.packageName : "?";
     }
 
-    /** Navigatori di terze parti installati sull'auto (Waze, Google Maps, OsmAnd, ...). */
+    /** Third-party navigators installed on the car (Waze, Google Maps, OsmAnd, ...). */
     public List<App> otherNavApps(String mgNavPackage) {
         Set<String> pkgs = new java.util.LinkedHashSet<>();
         Collections.addAll(pkgs, "com.waze", "com.google.android.apps.maps", "com.google.android.apps.maps.auto",
@@ -214,8 +214,8 @@ public final class AppCatalog {
     }
 
     /**
-     * 1.0.4 (issue #27): app installate che gestiscono la navigazione: i navigatori noti (anche ABRP), più tutte quelle che
-     * aprono "geo:" o "google.navigation:". Esclusa la navigazione MG (è la scelta predefinita).
+     * 1.0.4 (issue #27): installed apps that handle navigation: the known navigators (ABRP included), plus all those that
+     * open "geo:" or "google.navigation:". MG navigation is excluded (it is the default choice).
      */
     public List<App> navCandidateApps(String mgNavPackage) {
         Set<String> seen = new java.util.HashSet<>();
@@ -266,7 +266,7 @@ public final class AppCatalog {
         }
     }
 
-    /** App installate dall'utente (DiPlay, Task Manager, ...), in ordine alfabetico. */
+    /** User-installed apps (DiPlay, Task Manager, ...), in alphabetical order. */
     public List<App> userApps() {
         Intent q = new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_LAUNCHER);
         List<ResolveInfo> list = pm.queryIntentActivities(q, 0);
@@ -286,7 +286,7 @@ public final class AppCatalog {
         Collections.sort(out, (x, y) -> {
             return col.compare(x.label, y.label);
         });
-        Diag.put("app.installate", out.size());
+        Diag.put("app.installed", out.size());
         return out;
     }
 
@@ -321,7 +321,7 @@ public final class AppCatalog {
             ctx.startActivity(a.intent());
             return true;
         } catch (Exception e) {
-            Diag.error("avvio " + a.label, e.toString());
+            Diag.error("startup " + a.label, e.toString());
             return false;
         }
     }
@@ -329,17 +329,17 @@ public final class AppCatalog {
     private final java.util.Set<String> missingLogged = new java.util.HashSet<>();
 
     /**
-     * Intent per aprire un'app originale: l'attività esatta se esiste, altrimenti l'attività principale del pacchetto
-     * (su alcuni firmware SWI68 HvacActivity e ChargeManagementActivity non ci sono). Null se manca anche quella:
-     * scritto una sola volta nella diagnostica.
+     * Intent to open an original app: the exact activity if it exists, otherwise the package's main activity
+     * (on some SWI68 firmwares HvacActivity and ChargeManagementActivity are missing). Null if that is missing too:
+     * written only once to the diagnostics.
      */
     private static volatile PackageManager spm;
 
     /**
-     * MG4 Clima installato: il clima si apre direttamente lì (senza far vedere per un istante l'app originale).
-     * MG4 Clima rimanda all'originale se la sostituzione è spenta.
+     * MG4 Clima installed: the climate opens directly there (without briefly showing the original app).
+     * MG4 Clima forwards to the original if the replacement is turned off.
      */
-    static Intent climaOverride(String pkg) {
+    static Intent climateOverride(String pkg) {
         if (!MgApps.HVAC_PKG.equals(pkg) || spm == null) return null;
         Intent i = new Intent("com.mg4.clima.APRI").setPackage("com.mg4.clima").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         try {
@@ -355,11 +355,11 @@ public final class AppCatalog {
 
     public Intent resolveLaunch(String pkg, String cls) {
         spm = pm;
-        // 0.4.3: senza pacchetto non c'è niente da aprire (pulsante disattivato, niente crash)
+        // 0.4.3: without a package there is nothing to open (button disabled, no crash)
         if (empty(pkg)) return null;
-        Intent mg4 = climaOverride(pkg);
+        Intent mg4 = climateOverride(pkg);
         if (mg4 != null) return mg4;
-        // 0.4.3: il ComponentName si crea solo se pacchetto e classe ci sono (crash "class name is null" visto sulla SWI133)
+        // 0.4.3: the ComponentName is created only if package and class are present (crash "class name is null" seen on the SWI133)
         boolean hasCls = !empty(cls);
         try {
             Intent exact = hasCls ? new Intent(Intent.ACTION_MAIN).setComponent(new ComponentName(pkg, cls)) : null;
@@ -373,8 +373,8 @@ public final class AppCatalog {
         }
         String key = pkg + "/" + cls;
         if ((hasCls || li == null) && missingLogged.add(key)) {
-            Diag.put("app.mancante." + pkg.substring(pkg.lastIndexOf('.') + 1),
-                    (hasCls ? cls.substring(cls.lastIndexOf('.') + 1) + " assente · " : "") + (li != null ? "si apre l'app principale" : "app non presente: pulsante disattivato"));
+            Diag.put("app.missing." + pkg.substring(pkg.lastIndexOf('.') + 1),
+                    (hasCls ? cls.substring(cls.lastIndexOf('.') + 1) + " missing · " : "") + (li != null ? "opens the main app" : "app not installed: button disabled"));
         }
         return li;
     }
@@ -383,7 +383,7 @@ public final class AppCatalog {
         try {
             return resolveLaunch(pkg, cls) != null;
         } catch (Exception e) {
-            Diag.error("app.verifica " + pkg, e.toString());
+            Diag.error("app.verify " + pkg, e.toString());
             return false;
         }
     }
@@ -395,7 +395,7 @@ public final class AppCatalog {
             ctx.startActivity(i.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
             return true;
         } catch (Exception e) {
-            Diag.error("avvio " + pkg, e.toString());
+            Diag.error("startup " + pkg, e.toString());
             return false;
         }
     }

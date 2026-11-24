@@ -14,8 +14,8 @@ import com.mg4.launcher.svc.SelfCheck;
 import java.util.List;
 
 /**
- * 0.4.3 (punto 8): finestra del Controllo funzioni. Una riga per prova con ✓ / ✗ / — e una frase semplice; durante la
- * prova dei tasti al volante la riga chiede di premere avanti o indietro (10 s). Alla fine il riepilogo e "Invia log".
+ * 0.4.3 (point 8): Function check window. One row per test with ✓ / ✗ / — and a simple sentence; during the
+ * steering wheel key test the row asks to press next or previous (10 s). At the end the summary and "Invia log".
  */
 public final class CheckPanel {
     private CheckPanel() {}
@@ -74,7 +74,7 @@ public final class CheckPanel {
         root.addView(dim, new FrameLayout.LayoutParams(-1, -1));
 
         int keysIdx = -1;
-        for (int i = 0; i < items.size(); i++) if ("tastiVolante".equals(items.get(i).key)) keysIdx = i;
+        for (int i = 0; i < items.size(); i++) if ("wheelKeys".equals(items.get(i).key)) keysIdx = i;
         final int ki = keysIdx;
         SelfCheck.Progress prog = new SelfCheck.Progress() {
             @Override
@@ -99,7 +99,7 @@ public final class CheckPanel {
             @Override
             public void onLightsCountdown(int seconds) {
                 for (int i = 0; i < items.size(); i++) {
-                    if (!"fari".equals(items.get(i).key) || seconds <= 0) continue;
+                    if (!"lights".equals(items.get(i).key) || seconds <= 0) continue;
                     marks[i].setText("…");
                     subs[i].setText(L.f(R.string.check_lights_on, String.valueOf(seconds)));
                 }
@@ -110,7 +110,7 @@ public final class CheckPanel {
                 summary.setText(L.f(R.string.check_summary, String.valueOf(ok), String.valueOf(fail), String.valueOf(absent)));
             }
         };
-        // se il controllo automatico sta già girando si aspetta che finisca, poi parte quello con le righe a schermo
+        // if the automatic check is already running, wait for it to finish, then start the one with on-screen rows
         Runnable start = new Runnable() {
             @Override
             public void run() {

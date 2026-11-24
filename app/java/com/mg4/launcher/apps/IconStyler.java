@@ -14,11 +14,11 @@ import java.util.HashMap;
 import java.util.Map;
 
 /**
- * Ridisegna l'icona di un'app installata nello stile del launcher:
- *  1. icona "adattiva" → si usa il livello in primo piano (il simbolo) colorato in tinta unita;
- *  2. icona con sfondo trasparente → sagoma colorata in tinta unita;
- *  3. icona piena (simbolo su sfondo colorato) → si isola il simbolo dallo sfondo;
- *  4. se nessun metodo dà un risultato pulito → icona originale desaturata e arrotondata.
+ * Redraws an installed app's icon in the launcher's style:
+ *  1. "adaptive" icon → the foreground layer (the glyph) is used, tinted in a solid color;
+ *  2. icon with transparent background → silhouette tinted in a solid color;
+ *  3. full icon (glyph on a colored background) → the glyph is isolated from the background;
+ *  4. if no method gives a clean result → original icon, desaturated and rounded.
  */
 public final class IconStyler {
     private static final int SIZE = 96;
@@ -30,7 +30,7 @@ public final class IconStyler {
         CACHE.clear();
     }
 
-    /** Restituisce una bitmap quadrata SIZE×SIZE: simbolo in {@code fg} su trasparente, oppure icona desaturata. */
+    /** Returns a square SIZE×SIZE bitmap: glyph in {@code fg} on transparent, or a desaturated icon. */
     public static synchronized Bitmap style(String key, Drawable d, int fg) {
         String k = key + "#" + Integer.toHexString(fg);
         Bitmap cached = CACHE.get(k);
@@ -40,7 +40,7 @@ public final class IconStyler {
             if (d instanceof AdaptiveIconDrawable) {
                 Drawable fgLayer = ((AdaptiveIconDrawable) d).getForeground();
                 if (fgLayer != null) {
-                    // il livello è 108dp con zona sicura di 72dp al centro: si ingrandisce di 1,5×
+                    // the layer is 108dp with a 72dp safe zone in the center: scale it up by 1.5×
                     Bitmap raw = render(fgLayer, SIZE, 1.5f);
                     out = glyphFromAlpha(raw, fg);
                     if (!isClean(out)) out = null;
@@ -92,12 +92,12 @@ public final class IconStyler {
         return Bitmap.createBitmap(px, w, h, Bitmap.Config.ARGB_8888);
     }
 
-    /** Icona piena: colore di sfondo stimato dai bordi, il simbolo è ciò che se ne discosta. */
+    /** Full icon: background color estimated from the edges, the glyph is whatever differs from it. */
     private static Bitmap glyphFromBackground(Bitmap raw, int fg) {
         int w = raw.getWidth(), h = raw.getHeight();
         int[] px = new int[w * h];
         raw.getPixels(px, 0, w, 0, 0, w, h);
-        // campiona l'anello interno (evita gli angoli arrotondati trasparenti)
+        // sample the inner ring (avoids the transparent rounded corners)
         long r = 0, g = 0, b = 0;
         int n = 0;
         int m = w / 6;
@@ -131,7 +131,7 @@ public final class IconStyler {
         return v * v;
     }
 
-    /** Un simbolo è "pulito" se copre una parte ragionevole della tessera. */
+    /** A glyph is "clean" if it covers a reasonable part of the tile. */
     private static boolean isClean(Bitmap b) {
         if (b == null) return false;
         float c = coverage(b);
@@ -154,7 +154,7 @@ public final class IconStyler {
     }
 
     public static boolean isGlyph(Bitmap b) {
-        // le icone desaturate hanno pixel di colori diversi; i simboli sono monocromatici
+        // desaturated icons have pixels of different colors; glyphs are monochrome
         return monochrome(b);
     }
 

@@ -11,23 +11,23 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Home predefinita (ACTION_MAIN + CATEGORY_HOME): la nostra o quella MG originale. replacePreferredActivity
- * richiede SET_PREFERRED_APPLICATIONS, concesso dalla firma platform. Un aggiornamento del firmware o di un'app
- * di sistema può azzerarla: per questo si riconferma a ogni avvio del launcher.
+ * Default home (ACTION_MAIN + CATEGORY_HOME): ours or the original MG one. replacePreferredActivity
+ * requires SET_PREFERRED_APPLICATIONS, granted by the platform signature. A firmware or system app update
+ * can reset it: that is why it is reconfirmed at every launcher start.
  */
 public final class HomeDefault {
     public static final ComponentName MG = new ComponentName(com.mg4.launcher.apps.MgApps.HOME_PKG, com.mg4.launcher.apps.MgApps.HOME_CLS);
 
     private HomeDefault() {}
 
-    /** Procedura di prima configurazione di Android: su alcune auto resta come home, ma non è la home MG. */
+    /** Android setup wizard: on some cars it stays as the home, but it is not the MG home. */
     public static final String PROVISION = "com.android.provision";
 
     public static boolean isProvision(String pkg) {
         return PROVISION.equals(pkg);
     }
 
-    /** Stato della prima configurazione, per il log: "user_setup_complete=0, device_provisioned=1". */
+    /** Setup wizard state, for the log: "user_setup_complete=0, device_provisioned=1". */
     public static String provisionState(Context c) {
         String usc, dp;
         try {
@@ -43,33 +43,33 @@ public final class HomeDefault {
         return "user_setup_complete=" + usc + ", device_provisioned=" + dp;
     }
 
-    /** Se la home risolta è la prima configurazione di Android, lo scrive nel log (una volta per valore). */
+    /** If the resolved home is the Android setup wizard, writes it to the log (once per value). */
     private static String noteProvision(Context c, String pkg) {
         if (!isProvision(pkg)) return "";
         String st = provisionState(c);
-        Diag.put("avvio.homePrimaConfigurazione", "la home risulta " + PROVISION + " (prima configurazione di Android, non la home MG) · " + st);
-        return " (prima configurazione di Android, non la home MG · " + st + ")";
+        Diag.put("startup.homeFirstSetup", "home resolves to " + PROVISION + " (Android first setup, not the MG home) · " + st);
+        return " (Android first setup, not the MG home · " + st + ")";
     }
 
     public static ComponentName ours(Context c) {
         return new ComponentName(c.getPackageName(), "com.mg4.launcher.MainActivity");
     }
 
-    /** Riconferma la nostra home (solo se è attiva, cioè interruttore acceso e niente officina). */
+    /** Reconfirms our home (only if active, i.e. switch on and no workshop mode). */
     public static void ensure(Context c) {
         if (!HomeMode.active(c)) {
-            Diag.put("avvio.homePredefinita", "non riconfermata (" + HomeMode.reason(c) + ")");
+            Diag.put("startup.defaultHome", "not reconfirmed (" + HomeMode.reason(c) + ")");
             return;
         }
-        Diag.put("avvio.homePredefinita", set(c, ours(c)));
+        Diag.put("startup.defaultHome", set(c, ours(c)));
     }
 
-    /** Rende predefinita la home MG originale. */
+    /** Makes the original MG home the default. */
     public static void setMg(Context c) {
-        Diag.put("avvio.homePredefinita", "MG: " + set(c, MG));
+        Diag.put("startup.defaultHome", "MG: " + set(c, MG));
     }
 
-    /** Imposta la home predefinita; restituisce "ok" (già così), "ripristinata" o "errore: …". */
+    /** Sets the default home; returns "ok" (already so), "restored" or "error: …". */
     private static String set(Context c, ComponentName target) {
         try {
             PackageManager pm = c.getPackageManager();
@@ -89,18 +89,18 @@ public final class HomeDefault {
             f.addCategory(Intent.CATEGORY_HOME);
             f.addCategory(Intent.CATEGORY_DEFAULT);
             int match = bestMatch != 0 ? bestMatch : IntentFilter.MATCH_CATEGORY_EMPTY;
-            // API nascosta in Android 9: si chiama per reflection
+            // hidden API in Android 9: called via reflection
             PackageManager.class.getMethod("replacePreferredActivity", IntentFilter.class, int.class, ComponentName[].class, ComponentName.class)
                     .invoke(pm, f, match, set.toArray(new ComponentName[0]), target);
             ResolveInfo now = pm.resolveActivity(home, PackageManager.MATCH_DEFAULT_ONLY);
             boolean ok = now != null && now.activityInfo != null && target.getPackageName().equals(now.activityInfo.packageName);
-            String nowPkg = now != null && now.activityInfo != null ? now.activityInfo.packageName : "nessuna";
-            return ok ? "ripristinata (era " + (curPkg.isEmpty() ? "nessuna" : curPkg) + noteProvision(c, curPkg) + ")"
-                    : isProvision(nowPkg) ? "non cambiata: davanti c'è " + nowPkg + noteProvision(c, nowPkg)
-                    : "errore: ancora " + nowPkg;
+            String nowPkg = now != null && now.activityInfo != null ? now.activityInfo.packageName : "none";
+            return ok ? "restored (was " + (curPkg.isEmpty() ? "none" : curPkg) + noteProvision(c, curPkg) + ")"
+                    : isProvision(nowPkg) ? "not changed: in front is " + nowPkg + noteProvision(c, nowPkg)
+                    : "error: still " + nowPkg;
         } catch (Throwable e) {
             Throwable t = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
-            return "errore: " + t;
+            return "error: " + t;
         }
     }
 }

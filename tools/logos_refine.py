@@ -1,13 +1,14 @@
 #!/usr/bin/env python3
-"""Rifinisce i pacchetti dei loghi già pronti (loghi/<CC>.zip), senza i loghi originali:
+"""Refines logo packs that are already built (loghi/<CC>.zip), without needing the original logos:
 
-  - nomi con il paese in fondo ("Virgin Radio Italy"): aggiunge l'alias senza paese (virginradio) e toglie i
-    sottocanali di quella stazione ("Virgin Radio Hard Rock", "Virgin Radio Rock 80"...);
-  - alias delle stazioni principali e RDS il cui logo ha un nome più lungo ("Radio 24" -> radio24ilsole24ore): si usa
-    il logo che inizia con quel nome (il più corto), solo per nomi di almeno 6 caratteri;
-  - aggiorna indice.json (dimensione e SHA-256) e la sezione "Stazioni FM nazionali che mancano" di riepilogo.md.
+  - names ending with the country ("Virgin Radio Italy"): adds the alias without the country (virginradio) and removes
+    that station's sub-channels ("Virgin Radio Hard Rock", "Virgin Radio Rock 80"...);
+  - aliases of major stations and RDS names whose logo has a longer name ("Radio 24" -> radio24ilsole24ore): the
+    logo starting with that name (the shortest one) is used, only for names of at least 6 characters;
+  - updates indice.json (size and SHA-256) and the "Stazioni FM nazionali che mancano" (missing national FM
+    stations) section of riepilogo.md.
 
-Uso: python3 tools/loghi_rifinisci.py loghi
+Usage: python3 tools/logos_refine.py loghi
 """
 import hashlib
 import io
@@ -18,9 +19,9 @@ import sys
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from loghi_pacchetti import norm, find_key, read_extra_alias, read_major, GENERIC  # noqa: E402
+from logos_packs import norm, find_key, read_extra_alias, read_major, GENERIC  # noqa: E402
 
-# parole del paese del pacchetto in fondo al nome (solo quelle del paese stesso: "Hotmix Spain" in Francia è un sottocanale)
+# words for the pack's country at the end of a name (only the country itself: "Hotmix Spain" in France is a sub-channel)
 COUNTRY_WORDS = {"IT": ["italy", "italia"], "GB": ["uk", "england"], "DE": ["deutschland", "germany"], "FR": ["france"],
                  "ES": ["espana", "spain"], "PL": ["polska", "poland"], "NL": ["nederland", "holland"],
                  "BE": ["belgie", "belgique", "belgium"], "CH": ["schweiz", "suisse", "svizzera", "switzerland"],
@@ -51,7 +52,7 @@ def refine(path, extra, major):
     cc = os.path.basename(path)[:2].upper()
     removed = []
 
-    # 1) nome con il paese in fondo: alias senza paese e sottocanali di quella stazione
+    # 1) name ending with the country: alias without the country, and that station's sub-channels
     for k in sorted(present, key=len):
         if k not in present:
             continue
@@ -70,7 +71,7 @@ def refine(path, extra, major):
                                 alias[a] = k
                 break
 
-    # 2) alias RDS e stazioni principali verso un logo con il nome più lungo
+    # 2) RDS aliases and major stations pointing to a logo with a longer name
     keys = set(present)
     for a, target in extra.get(cc, {}).items():
         if norm(a) in alias or norm(a) in keys:
@@ -100,15 +101,15 @@ def refine(path, extra, major):
 def main():
     d = sys.argv[1]
     here = os.path.dirname(os.path.abspath(__file__))
-    extra = read_extra_alias(os.path.join(here, "loghi_alias_extra.txt"))
-    major = read_major(os.path.join(here, "loghi_principali.txt"))
+    extra = read_extra_alias(os.path.join(here, "logos_alias_extra.txt"))
+    major = read_major(os.path.join(here, "logos_major.txt"))
     idx_path = os.path.join(d, "indice.json")
     idx = json.load(open(idx_path))
     miss_lines, rem_lines = [], []
     for p in idx["paesi"]:
         n, na, size, sha, removed, missing = refine(os.path.join(d, p["file"]), extra, major)
         if n != p["loghi"]:
-            print(p["codice"], p["loghi"], "→", n, "loghi")
+            print(p["codice"], p["loghi"], "→", n, "logos")
         p.update({"loghi": n, "alias": na, "dimensione": size, "sha256": sha})
         if missing:
             miss_lines.append("- **%s %s**: %s" % (p["codice"], p["nomi"].get("it", ""), ", ".join(missing)))
@@ -118,12 +119,13 @@ def main():
     rp = os.path.join(d, "riepilogo.md")
     if os.path.exists(rp):
         s = open(rp, encoding="utf-8").read()
+        # section headings written by logos_packs.py (kept in Italian: existing riepilogo.md files use them)
         a = s.index("## Stazioni FM nazionali che mancano")
         b = s.index("## Dettaglio di cosa è stato tolto")
         s = s[:a] + "## Stazioni FM nazionali che mancano\n\n" + "\n".join(miss_lines) + "\n\n" + s[b:]
         if rem_lines:
             s += "\n## Sottocanali tolti dopo (stazione con il paese nel nome)\n\n" + "\n".join(rem_lines) + "\n"
-        # tabella: loghi e MB dopo aggiornati
+        # table: update the logo count and MB after
         rows = {p["codice"]: p for p in idx["paesi"]}
 
         def fix(m):
@@ -134,7 +136,7 @@ def main():
             return "| %s%s | %s | %s | %d | %.2f |" % (cc, m.group(2), m.group(3), m.group(4), p["loghi"], p["dimensione"] / 1e6)
         s = re.sub(r"^\| ([A-Z]{2})( [^|]*)\| (\d+) \| ([\d.]+) \| \d+ \| [\d.]+ \|", fix, s, flags=re.M)
         open(rp, "w", encoding="utf-8").write(s)
-    print("fatto")
+    print("done")
 
 
 if __name__ == "__main__":

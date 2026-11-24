@@ -18,36 +18,36 @@ import com.mg4.launcher.svc.Diag;
 import java.io.File;
 
 /**
- * 1.0.4 (punto F): animazione di ricarica sopra l'auto disegnata.
+ * 1.0.4 (point F): charging animation over the drawn car.
  * <p>
- * Quattro fasi: aggancio (una volta) → loop "in carica" (ripetuto) → finita (una volta, l'ultimo fotogramma resta
- * fermo) → sgancio (al distacco del cavo, poi torna l'immagine ferma). Se il cavo è già inserito quando si accende lo
- * schermo si parte dal loop (o dalla fase finita). Mai in READY o con l'auto in movimento: si torna subito all'immagine
- * ferma. Foto → clip e clip → foto con dissolvenza di 0,3 s.
+ * Four phases: plug-in (once) → "charging" loop (repeated) → finished (once, the last frame stays
+ * still) → unplug (when the cable is removed, then the still image returns). If the cable is already in when the
+ * screen turns on, it starts from the loop (or the finished phase). Never in READY or with the car moving: back to the
+ * still image at once. Photo → clip and clip → photo with a 0.3 s fade.
  * <p>
- * Riproduzione (correzione 1.0.4, prova in auto del 15/11): niente più MediaPlayer su TextureView, che sull'auto
- * restava fermo sul primo fotogramma con il riquadro nero. Le clip vengono trasformate una volta sola in fotogrammi
- * JPEG ({@link ChargeFrames}); un thread li decodifica a 30 al secondo in tre bitmap che si alternano e questa vista
- * normale li disegna. Il fotogramma finale di una fase è uguale al primo della successiva, quindi il passaggio non si vede.
+ * Playback (1.0.4 fix, in-car test of 15/11): no more MediaPlayer on TextureView, which on the car
+ * stayed stuck on the first frame with a black box. The clips are converted only once into JPEG
+ * frames ({@link ChargeFrames}); a thread decodes them at 30 per second into three alternating bitmaps and this
+ * plain view draws them. The final frame of a phase equals the first of the next one, so the transition is invisible.
  * <p>
- * Posizione: la clip (1312×400) è il doppio del riquadro dell'auto nel layout di ricarica (circa 656×200); i centri
- * ruota della clip (x 358 e 973, y 288) si allineano a quelli della foto disegnata da CarView.
+ * Position: the clip (1312×400) is twice the car box in the charging layout (about 656×200); the wheel
+ * centers of the clip (x 358 and 973, y 288) align with those of the photo drawn by CarView.
  */
 public final class ChargeAnimView extends View {
-    public static final int IDLE = 0, AGGANCIO = 1, LOOP = 2, FINITA = 3, SGANCIO = 4;
+    public static final int IDLE = 0, PLUG_IN = 1, LOOP = 2, DONE = 3, UNPLUG = 4;
     private static final String[] NAMES = {"ferma", "aggancio", "loop", "finita", "sgancio"};
     private static final float CLIP_W = 1312, CLIP_H = 400, CLIP_WHEEL_X1 = 358, CLIP_WHEEL_X2 = 973, CLIP_WHEEL_Y = 288;
     private static final long FRAME_MS = 1000 / 30;
 
-    /** Dove prendere le clip: pacchetto del colore scelto oppure cartella di prova (chiavetta). */
+    /** Where to take the clips from: pack of the chosen colour or test folder (USB stick). */
     public interface Source {
         File clip(boolean day, String phase);
     }
 
     private final Handler main = new Handler(Looper.getMainLooper());
-    /** Thread di disegno con le sue tre bitmap: a ogni rilascio se ne crea uno nuovo (niente bitmap condivise). */
+    /** Drawing thread with its three bitmaps: a new one is created at every release (no shared bitmaps). */
     private static final class Player {
-        final HandlerThread thread = new HandlerThread("mg4-animazione-disegno", android.os.Process.THREAD_PRIORITY_DISPLAY);
+        final HandlerThread thread = new HandlerThread("mg4-animation-draw", android.os.Process.THREAD_PRIORITY_DISPLAY);
         final Handler h;
         final Bitmap[] buf = new Bitmap[3];
 
@@ -61,12 +61,12 @@ public final class ChargeAnimView extends View {
     private final Rect dst = new Rect();
     private final Paint paint = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.DITHER_FLAG);
     private volatile Bitmap front;
-    /** Cresce a ogni nuova sequenza: il thread smette di disegnare quelle vecchie. */
+    /** Grows at every new sequence: the thread stops drawing the old ones. */
     private volatile int gen;
 
     private int state = IDLE;
     private boolean day = true;
-    private boolean fresh = true;            // prima valutazione dopo l'accensione dello schermo
+    private boolean fresh = true;            // first evaluation after the screen turns on
     private volatile boolean finishAfterLoop;
     private Source source;
     private String reason = "";
@@ -89,19 +89,19 @@ public final class ChargeAnimView extends View {
         return NAMES[st];
     }
 
-    /** Lo schermo si è riacceso (o la home è nuova): se il cavo è già inserito si parte dal loop. */
+    /** The screen turned back on (or the home is new): if the cable is already in, start from the loop. */
     public void markFresh() {
         fresh = true;
     }
 
-    // ---- geometria: stessa foto e stessi centri ruota di CarView ------------------------------
+    // ---- geometry: same photo and same wheel centers as CarView -------------------------------
 
     @Override
     protected void onSizeChanged(int w, int h, int ow, int oh) {
         super.onSizeChanged(w, h, ow, oh);
         if (w > 0 && h > 0) {
             float s = CarView.photoScale(w, h);
-            float[] wc = CarView.wheelCenter(w, h);   // centro della ruota anteriore della foto, in px della vista
+            float[] wc = CarView.wheelCenter(w, h);   // front wheel center of the photo, in view px
             float k = s * CarView.wheelDistance() / (CLIP_WHEEL_X2 - CLIP_WHEEL_X1);
             int cw = Math.round(CLIP_W * k), ch = Math.round(CLIP_H * k);
             int cx = Math.round(wc[0] - CLIP_WHEEL_X1 * k), cy = Math.round(wc[1] - CLIP_WHEEL_Y * k);
@@ -115,15 +115,15 @@ public final class ChargeAnimView extends View {
         if (b != null && !b.isRecycled()) c.drawBitmap(b, null, dst, paint);
     }
 
-    // ---- logica delle fasi ---------------------------------------------------------------------
+    // ---- phase logic ---------------------------------------------------------------------------
 
     /**
-     * Stato dell'auto (dal thread principale, a ogni lettura del veicolo).
+     * Car state (from the main thread, at every vehicle read).
      *
-     * @param stopWhy motivo per cui l'animazione non deve girare ("" = può girare): spenta, pacchetto assente, READY...
+     * @param stopWhy reason why the animation must not run ("" = it may run): off, pack missing, READY...
      */
     public void update(Source src, boolean dayTheme, boolean plugged, boolean done, String stopWhy) {
-        if (afterTest != null) return;   // durante la prova si ignorano i segnali dell'auto
+        if (afterTest != null) return;   // during the test the car signals are ignored
         boolean themeChanged = dayTheme != day;
         day = dayTheme;
         source = src;
@@ -131,48 +131,48 @@ public final class ChargeAnimView extends View {
         lastDone = done;
         if (!stopWhy.isEmpty()) {
             reason = stopWhy;
-            // con il cavo già inserito, alla ripartenza si va dritti al loop; l'aggancio solo per un inserimento nuovo
+            // with the cable already in, on restart go straight to the loop; plug-in only for a new insertion
             fresh = plugged;
             if (!plugged) failedThisPlug = false;
             if (state != IDLE) toPhoto();
             else writeLog();
             return;
         }
-        // dopo un errore l'animazione resta ferma fino al distacco del cavo (niente tentativi a ripetizione)
+        // after an error the animation stays still until the cable is removed (no repeated attempts)
         if (!plugged) failedThisPlug = false;
         if (failedThisPlug) {
             if (state != IDLE) toPhoto();
             writeLog();
             return;
         }
-        if (preparing) return;   // fotogrammi in preparazione: si decide quando sono pronti
+        if (preparing) return;   // frames being prepared: decide when they are ready
         reason = "";
         boolean wasFresh = fresh;
         fresh = false;
         switch (state) {
             case IDLE:
                 if (!plugged) break;
-                if (wasFresh) play(done ? FINITA : LOOP);
-                else play(AGGANCIO);
+                if (wasFresh) play(done ? DONE : LOOP);
+                else play(PLUG_IN);
                 break;
-            case AGGANCIO:
-                break;   // si decide alla fine dell'aggancio
+            case PLUG_IN:
+                break;   // decided at the end of plug-in
             case LOOP:
-                if (!plugged) play(SGANCIO);
-                else if (done) finishAfterLoop = true;   // "finita" parte alla fine del giro del loop (stesso fotogramma)
+                if (!plugged) play(UNPLUG);
+                else if (done) finishAfterLoop = true;   // "finished" starts at the end of the loop round (same frame)
                 else if (themeChanged) play(LOOP);
                 break;
-            case FINITA:
-                if (!plugged) play(SGANCIO);
+            case DONE:
+                if (!plugged) play(UNPLUG);
                 else if (!done) play(LOOP);
-                else if (themeChanged) play(FINITA);
+                else if (themeChanged) play(DONE);
                 break;
-            case SGANCIO:
-                break;   // alla fine torna la foto
+            case UNPLUG:
+                break;   // at the end the photo returns
         }
     }
 
-    /** Schermo spento o launcher in secondo piano: si torna alla foto e si liberano i fotogrammi. */
+    /** Screen off or launcher in background: back to the photo and the frames are freed. */
     public void pause() {
         afterTest = null;
         fresh = true;
@@ -184,35 +184,35 @@ public final class ChargeAnimView extends View {
         release();
     }
 
-    /** Fine di una fase (dal thread di disegno, riportata sul principale). */
+    /** End of a phase (from the drawing thread, posted to the main one). */
     private void onPhaseEnd(int phase) {
         if (afterTest != null) {
             testNext(phase);
             return;
         }
         switch (phase) {
-            case AGGANCIO:
-                if (!lastPlugged) play(SGANCIO);
-                else play(lastDone ? FINITA : LOOP);
+            case PLUG_IN:
+                if (!lastPlugged) play(UNPLUG);
+                else play(lastDone ? DONE : LOOP);
                 break;
-            case LOOP:   // solo con il loop non più ripetuto: arriva la fase "finita"
+            case LOOP:   // only with the loop no longer repeated: the "finished" phase comes
                 finishAfterLoop = false;
-                if (!lastPlugged) play(SGANCIO);
-                else play(FINITA);
+                if (!lastPlugged) play(UNPLUG);
+                else play(DONE);
                 break;
-            case FINITA:
-                break;   // l'ultimo fotogramma resta fermo
-            case SGANCIO:
+            case DONE:
+                break;   // the last frame stays still
+            case UNPLUG:
                 toPhoto();
                 break;
         }
     }
 
-    // ---- prova dalle impostazioni --------------------------------------------------------------
+    // ---- test from the settings ----------------------------------------------------------------
 
     private int testLoops;
 
-    /** Prova: aggancio → loop (3 giri) → finita → sgancio, poi di nuovo la foto. */
+    /** Test: plug-in → loop (3 rounds) → finished → unplug, then the photo again. */
     public void playTest(Source src, boolean dayTheme, Runnable done) {
         release();
         source = src;
@@ -220,23 +220,23 @@ public final class ChargeAnimView extends View {
         afterTest = done;
         testLoops = 0;
         failedThisPlug = false;
-        play(AGGANCIO);
+        play(PLUG_IN);
     }
 
     private void testNext(int phase) {
         switch (phase) {
-            case AGGANCIO:
+            case PLUG_IN:
                 play(LOOP);
                 break;
             case LOOP:
-                play(FINITA);   // dopo i 3 giri del loop
+                play(DONE);   // after the 3 loop rounds
                 break;
-            case FINITA:
+            case DONE:
                 main.postDelayed(() -> {
-                    if (afterTest != null) play(SGANCIO);
+                    if (afterTest != null) play(UNPLUG);
                 }, 2000);
                 break;
-            case SGANCIO:
+            case UNPLUG:
                 Runnable r = afterTest;
                 afterTest = null;
                 toPhoto();
@@ -245,9 +245,9 @@ public final class ChargeAnimView extends View {
         }
     }
 
-    // ---- riproduzione --------------------------------------------------------------------------
+    // ---- playback ------------------------------------------------------------------------------
 
-    /** Errori di riproduzione dall'avvio (per il Controllo funzioni). */
+    /** Playback errors since start (for the Function check). */
     public static int errors;
 
     private Player ensurePlayer() {
@@ -255,21 +255,21 @@ public final class ChargeAnimView extends View {
         return player;
     }
 
-    /** Fa partire una fase. Se i fotogrammi non sono ancora pronti li prepara (una volta sola) e poi parte. */
+    /** Starts a phase. If the frames are not ready yet it prepares them (only once) and then starts. */
     private void play(int phase) {
         state = phase;
         writeLog();
         Source src = source;
         File clip = src == null ? null : src.clip(day, NAMES[phase]);
         if (clip == null) {
-            fail("clip " + NAMES[phase] + " mancante");
+            fail("clip " + NAMES[phase] + " missing");
             return;
         }
         File[] frames = ChargeFrames.frames(clip);
         if (frames == null) {
-            // prima volta con questo pacchetto: si preparano i fotogrammi di tutte le fasi del tema, poi si riprova
+            // first time with this pack: prepare the frames of all the theme's phases, then retry
             preparing = true;
-            reason = "preparazione fotogrammi";
+            reason = "preparing frames";
             writeLog();
             final boolean d = day;
             final int g = ++gen;
@@ -280,8 +280,8 @@ public final class ChargeAnimView extends View {
                 main.post(() -> {
                     preparing = false;
                     reason = "";
-                    if (g != gen) return;   // nel frattempo è cambiato tutto
-                    if (err != null) fail("fotogrammi non preparati: " + err);
+                    if (g != gen) return;   // everything changed meanwhile
+                    if (err != null) fail("frames not prepared: " + err);
                     else if (state == phase) play(phase);
                 });
             });
@@ -303,7 +303,7 @@ public final class ChargeAnimView extends View {
                 Bitmap b = decode(p, frames[i], slot);
                 if (b == null) {
                     main.post(() -> {
-                        if (g == gen) fail("fotogramma " + (i + 1) + " di " + NAMES[phase] + " non leggibile");
+                        if (g == gen) fail("frame " + (i + 1) + " of " + NAMES[phase] + " not readable");
                     });
                     return;
                 }
@@ -323,7 +323,7 @@ public final class ChargeAnimView extends View {
                 if (i >= n) {
                     if (looping) {
                         if (afterTest != null) testLoops++;
-                        i = 1;   // l'ultimo fotogramma del loop è uguale al primo: si riparte dal secondo
+                        i = 1;   // the last frame of the loop equals the first: restart from the second
                     } else {
                         main.post(() -> {
                             if (g == gen) onPhaseEnd(phase);
@@ -339,7 +339,7 @@ public final class ChargeAnimView extends View {
         });
     }
 
-    /** Decodifica un fotogramma nella bitmap dello slot (riusata: niente spazzatura a ogni fotogramma). */
+    /** Decodes a frame into the slot's bitmap (reused: no garbage at every frame). */
     private static Bitmap decode(Player p, File f, int slot) {
         try {
             BitmapFactory.Options o = new BitmapFactory.Options();
@@ -358,7 +358,7 @@ public final class ChargeAnimView extends View {
     private void fail(String why) {
         reason = why;
         errors++;
-        Diag.put("ricarica.animazione", "errore: " + why);
+        Diag.put("charge.animation", "error: " + why);
         if (afterTest == null) failedThisPlug = true;
         Runnable r = afterTest;
         afterTest = null;
@@ -366,7 +366,7 @@ public final class ChargeAnimView extends View {
         if (r != null) r.run();
     }
 
-    /** Torna all'immagine ferma (dissolvenza 0,3 s) e libera i fotogrammi. */
+    /** Back to the still image (0.3 s fade) and frees the frames. */
     private void toPhoto() {
         state = IDLE;
         finishAfterLoop = false;
@@ -383,7 +383,7 @@ public final class ChargeAnimView extends View {
         }).start();
     }
 
-    /** Libera tutto (clip non visibile). */
+    /** Frees everything (clip not visible). */
     public void release() {
         gen++;
         animate().cancel();
@@ -393,7 +393,7 @@ public final class ChargeAnimView extends View {
         Player p = player;
         player = null;
         if (p != null) {
-            // le bitmap si liberano sul loro thread, dopo l'eventuale fotogramma in corso; il thread poi si chiude
+            // the bitmaps are freed on their thread, after any frame in progress; the thread then exits
             p.h.post(() -> {
                 for (int i = 0; i < p.buf.length; i++) {
                     if (p.buf[i] != null) p.buf[i].recycle();
@@ -416,13 +416,13 @@ public final class ChargeAnimView extends View {
     private String lastLog = "";
 
     private void writeLog() {
-        String txt = "fase " + NAMES[state] + (reason.isEmpty() ? "" : " · " + reason) + (afterTest != null ? " · prova" : "");
+        String txt = "phase " + NAMES[state] + (reason.isEmpty() ? "" : " · " + reason) + (afterTest != null ? " · test" : "");
         if (!txt.equals(lastLog)) {
             lastLog = txt;
             phaseTxt = txt;
         }
     }
 
-    /** Testo della fase per il log (lo compone HomeView con il resto). */
-    public static volatile String phaseTxt = "fase ferma";
+    /** Phase text for the log (HomeView composes it with the rest). */
+    public static volatile String phaseTxt = "phase ferma";
 }

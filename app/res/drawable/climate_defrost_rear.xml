@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- MG4 Clima · sbrinamento del lunotto · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<!-- MG4 Clima · rear window defrost · ISO 2575-style symbol, white: colour comes from the tint (on / off / unavailable) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
     <path android:strokeColor="#FFFFFFFF" android:strokeWidth="3.4" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M9,8 H39 Q43,8 43,12 V36 Q43,40 39,40 H9 Q5,40 5,36 V12 Q5,8 9,8 Z"/>

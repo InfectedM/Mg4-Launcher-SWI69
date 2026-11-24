@@ -1,8 +1,8 @@
 package com.mg4.launcher.apps;
 
 /**
- * App MG del software SWI69 (EH32 Color Radio): pacchetti e schermate principali,
- * presi dai manifest del firmware SWI69-29958-1100R45.
+ * MG apps of the SWI69 software (EH32 Color Radio): packages and main screens,
+ * taken from the manifests of firmware SWI69-29958-1100R45.
  */
 public final class MgApps {
     private MgApps() {}
@@ -28,7 +28,7 @@ public final class MgApps {
     public static final String VEHICLE_PKG = "com.saicmotor.vehiclesetting";
     public static final String VEHICLE_CLS = "com.saicmotor.vehiclesetting.ui.VehicleSettingActivity";
 
-    /** App Energia (ricarica, scarica V2L, consumi): non ha collegamenti diretti alle schede. */
+    /** Energy app (charging, V2L discharge, consumption): has no direct links to its tabs. */
     public static final String ENERGY_PKG = "com.saicmotor.saicev";
     public static final String ENERGY_CLS = "com.saicmotor.saicev.activity.MainActivity";
 

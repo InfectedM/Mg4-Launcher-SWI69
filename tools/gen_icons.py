@@ -1,6 +1,6 @@
-"""Genera le icone vettoriali (VectorDrawable) del launcher in app/res/drawable.
+"""Generates the launcher's vector icons (VectorDrawable) in app/res/drawable.
 
-Icone lineari 24x24 in stile "Tesla": tratto 1.8, bianco, colorate a runtime con setColorFilter.
+24x24 line icons in "Tesla" style: 1.8 stroke, white, tinted at runtime with setColorFilter.
 """
 import os
 import sys
@@ -70,4 +70,4 @@ for name, d in STROKE.items():
     open(os.path.join(OUT, "ic_" + name + ".xml"), "w").write(TEMPLATE.format(d=d, paint=paint))
 for name, d in FILL.items():
     open(os.path.join(OUT, "ic_" + name + ".xml"), "w").write(TEMPLATE.format(d=d, paint='android:fillColor="#FFFFFFFF"'))
-print(len(STROKE) + len(FILL), "icone in", OUT)
+print(len(STROKE) + len(FILL), "icons in", OUT)

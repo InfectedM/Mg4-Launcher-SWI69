@@ -22,7 +22,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/** Griglia di tutte le app: sezione "Auto" (icone disegnate) e "Installate da te" (icone ridisegnate in automatico). */
+/** Grid of all apps: "Auto" section (drawn icons) and "Installate da te" section (icons redrawn automatically). */
 public final class AppsView extends LinearLayout {
     private static final int COLUMNS = 9;
 
@@ -33,7 +33,7 @@ public final class AppsView extends LinearLayout {
 
         String navPackageHint();
 
-        /** Contenitore per le finestre di conferma (1.0.4). */
+        /** Container for the confirmation dialogs (1.0.4). */
         FrameLayout overlayRoot();
     }
 
@@ -41,7 +41,7 @@ public final class AppsView extends LinearLayout {
     private final AppCatalog catalog;
     private final Host host;
     private final Prefs prefs;
-    private final float k;   // scala della schermata App (dimensioneApp)
+    private final float k;   // scale of the Apps screen (dimensioneApp)
     private final LinearLayout content;
     private final TextView editBtn;
     private boolean editing;
@@ -61,7 +61,7 @@ public final class AppsView extends LinearLayout {
 
         LinearLayout head = Ui.row(c);
         head.setPadding(dp(8), dp(4), dp(8), dp(4));
-        // si torna alla home scorrendo verso destra (o con il tasto Home)
+        // swipe right (or press the Home key) to go back to the home
         head.addView(Ui.text(c, L.s(R.string.apps_title), 32, t.text, Ui.MEDIUM), Ui.margins(Ui.lp(-2, -2), dp(12), 0, 0, 0));
         head.addView(Ui.spacer(c));
         editBtn = Ui.text(c, L.s(R.string.edit), 19, t.text, Ui.MEDIUM);
@@ -94,7 +94,7 @@ public final class AppsView extends LinearLayout {
         reload();
     }
 
-    /** App della telecamera 360: originale (EVS / AVM / around view) o un'app con "360" nel nome o nel pacchetto. */
+    /** 360 camera app: the original one (EVS / AVM / around view) or an app with "360" in its name or package. */
     static boolean isCamera360(AppCatalog.App a) {
         String p = a.packageName == null ? "" : a.packageName.toLowerCase(java.util.Locale.ROOT);
         String l = a.label == null ? "" : a.label;
@@ -109,18 +109,18 @@ public final class AppsView extends LinearLayout {
         return Ui.dp(getContext(), v);
     }
 
-    /** Ricarica l'elenco (chiamato anche quando si installa o si rimuove un'app). */
+    /** Reloads the list (also called when an app is installed or removed). */
     public void reload() {
         Context c = getContext();
         content.removeAllViews();
         Set<String> hidden = prefs.hiddenApps();
         String note = editing ? L.s(R.string.edit_note) : null;
-        // 0.9.5: anche le app dell'auto si possono nascondere in Modifica (stesso elenco delle app nascoste)
+        // 0.9.5: car apps can also be hidden in Edit mode (same list as the hidden apps)
         List<AppCatalog.App> car = new ArrayList<>();
         for (AppCatalog.App a : catalog.carApps(host.navPackageHint())) {
             if (editing || !hidden.contains(key(a))) car.add(a);
         }
-        // atalho fixo para as definições do launcher (o mesmo menu da pressão longa sobre o carro), sempre o primeiro
+        // fixed shortcut to the launcher settings (the same menu as a long press on the car), always first
         List<View> carTiles = new ArrayList<>();
         carTiles.add(settingsTile(c));
         for (AppCatalog.App a : car) carTiles.add(tile(c, a, hidden));
@@ -150,7 +150,7 @@ public final class AppsView extends LinearLayout {
         return r;
     }
 
-    /** editable: elenco delle app nascoste; in modalità Modifica ogni app (dell'auto o installata) si può nascondere. */
+    /** editable: list of hidden apps; in Edit mode every app (car or installed) can be hidden. */
     private void addGrid(Context c, List<View> tiles) {
         LinearLayout row = null;
         for (int i = 0; i < tiles.size(); i++) {
@@ -165,7 +165,7 @@ public final class AppsView extends LinearLayout {
         }
     }
 
-    /** Atalho "Definições do launcher": abre o mesmo menu da pressão longa sobre o carro. Não se pode esconder em Editar. */
+    /** "Launcher settings" shortcut: opens the same menu as a long press on the car. Cannot be hidden in Edit mode. */
     private View settingsTile(Context c) {
         LinearLayout col = Ui.column(c);
         col.setGravity(Gravity.CENTER);
@@ -192,7 +192,7 @@ public final class AppsView extends LinearLayout {
         return col;
     }
 
-    /** App della telecamera 360: quella originale e MG4 360 (com.mg4.* con "360" nel nome o nell'etichetta). */
+    /** 360 camera app: the original one and MG4 360 (com.mg4.* with "360" in its name or label). */
     private static boolean is360(AppCatalog.App app) {
         String p = app.packageName == null ? "" : app.packageName;
         if (Cam360.ORIG_PKG.equals(p)) return true;
@@ -225,13 +225,13 @@ public final class AppsView extends LinearLayout {
                 reload();
             });
         } else if (editing) {
-            col.setAlpha(0.3f);   // le app dell'auto restano sempre
+            col.setAlpha(0.3f);   // car apps always stay
             col.setClickable(false);
         } else {
             col.setOnClickListener(v -> {
                 if (catalog.launch(app)) host.closeApps();
             });
-            // 1.0.4 (issue #26): pressione lunga → Disinstalla, solo per le app installate dall'utente
+            // 1.0.4 (issue #26): long press → Uninstall, only for apps installed by the user
             if (com.mg4.launcher.svc.AppUninstall.allowed(c, app.packageName)) {
                 col.setOnLongClickListener(v -> {
                     askUninstall(app);
@@ -247,7 +247,7 @@ public final class AppsView extends LinearLayout {
         ImageView iv = new ImageView(c);
         iv.setScaleType(ImageView.ScaleType.FIT_CENTER);
         if (isCamera360(app)) {
-            // 0.4.2 (punto 8c): ogni app della telecamera 360 ha la scritta "360°", grande e leggibile (non si confonde con Video USB)
+            // 0.4.2 (point 8c): every 360 camera app gets the "360°" label, large and readable (not confused with USB Video)
             TextView tv = Ui.text(c, "360°", 23 * k, fg, Ui.BOLD);
             tv.setGravity(Gravity.CENTER);
             box.addView(tv, new FrameLayout.LayoutParams(-1, -1, Gravity.CENTER));
@@ -257,7 +257,7 @@ public final class AppsView extends LinearLayout {
             box.addView(iv, new FrameLayout.LayoutParams(dp(34 * k), dp(34 * k), Gravity.CENTER));
         } else {
             box.addView(iv, new FrameLayout.LayoutParams(dp(40 * k), dp(40 * k), Gravity.CENTER));
-            // icona ridisegnata in background (può richiedere qualche millisecondo per app)
+            // icon redrawn in the background (may take a few milliseconds per app)
             new Thread(() -> {
                 Drawable d = catalog.originalIcon(app);
                 Bitmap b = IconStyler.style(app.packageName + "/" + app.label, d, fg);
@@ -272,7 +272,7 @@ public final class AppsView extends LinearLayout {
             }, "mg4-icon").start();
         }
         if (edit) {
-            // segno in alto a destra: ✓ visibile, × nascosta
+            // mark in the top right: ✓ visible, × hidden
             FrameLayout badge = new FrameLayout(c);
             badge.setBackground(Ui.round(isHidden ? t.track : t.accent, dp(14)));
             ImageView bi = Ui.icon(c, isHidden ? R.drawable.ic_close : R.drawable.ic_check, isHidden ? t.text : t.onAccent, 18);

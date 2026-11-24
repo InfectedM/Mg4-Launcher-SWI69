@@ -8,37 +8,37 @@ import java.io.FileOutputStream;
 import java.util.List;
 
 /**
- * 1.0.4: fotogrammi delle clip di ricarica, estratti una volta sola dagli MP4 e salvati come JPEG accanto alle clip
- * (cartella "fotogrammi/&lt;nome clip&gt;/0001.jpg…", più il file "pronto" con il numero di fotogrammi).
+ * 1.0.4: frames of the charging clips, extracted only once from the MP4s and saved as JPEGs next to the clips
+ * (folder "fotogrammi/&lt;clip name&gt;/0001.jpg…", plus the "pronto" file with the number of frames).
  * <p>
- * Perché: sull'auto la riproduzione con MediaPlayer su TextureView restava ferma sul primo fotogramma (schermo nero,
- * fase "aggancio" bloccata, log del 15/11). Con i fotogrammi già pronti l'animazione è disegnata da una vista
- * normale, senza decoder video a schermo: niente superfici nere e gli errori si vedono nel log.
+ * Why: in the car, playback with MediaPlayer on a TextureView stayed stuck on the first frame (black screen,
+ * "aggancio" phase stuck, log of 15/11). With the frames ready in advance the animation is drawn by a normal
+ * view, with no video decoder on screen: no black surfaces, and errors show up in the log.
  * <p>
- * L'estrazione usa MediaMetadataRetriever (lo stesso delle miniature della galleria) a blocchi di 8 fotogrammi, in un
- * thread di lavoro. Circa 290 fotogrammi per tema, ~18–20 MB in tutto per un colore. Log "ricarica.fotogrammi".
+ * Extraction uses MediaMetadataRetriever (the same one as the gallery thumbnails) in chunks of 8 frames, on a
+ * worker thread. About 290 frames per theme, ~18–20 MB in total for one color. Log "ricarica.fotogrammi".
  * <p>
- * Fork: i fotogrammi si salvano ridotti a {@link #SCALE} (1312×400 → 902×275). Sull'auto la clip si disegna al massimo a
- * ~898×274 (pannello di 720 dp, densità 160), quindi l'aspetto non cambia; in riproduzione i 3 buffer ARGB passano da
- * ~6 MB a ~2,8 MB e la decodifica JPEG a 30 fps si dimezza. Nuova cartella "fotogrammi2": quella vecchia (fotogrammi a
- * grandezza piena, 25–30 MB) si cancella da sola alla prima preparazione.
+ * Fork: frames are saved scaled down to {@link #SCALE} (1312×400 → 902×275). In the car the clip is drawn at most at
+ * ~898×274 (720 dp panel, density 160), so the look does not change; during playback the 3 ARGB buffers go from
+ * ~6 MB to ~2.8 MB and JPEG decoding at 30 fps is halved. New folder "fotogrammi2": the old one (full-size frames,
+ * 25–30 MB) is deleted automatically on the first preparation.
  */
 public final class ChargeFrames {
     private static final String DONE = "pronto", DIR = "fotogrammi2", OLD_DIR = "fotogrammi";
-    /** 1312×400 → 902×275: proporzione esatta (anche l'altezza resta intera). */
+    /** 1312×400 → 902×275: exact ratio (the height also stays an integer). */
     private static final float SCALE = 0.6875f;
     private static final int CHUNK = 8, JPEG_Q = 88;
 
     private ChargeFrames() {}
 
-    /** Cartella dei fotogrammi di una clip. */
+    /** Frames folder of a clip. */
     public static File dir(File clip) {
         String n = clip.getName();
         int dot = n.lastIndexOf('.');
         return new File(new File(clip.getParentFile(), DIR), dot > 0 ? n.substring(0, dot) : n);
     }
 
-    /** Fotogrammi pronti della clip (in ordine), oppure null se non ancora estratti. */
+    /** Ready frames of the clip (in order), or null if not extracted yet. */
     public static File[] frames(File clip) {
         if (clip == null) return null;
         File d = dir(clip);
@@ -59,7 +59,7 @@ public final class ChargeFrames {
         return out;
     }
 
-    /** true se tutte le clip della lista hanno i fotogrammi pronti. */
+    /** true if all clips in the list have their frames ready. */
     public static boolean ready(File... clips) {
         for (File c : clips) if (c != null && frames(c) == null) return false;
         return true;
@@ -68,8 +68,8 @@ public final class ChargeFrames {
     private static final Object LOCK = new Object();
 
     /**
-     * Estrae i fotogrammi delle clip che non li hanno ancora. Da un thread di lavoro (blocca). Restituisce null se tutto
-     * è andato bene, altrimenti il motivo.
+     * Extracts the frames of the clips that do not have them yet. From a worker thread (blocking). Returns null if
+     * everything went fine, otherwise the reason.
      */
     public static String build(File... clips) {
         synchronized (LOCK) {
@@ -77,19 +77,19 @@ public final class ChargeFrames {
             int total = 0, made = 0;
             for (File c : clips) {
                 if (c == null) continue;
-                File old = new File(c.getParentFile(), OLD_DIR);   // fork: fotogrammi vecchi a grandezza piena
+                File old = new File(c.getParentFile(), OLD_DIR);   // fork: old full-size frames
                 if (old.isDirectory()) ChargePack.deleteTree(old);
                 if (frames(c) != null) continue;
                 String err = buildOne(c);
                 if (err != null) {
-                    Diag.put("ricarica.fotogrammi", "errore " + c.getName() + ": " + err);
+                    Diag.put("charge.frames", "error " + c.getName() + ": " + err);
                     return err;
                 }
                 made++;
                 File[] f = frames(c);
                 total += f == null ? 0 : f.length;
             }
-            if (made > 0) Diag.put("ricarica.fotogrammi", "pronti: " + made + " clip, " + total + " fotogrammi in "
+            if (made > 0) Diag.put("charge.frames", "ready: " + made + " clip, " + total + " frames in "
                     + (android.os.SystemClock.elapsedRealtime() - t0) / 1000 + " s · " + lastNote);
             return null;
         }
@@ -98,7 +98,7 @@ public final class ChargeFrames {
     private static String buildOne(File clip) {
         File d = dir(clip);
         ChargePack.deleteTree(d);
-        if (!d.mkdirs() && !d.isDirectory()) return "cartella non creata";
+        if (!d.mkdirs() && !d.isDirectory()) return "folder not created";
         MediaMetadataRetriever r = new MediaMetadataRetriever();
         try {
             r.setDataSource(clip.getAbsolutePath());
@@ -107,10 +107,10 @@ public final class ChargeFrames {
                 long ms = parse(r.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION));
                 n = (int) Math.round(ms * 30 / 1000.0);
             }
-            if (n <= 0) return "numero di fotogrammi sconosciuto";
+            if (n <= 0) return "unknown frame count";
             int written = 0, missing = 0;
             String chunkErr = null;
-            boolean chunks = true;   // getFramesAtIndex: se fallisce una volta non si riprova
+            boolean chunks = true;   // getFramesAtIndex: if it fails once, it is not retried
             File prev = null;
             for (int i = 0; i < n; i += CHUNK) {
                 int cnt = Math.min(CHUNK, n - i);
@@ -130,7 +130,7 @@ public final class ChargeFrames {
                 for (int j = 0; j < cnt; j++) {
                     int idx = i + j;
                     Bitmap b = list != null ? list.get(j) : null;
-                    if (b == null) {   // un fotogramma alla volta: per indice, poi per tempo (a metà del fotogramma)
+                    if (b == null) {   // one frame at a time: by index, then by time (in the middle of the frame)
                         try {
                             b = r.getFrameAtIndex(idx);
                         } catch (Throwable ignored) {
@@ -145,15 +145,15 @@ public final class ChargeFrames {
                     written++;
                     File out = new File(d, String.format(java.util.Locale.ROOT, "%04d.jpg", written));
                     if (b == null) {
-                        // fotogramma illeggibile (succede verso la fine delle clip): si ripete il precedente
+                        // unreadable frame (happens near the end of the clips): repeat the previous one
                         missing++;
-                        if (prev == null || !copy(prev, out)) return "fotogramma " + written + " non letto";
+                        if (prev == null || !copy(prev, out)) return "frame " + written + " not read";
                         continue;
                     }
                     int tw = Math.round(b.getWidth() * SCALE), th = Math.round(b.getHeight() * SCALE);
                     Bitmap sb = tw > 0 && th > 0 && tw < b.getWidth() ? Bitmap.createScaledBitmap(b, tw, th, true) : b;
                     try (FileOutputStream fo = new FileOutputStream(out)) {
-                        if (!sb.compress(Bitmap.CompressFormat.JPEG, JPEG_Q, fo)) return "fotogramma " + written + " non salvato";
+                        if (!sb.compress(Bitmap.CompressFormat.JPEG, JPEG_Q, fo)) return "frame " + written + " not saved";
                     } finally {
                         if (sb != b) sb.recycle();
                         b.recycle();
@@ -161,10 +161,10 @@ public final class ChargeFrames {
                     prev = out;
                 }
             }
-            if (missing * 10 > n) return missing + " fotogrammi su " + n + " non letti";
-            lastNote = (chunks ? "a blocchi" : "uno alla volta" + (chunkErr != null ? " (blocchi: " + chunkErr + ")" : ""))
-                    + (missing > 0 ? ", " + missing + " ripetuti" : "");
-            if (written <= 0) return "nessun fotogramma";
+            if (missing * 10 > n) return missing + " frames of " + n + " not read";
+            lastNote = (chunks ? "in chunks" : "one at a time" + (chunkErr != null ? " (chunks: " + chunkErr + ")" : ""))
+                    + (missing > 0 ? ", " + missing + " repeated" : "");
+            if (written <= 0) return "no frames";
             try (FileOutputStream fo = new FileOutputStream(new File(d, DONE))) {
                 fo.write(String.valueOf(written).getBytes());
             }

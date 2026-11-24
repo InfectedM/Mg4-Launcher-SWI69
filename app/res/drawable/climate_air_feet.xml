@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- MG4 Clima · aria ai piedi · simbolo in stile ISO 2575, bianco: il colore lo dà il tint (acceso / spento / non disponibile) -->
+<!-- MG4 Clima · air to feet · ISO 2575-style symbol, white: colour comes from the tint (on / off / unavailable) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp" android:height="48dp" android:viewportWidth="48" android:viewportHeight="48">
     <path android:fillColor="#FFFFFFFF" android:pathData="M31,4.4 a4.6,4.6 0 1,0 0.01,0 Z"/>

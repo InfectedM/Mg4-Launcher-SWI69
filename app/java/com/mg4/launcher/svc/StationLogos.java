@@ -29,19 +29,19 @@ import java.util.Map;
 import java.util.Set;
 
 /**
- * Loghi delle stazioni radio. Si cerca, in quest'ordine:
+ * Radio station logos. Looked up in this order:
  * <ol>
- *   <li>cartella dell'utente {@code MG4Launcher/loghi/NOME.png} (memoria interna o chiavetta USB): ha la priorità;</li>
- *   <li>pacchetti dei paesi scaricati (LogoPacks, con i nomi alternativi RDS/DAB): funzionano senza internet;</li>
- *   <li>loghi già salvati nella memoria dell'app (trasmessi dalla stazione DAB o scaricati in passato);</li>
- *   <li>solo con la rete: ricerca per nome su radio-browser.info, poi salvato in modo permanente.</li>
+ *   <li>user folder {@code MG4Launcher/loghi/NAME.png} (internal storage or USB stick): takes priority;</li>
+ *   <li>downloaded country packs (LogoPacks, with the alternative RDS/DAB names): work without internet;</li>
+ *   <li>logos already saved in the app's storage (broadcast by the DAB station or downloaded in the past);</li>
+ *   <li>only with network: search by name on radio-browser.info, then saved permanently.</li>
  * </ol>
- * NOME è il nome della stazione normalizzato: minuscole, solo lettere e cifre (es. "RTL 102.5" → rtl1025.png).
- * Senza rete i tentativi si fermano (pausa crescente fino a 30 minuti) e i loghi non trovati si ricordano per 3 giorni.
+ * NAME is the normalized station name: lowercase, letters and digits only (e.g. "RTL 102.5" → rtl1025.png).
+ * Without network the attempts stop (increasing pause up to 30 minutes) and logos not found are remembered for 3 days.
  */
 public final class StationLogos {
-    private static final long RETRY_MS = 3L * 24 * 3600 * 1000;   // nuovo tentativo dopo 3 giorni se non trovato
-    private static final long USER_SCAN_MS = 60_000;               // la cartella dell'utente si rilegge ogni minuto
+    private static final long RETRY_MS = 3L * 24 * 3600 * 1000;   // retry after 3 days if not found
+    private static final long USER_SCAN_MS = 60_000;               // the user folder is re-read every minute
     private static final long OFFLINE_MIN_MS = 2 * 60_000L, OFFLINE_MAX_MS = 30 * 60_000L;
     private static final String API = "https://de1.api.radio-browser.info/json/stations/search";
     public static final String USER_FOLDER = "MG4Launcher/loghi";
@@ -49,9 +49,9 @@ public final class StationLogos {
     private final Context ctx;
     private final File dir;
     /**
-     * Fork: duas caches com limite em bytes (antes: um HashMap sem limite com tudo a 192×192, ~144 KB por logótipo, nunca
-     * libertado). "full" = 192 px, só para a estação em onda; "thumbs" = 96 px para as listas e os favoritos, que se
-     * mostram a 40–60 px. Ficam também com {@link #FULL} e {@link #THUMB} os tamanhos usados na descodificação.
+     * Fork: two byte-limited caches (before: an unbounded HashMap with everything at 192×192, ~144 KB per logo, never
+     * freed). "full" = 192 px, only for the station on air; "thumbs" = 96 px for the lists and favorites, which are
+     * shown at 40–60 px. {@link #FULL} and {@link #THUMB} also hold the sizes used when decoding.
      */
     private static final int FULL = 192, THUMB = 96;
     private final android.util.LruCache<String, Bitmap> full = new android.util.LruCache<String, Bitmap>(1536 * 1024) {
@@ -66,7 +66,7 @@ public final class StationLogos {
             return b.getByteCount();
         }
     };
-    private final Map<String, Long> missUntil = new HashMap<>();   // chiavi senza logo: non si ricontrolla il disco per 30 s
+    private final Map<String, Long> missUntil = new HashMap<>();   // keys without a logo: the disk is not rechecked for 30 s
     private final Set<String> pending = new HashSet<>();
     private final Set<String> savedThisSession = new HashSet<>();
     private final HandlerThread thread = new HandlerThread("mg4-logos");
@@ -74,7 +74,7 @@ public final class StationLogos {
     private volatile Runnable onUpdate;
 
     private final LogoPacks packs;
-    /** Nomi delle stazioni viste, con e senza logo (per la diagnostica: i nomi RDS da aggiungere agli alias). */
+    /** Names of the stations seen, with and without a logo (for diagnostics: the RDS names to add to the aliases). */
     private final Set<String> seenWith = new java.util.TreeSet<>(), seenWithout = new java.util.TreeSet<>();
     private volatile Map<String, File> user = new HashMap<>();
     private long userScanAt;
@@ -111,7 +111,7 @@ public final class StationLogos {
         return n.isEmpty() ? "fm_" + khz : "fm_" + n;
     }
 
-    /** Nome normalizzato per i file dei loghi: minuscole, solo lettere e cifre. */
+    /** Normalized name for the logo files: lowercase, letters and digits only. */
     public static String norm(String s) {
         if (s == null) return "";
         String n = java.text.Normalizer.normalize(s, java.text.Normalizer.Form.NFD).replaceAll("\\p{M}", "");
@@ -122,30 +122,30 @@ public final class StationLogos {
         return s == null ? "" : s.replaceAll("\\s+", " ").trim();
     }
 
-    // ---- cartella dell'utente --------------------------------------------------------------
+    // ---- user folder -----------------------------------------------------------------------
 
     /**
-     * Lettura della memoria e delle chiavette (cartella MG4Launcher/loghi): il permesso si concede da solo grazie alla
-     * firma platform (GRANT_RUNTIME_PERMISSIONS). Se non riesce resta la cartella dell'app, che non lo richiede.
+     * Reading internal storage and USB sticks (MG4Launcher/loghi folder): the permission is self-granted thanks to the
+     * platform signature (GRANT_RUNTIME_PERMISSIONS). If that fails, the app's own folder remains, which does not need it.
      */
     private void grantStorage() {
         String perm = android.Manifest.permission.READ_EXTERNAL_STORAGE;
         if (ctx.checkSelfPermission(perm) == android.content.pm.PackageManager.PERMISSION_GRANTED) {
-            Diag.put("loghi.permessoMemoria", "concesso");
+            Diag.put("logos.storagePermission", "granted");
             return;
         }
         try {
             android.content.pm.PackageManager pm = ctx.getPackageManager();
             pm.getClass().getMethod("grantRuntimePermission", String.class, String.class, android.os.UserHandle.class)
                     .invoke(pm, ctx.getPackageName(), perm, android.os.Process.myUserHandle());
-            Diag.put("loghi.permessoMemoria", "concesso ora");
+            Diag.put("logos.storagePermission", "granted now");
         } catch (Throwable e) {
             Throwable c = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
-            Diag.put("loghi.permessoMemoria", "non concesso (" + c.getClass().getSimpleName() + "): solo la cartella dell'app");
+            Diag.put("logos.storagePermission", "not granted (" + c.getClass().getSimpleName() + "): app folder only");
         }
     }
 
-    /** Cartelle MG4Launcher/loghi: memoria interna, chiavette USB e cartella dell'app (questa senza permessi). */
+    /** MG4Launcher/loghi folders: internal storage, USB sticks and the app's folder (the latter needs no permissions). */
     private List<File> userDirs() {
         List<File> out = new ArrayList<>();
         out.add(new File(Environment.getExternalStorageDirectory(), USER_FOLDER));
@@ -181,7 +181,7 @@ public final class StationLogos {
         }
         boolean changed = !found.keySet().equals(user.keySet());
         user = found;
-        Diag.put("loghi.utente", found.isEmpty() ? "nessuno (cartella " + USER_FOLDER + ")" : found.size() + " in " + where);
+        Diag.put("logos.user", found.isEmpty() ? "none (folder " + USER_FOLDER + ")" : found.size() + " in " + where);
         if (changed) {
             synchronized (this) {
                 full.evictAll();
@@ -203,7 +203,7 @@ public final class StationLogos {
         if (nm.length() < 2 || nm.matches("[0-9.,\\s]+( FM| MHz)?")) return;
         boolean changed = has ? seenWith.add(nm) | seenWithout.remove(nm) : !seenWith.contains(nm) && seenWithout.add(nm);
         if (!changed) return;
-        Diag.put("loghi.stazioni", seenWith.size() + " con logo, " + seenWithout.size() + " senza");
+        Diag.put("logos.stations", seenWith.size() + " with logo, " + seenWithout.size() + " without");
         StringBuilder sb = new StringBuilder();
         for (String s : seenWithout) {
             if (sb.length() > 600) {
@@ -212,12 +212,12 @@ public final class StationLogos {
             }
             sb.append(sb.length() == 0 ? "" : " | ").append(s);
         }
-        Diag.put("loghi.senzaLogo", sb.length() == 0 ? "nessuna" : sb.toString());
+        Diag.put("logos.noLogo", sb.length() == 0 ? "none" : sb.toString());
     }
 
     /**
-     * Descodifica já reduzido: lê primeiro as dimensões e usa inSampleSize, para uma imagem grande (pasta do utilizador)
-     * nunca ser descodificada inteira; depois reduz ao tamanho pedido.
+     * Decodes already downscaled: reads the dimensions first and uses inSampleSize, so a large image (user folder)
+     * is never decoded in full; then scales down to the requested size.
      */
     private static Bitmap decode(File f, int target) {
         try {
@@ -234,16 +234,16 @@ public final class StationLogos {
         }
     }
 
-    /** Maior potência de 2 que deixa o lado maior descodificado ainda ≥ target. */
+    /** Largest power of 2 that still leaves the decoded longer side ≥ target. */
     private static int sample(int w, int h, int target) {
         int s = 1;
         while (Math.max(w, h) / (s * 2) >= target) s *= 2;
         return s;
     }
 
-    // ---- ricerca ---------------------------------------------------------------------------
+    // ---- lookup ----------------------------------------------------------------------------
 
-    /** Logo della stazione (cartella utente, pacchetto integrato, memoria); se manca avvia il download quando c'è rete. */
+    /** Station logo (user folder, built-in pack, storage); if missing, starts the download when there is network. */
     public synchronized Bitmap get(String key, String name) {
         maybeScanUser();
         Bitmap b = full.get(key);
@@ -254,8 +254,8 @@ public final class StationLogos {
     }
 
     /**
-     * Fork: miniatura (96 px) para as listas e os favoritos. Vem da cache das miniaturas, da reduzida do logótipo completo
-     * já em memória ou, se não houver, do disco/pacote descodificado já a 96 px (com a mesma lógica de get()).
+     * Fork: thumbnail (96 px) for the lists and favorites. Comes from the thumbnail cache, from a downscale of the full logo
+     * already in memory or, if there is none, from disk/pack decoded directly at 96 px (with the same logic as get()).
      */
     public synchronized Bitmap getThumb(String key, String name) {
         maybeScanUser();
@@ -267,7 +267,7 @@ public final class StationLogos {
         return b;
     }
 
-    /** A pasta do utilizador relê-se a cada minuto, também quando os logótipos já estão em cache (como antes). */
+    /** The user folder is re-read every minute, even when the logos are already cached (as before). */
     private void maybeScanUser() {
         long now = SystemClock.uptimeMillis();
         if (now - userScanAt > USER_SCAN_MS) {
@@ -276,7 +276,7 @@ public final class StationLogos {
         }
     }
 
-    /** Procura o logótipo (pasta do utilizador, pacotes, disco) já no tamanho pedido; se não há, agenda a pesquisa na rede. */
+    /** Looks up the logo (user folder, packs, disk) at the requested size; if none, schedules the network search. */
     private Bitmap resolve(String key, String name, int target) {
         long now = SystemClock.uptimeMillis();
         Long miss = missUntil.get(key);
@@ -291,7 +291,7 @@ public final class StationLogos {
         if (b == null && !n.isEmpty() && !n.equals(k)) b = packLogo(n, target);
         if (b == null) {
             File f = new File(dir, key + ".png");
-            if (f.exists()) b = decode(f, target);   // fork: os PNG guardados (arte DAB) também reduzidos
+            if (f.exists()) b = decode(f, target);   // fork: the saved PNGs (DAB art) are downscaled too
         }
         seen(name, b != null);
         if (b != null) return b;
@@ -305,13 +305,13 @@ public final class StationLogos {
         return null;
     }
 
-    /** Logo ricevuto dalla stazione DAB: salvato in modo permanente (se l'utente non ne ha messo uno suo). */
+    /** Logo received from the DAB station: saved permanently (unless the user has put in their own). */
     public synchronized void put(String key, Bitmap b) {
         if (b == null || b.getWidth() < 8) return;
-        // fork: guarda-se uma cópia reduzida a 192 px (a arte DAB chega a ~320×240). NUNCA recycle de b: é o bitmap da
-        // MediaMetadata e continua a ser mostrado como logótipo da estação em onda.
+        // fork: a copy downscaled to 192 px is stored (DAB art arrives at ~320×240). NEVER recycle b: it is the
+        // MediaMetadata bitmap and is still shown as the logo of the station on air.
         boolean need = full.get(key) == null;
-        boolean save = savedThisSession.add(key);   // salvato su disco una volta per avvio
+        boolean save = savedThisSession.add(key);   // saved to disk once per launch
         missUntil.remove(key);
         if (!need && !save) return;
         Bitmap small = scaleTo(b, FULL);
@@ -325,7 +325,7 @@ public final class StationLogos {
             //noinspection ResultOfMethodCallIgnored
             new File(dir, key + ".none").delete();
         } catch (Exception e) {
-            Diag.error("loghi.salva", e.toString());
+            Diag.error("logos.save", e.toString());
         }
     }
 
@@ -343,8 +343,8 @@ public final class StationLogos {
     private void lookup(String key, String name) {
         Bitmap found = null;
         try {
-            // stazioni dei paesi dei loghi (scelti dall'elenco, scritti a mano o automatico), le più ascoltate per prime.
-            // 0.9.6: si provano tutti i paesi scelti, non solo il primo (es. "AU, NZ")
+            // stations from the logo countries (picked from the list, typed by hand or automatic), most listened first.
+            // 0.9.6: all chosen countries are tried, not just the first (e.g. "AU, NZ")
             JSONArray arr = new JSONArray();
             for (String country : L_countries(packs)) {
                 String url = API + "?name=" + URLEncoder.encode(name, "UTF-8")
@@ -359,7 +359,7 @@ public final class StationLogos {
                 if (!fav.startsWith("http")) continue;
                 try {
                     byte[] img = fetch(fav, 1_500_000);
-                    // fork: dimensões primeiro, depois descodificação reduzida (um favicon pode ter 2000 px ou mais)
+                    // fork: dimensions first, then downscaled decoding (a favicon can be 2000 px or more)
                     BitmapFactory.Options bo = new BitmapFactory.Options();
                     bo.inJustDecodeBounds = true;
                     BitmapFactory.decodeByteArray(img, 0, img.length, bo);
@@ -372,13 +372,13 @@ public final class StationLogos {
                 }
             }
         } catch (Exception e) {
-            // senza rete (o server irraggiungibile): pausa crescente prima di riprovare qualunque logo
+            // no network (or server unreachable): increasing pause before retrying any logo
             synchronized (this) {
                 pending.remove(key);
                 offlineUntil = SystemClock.uptimeMillis() + offlineStep;
-                // 0.4.0: la pausa e la riga della diagnostica sono quelle comuni (rete.offline)
-                if (!Offline.failed("loghi stazioni", e))
-                    Diag.put("loghi.rete", "non raggiungibile (" + e.getClass().getSimpleName() + "): pausa " + offlineStep / 60_000 + " min");
+                // 0.4.0: the pause and the diagnostics line are the shared ones (rete.offline)
+                if (!Offline.failed("station logos", e))
+                    Diag.put("logos.network", "unreachable (" + e.getClass().getSimpleName() + "): pause " + offlineStep / 60_000 + " min");
                 offlineStep = Math.min(OFFLINE_MAX_MS, offlineStep * 2);
             }
             return;
@@ -401,7 +401,7 @@ public final class StationLogos {
                 }
             }
         }
-        Diag.put("loghi.scaricati." + key, found != null ? "trovato e salvato" : "non trovato (riprovo tra 3 giorni)");
+        Diag.put("logos.downloaded." + key, found != null ? "found and saved" : "not found (retrying in 3 days)");
         Runnable r = onUpdate;
         if (found != null && r != null) r.run();
     }
@@ -425,14 +425,14 @@ public final class StationLogos {
         }
     }
 
-    /** Reduz ao lado maior max (devolve o próprio bitmap se já cabe). Não recicla o original. */
+    /** Scales down so the longer side is max (returns the bitmap itself if it already fits). Does not recycle the original. */
     private static Bitmap scaleTo(Bitmap b, int max) {
         if (b.getWidth() <= max && b.getHeight() <= max) return b;
         float k = max / (float) Math.max(b.getWidth(), b.getHeight());
         return Bitmap.createScaledBitmap(b, Math.max(1, Math.round(b.getWidth() * k)), Math.max(1, Math.round(b.getHeight() * k)), true);
     }
 
-    /** Como scaleTo, mas recicla o intermédio: só para bitmaps descodificados aqui dentro. */
+    /** Like scaleTo, but recycles the intermediate: only for bitmaps decoded in here. */
     private static Bitmap scaleOwned(Bitmap b, int max) {
         Bitmap r = scaleTo(b, max);
         if (r != b) b.recycle();
@@ -464,7 +464,7 @@ public final class StationLogos {
                 int n, total = 0;
                 while ((n = in.read(buf)) > 0) {
                     total += n;
-                    if (total > maxBytes) throw new IllegalStateException("troppo grande");
+                    if (total > maxBytes) throw new IllegalStateException("too large");
                     bo.write(buf, 0, n);
                 }
                 return bo.toByteArray();
@@ -472,6 +472,6 @@ public final class StationLogos {
                 c.disconnect();
             }
         }
-        throw new java.io.IOException("troppi redirect");
+        throw new java.io.IOException("too many redirects");
     }
 }

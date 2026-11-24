@@ -15,8 +15,8 @@ import android.os.SystemClock;
 import java.util.List;
 
 /**
- * Navigatore MG tramite com.saicmotor.adapterservice (GeneralService): stato della guida,
- * via corrente, distanza/tempo rimanenti e comandi Casa / Lavoro / Apri navigatore.
+ * MG navigator via com.saicmotor.adapterservice (GeneralService): guidance status,
+ * current road, remaining distance/time and Home / Work / Open navigator commands.
  */
 public final class NavClient {
     private static final String PKG = "com.saicmotor.adapterservice";
@@ -33,12 +33,12 @@ public final class NavClient {
         public int remainSeconds = -1;
         public boolean hasHome, hasOffice;
         public String mapPackage = "";
-        public int turnMeters = -1;       // distanza dalla prossima manovra
-        public String turnText = "";      // nome della via / direzione dopo la manovra
+        public int turnMeters = -1;       // distance to the next maneuver
+        public String turnText = "";      // road name / direction after the maneuver
         public int turnIcon = -1;
     }
 
-    /** Broadcast del navigatore (TomTom / navimaps), gli stessi che ascolta il servizio MG. */
+    /** Navigator broadcasts (TomTom / navimaps), the same ones the MG service listens to. */
     private static final String[] STATUS_ACTIONS = {"com.tomtom.navigation.GUIDE_STATUS", "com.saicmotor.navimaps_auto.GUIDE_STATUS"};
     private static final String[] INFO_ACTIONS = {"com.tomtom.navigation.GUIDE_INFO", "com.saicmotor.navimaps_auto.GUIDE_INFO"};
 
@@ -55,7 +55,7 @@ public final class NavClient {
     private boolean running;
     private final Context ctx;
     private boolean receiverOn;
-    private volatile int bcStatus = -1;          // ultimo stato guida ricevuto via broadcast
+    private volatile int bcStatus = -1;          // last guidance status received via broadcast
     private volatile int bcTurnMeters = -1, bcTurnIcon = -1;
     private volatile String bcTurnText = "";
     private volatile long bcTime;
@@ -64,14 +64,14 @@ public final class NavClient {
 
     public NavClient(Context ctx) {
         this.ctx = ctx.getApplicationContext();
-        link = new ServiceLink(ctx, "navigatore", ServiceLink.byComponent(PKG, CLS, null));
+        link = new ServiceLink(ctx, "navigator", ServiceLink.byComponent(PKG, CLS, null));
         link.setOnConnected(() -> {
             registerPush();
             pollSoon();
         });
     }
 
-    // ---- notifiche push del servizio (come il launcher originale: IGeneralNotificationListener) ----
+    // ---- service push notifications (like the original launcher: IGeneralNotificationListener) ----
     private static final String LISTENER = "com.saicmotor.adapterservice.IGeneralNotificationListener";
     private static final int REGISTER = 1, NAV_ACTIVE = 27;
     private volatile int pushStatus = -1, pushTurnIcon = -1, pushTurnMeters = -1, pushRemainM = -1, pushRemainS = -1;
@@ -90,40 +90,40 @@ public final class NavClient {
                 switch (code) {
                     case 1: // guideStatusChange(int)
                         pushStatus = data.readInt();
-                        Diag.put("nav.push.statoGuida", pushStatus);
+                        Diag.put("nav.push.guidanceState", pushStatus);
                         break;
                     case 2: // guideInfosChange(int icon, int distance, String direction)
                         pushTurnIcon = data.readInt();
                         pushTurnMeters = data.readInt();
                         String dir = data.readString();
                         pushTurnText = dir == null ? "" : dir.trim();
-                        Diag.put("nav.push.manovra", pushTurnMeters + " m · icona " + pushTurnIcon + " · " + pushTurnText);
+                        Diag.put("nav.push.maneuver", pushTurnMeters + " m · icon " + pushTurnIcon + " · " + pushTurnText);
                         break;
                     case 3: // roadInfoChange(String)
                         String road = data.readString();
                         pushRoad = road == null ? "" : road.trim();
-                        Diag.put("nav.push.via", pushRoad);
+                        Diag.put("nav.push.street", pushRoad);
                         break;
                     case 12: // remainingTimesChange(int)
                         pushRemainS = data.readInt();
-                        Diag.put("nav.push.tempoRimanente", pushRemainS);
+                        Diag.put("nav.push.timeLeft", pushRemainS);
                         break;
                     case 13: // remainingDistanceChange(int)
                         pushRemainM = data.readInt();
-                        Diag.put("nav.push.distanzaRimanente", pushRemainM);
+                        Diag.put("nav.push.distanceLeft", pushRemainM);
                         break;
                     case 15: // navAppHasActivatedChange(boolean)
-                        Diag.put("nav.push.appAttiva", data.readInt() != 0);
+                        Diag.put("nav.push.activeApp", data.readInt() != 0);
                         break;
                     default:
-                        Diag.put("nav.push.altro", "codice " + code);
+                        Diag.put("nav.push.other", "code " + code);
                         break;
                 }
                 pushTime = SystemClock.uptimeMillis();
                 if (reply != null) reply.writeNoException();
                 main.post(NavClient.this::pollSoon);
             } catch (Exception e) {
-                Diag.error("navigatore.push", e.toString());
+                Diag.error("navigator.push", e.toString());
             }
             return true;
         }
@@ -134,9 +134,9 @@ public final class NavClient {
         bg.post(() -> {
             try {
                 Rpc.call(link.binder(), GS, REGISTER, p -> p.writeStrongBinder(push));
-                Diag.put("nav.push", "registrato");
+                Diag.put("nav.push", "registered");
             } catch (Exception e) {
-                Diag.error("navigatore.registra", e.toString());
+                Diag.error("navigator.register", e.toString());
             }
         });
     }
@@ -148,7 +148,7 @@ public final class NavClient {
             if (a == null) return;
             if (a.endsWith("GUIDE_STATUS")) {
                 bcStatus = i.getIntExtra("STATUS", 0);
-                Diag.put("nav.broadcastStato", bcStatus);
+                Diag.put("nav.broadcastState", bcStatus);
             } else {
                 bcTurnIcon = i.getIntExtra("turnIcon", -1);
                 bcTurnMeters = i.getIntExtra("turnDist", -1);
@@ -191,7 +191,7 @@ public final class NavClient {
                 ctx.registerReceiver(guide, f);
                 receiverOn = true;
             } catch (Exception e) {
-                Diag.error("navigatore.broadcast", e.toString());
+                Diag.error("navigator.broadcast", e.toString());
             }
         }
         bg.post(loop);
@@ -209,7 +209,7 @@ public final class NavClient {
         }
     }
 
-    /** Sospende le letture (launcher non visibile) senza scollegarsi dai servizi. */
+    /** Pauses the reads (launcher not visible) without disconnecting from the services. */
     public void pause() {
         running = false;
         if (bg != null) bg.removeCallbacks(loop);
@@ -253,7 +253,7 @@ public final class NavClient {
                     if (infos.get(1) instanceof Integer) s.turnMeters = (Integer) infos.get(1);
                     if (infos.get(2) instanceof String) s.turnText = ((String) infos.get(2)).trim();
                 }
-                // il navigatore non sempre segnala isMapNavigating: basta uno qualsiasi dei segnali di guida
+                // the navigator does not always report isMapNavigating: any one of the guidance signals is enough
                 long now = SystemClock.uptimeMillis();
                 if (s.remainMeters != lastRemain || s.remainSeconds != lastRemainSec) {
                     if (lastRemain != Integer.MIN_VALUE && s.remainMeters > 0) remainChanged = now;
@@ -262,20 +262,20 @@ public final class NavClient {
                 }
                 boolean moving = s.remainMeters > 0 && now - remainChanged < 90_000;
                 s.navigating = mapNav || status > 0 || moving;
-                Diag.put("nav.segnali", "isMapNavigating " + mapNav + " · statoGuida " + status
-                        + " · rim. " + s.remainMeters + " m / " + s.remainSeconds + " s");
-                Diag.put("nav.prossimaManovra", s.turnMeters + " m · icona " + s.turnIcon + " · " + s.turnText);
+                Diag.put("nav.signals", "isMapNavigating " + mapNav + " · guidanceState " + status
+                        + " · rem. " + s.remainMeters + " m / " + s.remainSeconds + " s");
+                Diag.put("nav.nextManeuver", s.turnMeters + " m · icon " + s.turnIcon + " · " + s.turnText);
                 int unit = Rpc.callInt(b, GS, DIST_UNIT);
                 com.mg4.launcher.ui.Units.navUnit = unit;
-                Diag.put("nav.unitaDistanza", unit);
-                Diag.put("nav.via", s.road);
+                Diag.put("nav.distanceUnit", unit);
+                Diag.put("nav.street", s.road);
                 Diag.put("nav.app", s.mapPackage);
-                Diag.put("nav.appAttiva", Rpc.callBool(b, GS, NAV_ACTIVE));
+                Diag.put("nav.activeApp", Rpc.callBool(b, GS, NAV_ACTIVE));
             } catch (Exception e) {
-                Diag.error("navigatore", e.toString());
+                Diag.error("navigator", e.toString());
             }
         }
-        // notifiche push del servizio
+        // service push notifications
         if (pushStatus > 0) s.navigating = true;
         else if (pushStatus == 0 && status <= 0) s.navigating = false;
         if (pushTurnMeters >= 0) {
@@ -286,7 +286,7 @@ public final class NavClient {
         if (s.road.isEmpty() && !pushRoad.isEmpty()) s.road = pushRoad;
         if (s.remainMeters <= 0 && pushRemainM > 0) s.remainMeters = pushRemainM;
         if (s.remainSeconds <= 0 && pushRemainS > 0) s.remainSeconds = pushRemainS;
-        // broadcast diretti del navigatore (più rapidi del servizio)
+        // direct navigator broadcasts (faster than the service)
         int bc = bcStatus;
         if (bc == 0 && status <= 0) s.navigating = false;
         else if (bc > 0 && SystemClock.uptimeMillis() - bcTime < 120_000) s.navigating = true;
@@ -311,7 +311,7 @@ public final class NavClient {
             try {
                 Rpc.call(link.binder(), GS, code, Rpc.NONE);
             } catch (Exception e) {
-                Diag.error("navigatore.comando " + code, e.toString());
+                Diag.error("navigator.command " + code, e.toString());
             }
         });
     }

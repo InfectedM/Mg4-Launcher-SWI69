@@ -6,11 +6,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 
 /**
- * 0.4.3 (punto 5): tasti al volante. Sulla SWI69 R45 arrivano come broadcast com.saic.keyevent.hardkey.report (lo
- * ascolta la SystemUI originale, HardKeyManager) con gli extra android.intent.extra.hardkey.keycode (codici KeyEvent di
- * Android: 87 avanti, 88 indietro, 24/25 volume…), android.intent.extra.hardkey.down e android.intent.extra.hardkey.longpress.
- * Qui si ascoltano: per il log media.tastiVolante, per la prova del Controllo funzioni e per la USB 2 (avanti/indietro
- * passano alla sessione USB 2 solo se il sistema non l'ha già fatto, vedi MediaClient.onWheelSkip).
+ * 0.4.3 (point 5): steering wheel keys. On the SWI69 R45 they arrive as broadcast com.saic.keyevent.hardkey.report (the
+ * stock SystemUI listens to it, HardKeyManager) with the extras android.intent.extra.hardkey.keycode (Android KeyEvent
+ * codes: 87 next, 88 previous, 24/25 volume…), android.intent.extra.hardkey.down and android.intent.extra.hardkey.longpress.
+ * Listened to here: for the media.tastiVolante log, for the Function check test and for USB 2 (next/previous
+ * go to the USB 2 session only if the system has not already done it, see MediaClient.onWheelSkip).
  */
 public final class WheelKeys {
     public static final String ACTION = "com.saic.keyevent.hardkey.report";
@@ -45,18 +45,18 @@ public final class WheelKeys {
                 }
             }, new IntentFilter(ACTION));
             registered = true;
-            Diag.put("media.tastiVolante", "in ascolto (" + ACTION + ") · nessun tasto visto finora");
+            Diag.put("media.wheelKeys", "listening (" + ACTION + ") · no key seen so far");
         } catch (Throwable e) {
-            Diag.error("media.tastiVolante", e.toString());
+            Diag.error("media.wheelKeys", e.toString());
         }
     }
 
-    /** Prova del Controllo funzioni: riceve i tasti finché non si rimette null. */
+    /** Function check test: receives the keys until set back to null. */
     public static void setProbe(Listener l) {
         probe = l;
     }
 
-    /** MediaClient: avanti/indietro per la USB 2. */
+    /** MediaClient: next/previous for USB 2. */
     static void setMedia(Listener l) {
         media = l;
     }
@@ -69,15 +69,15 @@ public final class WheelKeys {
         switch (code) {
             case 24: return "volume +";
             case 25: return "volume −";
-            case 164: return "muto";
-            case 85: return "play/pausa";
-            case PREV: return "indietro";
-            case NEXT: return "avanti";
+            case 164: return "mute";
+            case 85: return "play/pause";
+            case PREV: return "previous";
+            case NEXT: return "next";
             case 3: return "home";
-            case 5: return "chiama";
-            case 6: return "riaggancia";
-            case 220: case 221: return "luminosità";
-            default: return "codice " + code;
+            case 5: return "call";
+            case 6: return "hang up";
+            case 220: case 221: return "brightness";
+            default: return "code " + code;
         }
     }
 
@@ -89,7 +89,7 @@ public final class WheelKeys {
         for (java.util.Map.Entry<Integer, Integer> e : perCode.entrySet()) {
             sb.append(sb.length() == 0 ? "" : ", ").append(e.getKey()).append(" ").append(name(e.getKey())).append(" ×").append(e.getValue());
         }
-        Diag.put("media.tastiVolante", "ultimo codice " + code + " (" + name(code) + ") giù " + down + " lungo " + lp
-                + " · sorgente " + MediaClient.currentSourceName() + " · visti " + count + " eventi: " + sb);
+        Diag.put("media.wheelKeys", "last code " + code + " (" + name(code) + ") down " + down + " long " + lp
+                + " · source " + MediaClient.currentSourceName() + " · seen " + count + " events: " + sb);
     }
 }

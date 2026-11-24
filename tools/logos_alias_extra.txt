@@ -1,6 +1,6 @@
-# Nomi trasmessi in FM (RDS, al massimo 8 caratteri) o in DAB -> logo del pacchetto.
-# formato: CC | nome trasmesso = nome della stazione (o del file, senza estensione)
-# Vale solo se il logo di destinazione è nel pacchetto. Nomi presi dai log delle auto e da app/assets/loghi/alias.txt.
+# Names broadcast on FM (RDS, 8 characters max) or on DAB -> logo in the pack.
+# format: CC | broadcast name = station name (or file name, without extension)
+# Applies only if the target logo is in the pack. Names taken from car logs and from app/assets/loghi/alias.txt.
 IT | RN = Radio Norba
 IT | R-NORBA Music = Radio Norba
 IT | * RDS * = RDS
@@ -101,7 +101,7 @@ IT | RADIO CUORE = Radio Cuore
 IT | IDEA RADIO = Idea Radio
 IT | RADIO PICO = Radio Pico
 IT | R PICO CLASSIC = Radio Pico
-# alias che erano integrati nel launcher fino alla 0.8.1 (app/assets/loghi/alias.txt)
+# aliases that were built into the launcher up to 0.8.1 (app/assets/loghi/alias.txt)
 IT | deejay = radiodeejay
 IT | rtl 102.5 = rtl1025
 IT | rtl102.5 = rtl1025

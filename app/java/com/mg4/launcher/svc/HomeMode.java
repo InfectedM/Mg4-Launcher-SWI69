@@ -9,13 +9,13 @@ import java.util.Date;
 import java.util.Locale;
 
 /**
- * "Usa come home predefinita" e "Modalità officina".
+ * "Use as default home" and "Workshop mode".
  * <ul>
- *   <li>Interruttore spento (permanente): home predefinita = home MG, niente avvio all'accensione, niente
- *       riconferma della home. Il launcher resta usabile come app normale.</li>
- *   <li>Officina (1/3/7 giorni): salva lo stato dell'interruttore, lo spegne, sospende aggiornamenti e popup.
- *       Finisce alla scadenza (controllata all'accensione e periodicamente), se l'utente la annulla aprendo il
- *       launcher, o se riaccende l'interruttore; alla fine l'interruttore torna com'era.</li>
+ *   <li>Switch off (permanent): default home = MG home, no start at power-on, no
+ *       home reconfirmation. The launcher stays usable as a normal app.</li>
+ *   <li>Workshop (1/3/7 days): saves the switch state, turns it off, suspends updates and popups.
+ *       Ends at expiry (checked at power-on and periodically), if the user cancels it by opening the
+ *       launcher, or if the switch is turned back on; at the end the switch returns to how it was.</li>
  * </ul>
  */
 public final class HomeMode {
@@ -27,51 +27,51 @@ public final class HomeMode {
         return c.getApplicationContext().getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
     }
 
-    /** Valore dell'interruttore (spento anche durante l'officina). */
+    /** Switch value (off also during workshop mode). */
     public static boolean enabled(Context c) {
-        return sp(c).getBoolean(K_ENABLED, true) && !officina(c);
+        return sp(c).getBoolean(K_ENABLED, true) && !workshop(c);
     }
 
-    /** Logica di avvio e riconferma della home attive? */
+    /** Start and home-reconfirmation logic active? */
     public static boolean active(Context c) {
-        return enabled(c) && !HomeLock.uninstalling(c);   // 1.0.4: durante la disinstallazione comanda la home MG
+        return enabled(c) && !HomeLock.uninstalling(c);   // 1.0.4: during uninstall the MG home is in charge
     }
 
     public static String reason(Context c) {
-        if (HomeLock.uninstalling(c)) return "disinstallazione in corso";
-        if (officina(c)) return "officina";
-        return sp(c).getBoolean(K_ENABLED, true) ? "attiva" : "interruttore spento";
+        if (HomeLock.uninstalling(c)) return "uninstall in progress";
+        if (workshop(c)) return "workshop";
+        return sp(c).getBoolean(K_ENABLED, true) ? "active" : "switch off";
     }
 
-    /** Officina attiva (la scadenza la chiude da sola). */
-    public static boolean officina(Context c) {
+    /** Workshop mode active (expiry ends it by itself). */
+    public static boolean workshop(Context c) {
         long until = sp(c).getLong(K_UNTIL, 0);
         if (until <= 0) return false;
         if (System.currentTimeMillis() >= until) {
-            end(c, "scadenza");
+            end(c, "expiry");
             return false;
         }
         return true;
     }
 
-    public static long officinaUntil(Context c) {
+    public static long workshopUntil(Context c) {
         return sp(c).getLong(K_UNTIL, 0);
     }
 
-    public static String officinaDate(Context c) {
-        return new SimpleDateFormat("dd/MM", Locale.ITALY).format(new Date(officinaUntil(c)));
+    public static String workshopDate(Context c) {
+        return new SimpleDateFormat("dd/MM", Locale.ITALY).format(new Date(workshopUntil(c)));
     }
 
-    /** Controllo della scadenza (all'accensione e periodicamente). */
+    /** Expiry check (at power-on and periodically). */
     public static void checkExpiry(Context c) {
-        officina(c);
+        workshop(c);
     }
 
-    /** Interruttore "Usa come home predefinita". Riaccenderlo durante l'officina la annulla. */
+    /** "Use as default home" switch. Turning it back on during workshop mode cancels it. */
     public static void setEnabled(Context c, boolean on) {
         if (on && sp(c).getLong(K_UNTIL, 0) > 0) {
             sp(c).edit().putBoolean(K_PREV, true).apply();
-            end(c, "interruttore");
+            end(c, "switch");
             return;
         }
         sp(c).edit().putBoolean(K_ENABLED, on).apply();
@@ -80,34 +80,34 @@ public final class HomeMode {
         else openMg(c);
     }
 
-    /** Attiva l'officina per alcuni giorni. */
-    public static void startOfficina(Context c, int days) {
+    /** Enables workshop mode for a few days. */
+    public static void startWorkshop(Context c, int days) {
         boolean prev = sp(c).getBoolean(K_ENABLED, true);
         long until = System.currentTimeMillis() + days * 24L * 60 * 60 * 1000;
         sp(c).edit().putBoolean(K_PREV, prev).putBoolean(K_ENABLED, false).putLong(K_UNTIL, until).apply();
-        Diag.put("officina", "attiva fino al " + new SimpleDateFormat("dd/MM HH:mm", Locale.ITALY).format(new Date(until)));
+        Diag.put("workshop", "active until " + new SimpleDateFormat("dd/MM HH:mm", Locale.ITALY).format(new Date(until)));
         apply(c, false);
         openMg(c);
     }
 
-    /** Fine dell'officina: interruttore com'era, aggiornamenti di nuovo attivi, launcher riaperto se serve. */
+    /** End of workshop mode: switch as it was, updates active again, launcher reopened if needed. */
     public static void end(Context c, String why) {
         SharedPreferences s = sp(c);
         if (s.getLong(K_UNTIL, 0) <= 0) return;
         boolean prev = s.getBoolean(K_PREV, true);
         s.edit().remove(K_UNTIL).remove(K_PREV).putBoolean(K_ENABLED, prev).apply();
-        Diag.put("officina", "disattiva (motivo: " + why + ")");
+        Diag.put("workshop", "inactive (reason: " + why + ")");
         apply(c, prev);
         if (prev) openOurs(c);
     }
 
-    /** Effetto dell'interruttore sulla home predefinita. */
+    /** Effect of the switch on the default home. */
     private static void apply(Context c, boolean on) {
         new Thread(() -> {
             if (on) {
-                HomeLock.apply(c, "interruttore acceso");
+                HomeLock.apply(c, "switch on");
             } else {
-                HomeLock.release(c, officina(c) ? "officina" : "interruttore spento");
+                HomeLock.release(c, workshop(c) ? "workshop" : "switch off");
                 HomeDefault.setMg(c);
             }
             diag(c);
@@ -115,12 +115,12 @@ public final class HomeMode {
     }
 
     public static void diag(Context c) {
-        String v = active(c) ? "nostra" : "MG (" + (officina(c) ? "officina" : "interruttore spento") + ")";
-        Diag.put("home.impostazione", v);
+        String v = active(c) ? "ours" : "MG (" + (workshop(c) ? "workshop" : "switch off") + ")";
+        Diag.put("home.setting", v);
     }
 
     private static void openMg(Context c) {
-        HomeLock.release(c, "home MG aperta");
+        HomeLock.release(c, "MG home opened");
         try {
             c.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setComponent(HomeDefault.MG)
                     .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -129,16 +129,16 @@ public final class HomeMode {
         }
     }
 
-    /** 0.4.2: launcher aperto dal launcher stesso (avvio/sostituzione della home MG), non dal tasto Home dell'utente. */
+    /** 0.4.2: launcher opened by the launcher itself (start/replacement of the MG home), not by the user's Home key. */
     public static final String EXTRA_AUTO = "mg4_aperto_da_launcher";
 
     public static void openOurs(Context c) {
-        RetroReturn.noteBroughtBy("avvio/sostituzione home (HomeMode.openOurs)");
+        RetroReturn.noteBroughtBy("start/home replacement (HomeMode.openOurs)");
         try {
             c.startActivity(new Intent(Intent.ACTION_MAIN).addCategory(Intent.CATEGORY_HOME).setComponent(HomeDefault.ours(c))
                     .putExtra(EXTRA_AUTO, true).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
         } catch (Throwable e) {
-            Diag.error("avvio launcher", e.toString());
+            Diag.error("startup launcher", e.toString());
         }
     }
 }

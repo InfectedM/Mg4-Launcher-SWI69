@@ -18,25 +18,25 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 
-/** Piccoli costruttori di viste: tutta l'interfaccia è creata da codice. */
+/** Small view builders: the whole interface is created in code. */
 public final class Ui {
     private Ui() {}
 
     public static final Typeface LIGHT = Typeface.create("sans-serif-light", Typeface.NORMAL);
     public static final Typeface REGULAR = Typeface.create("sans-serif", Typeface.NORMAL);
     public static final Typeface MEDIUM = Typeface.create("sans-serif-medium", Typeface.NORMAL);
-    /** 0.4.2: scritta "360°" delle icone della telecamera. */
+    /** 0.4.2: "360°" label of the camera icons. */
     public static final Typeface BOLD = Typeface.create("sans-serif", Typeface.BOLD);
 
-    /** Dimensione dei comandi toccabili: 1 Normale, 1,15 Grande, 1,3 Molto grande. */
+    /** Size of touchable controls: 1 Normal, 1.15 Large, 1.3 Very large. */
     public static float K = 1f;
 
-    /** Misura di un comando toccabile (dp × K). */
+    /** Size of a touchable control (dp × K). */
     public static int tp(Context c, float v) {
         return dp(c, v * K);
     }
 
-    /** Testo scritto su un comando toccabile (sp × K). */
+    /** Text written on a touchable control (sp × K). */
     public static float ts(float sp) {
         return sp * K;
     }
@@ -52,7 +52,7 @@ public final class Ui {
         return g;
     }
 
-    /** Sfondo con effetto pressione (ripple) dentro una forma arrotondata. */
+    /** Background with press effect (ripple) inside a rounded shape. */
     public static Drawable pressable(Context c, int color, float radiusDp, Theme t) {
         int r = dp(c, radiusDp);
         int ripple = t.day ? 0x22000000 : 0x33FFFFFF;
@@ -84,7 +84,7 @@ public final class Ui {
         return iv;
     }
 
-    /** Pulsante-icona tondo o arrotondato, area di tocco ≥ 56 px. */
+    /** Round or rounded icon button, touch area ≥ 56 px. */
     public static FrameLayout iconButton(Context c, Theme t, int res, int iconColor, int bgColor, int sizeDp, int iconDp,
                                          float radiusDp, String description, View.OnClickListener click) {
         sizeDp = Math.round(sizeDp * K);

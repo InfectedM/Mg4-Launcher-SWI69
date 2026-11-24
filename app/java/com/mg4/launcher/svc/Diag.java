@@ -22,8 +22,8 @@ import java.util.Map;
 import java.util.TreeMap;
 
 /**
- * Diagnostica: ultimi valori letti dai servizi, errori ed eventi recenti.
- * Si vede dalle impostazioni del launcher, su logcat (tag MG4L) e si può salvare in un file di log.
+ * Diagnostics: latest values read from the services, recent errors and events.
+ * Visible from the launcher settings, on logcat (tag MG4L), and can be saved to a log file.
  */
 public final class Diag {
     private static final String TAG = "MG4L";
@@ -47,13 +47,13 @@ public final class Diag {
         }
     }
 
-    /** 0.4.3: ultimo valore di una voce ("—" se non c'è). */
+    /** 0.4.3: latest value of an entry ("—" if missing). */
     public static synchronized String value(String key) {
         String v = VALUES.get(key);
         return v == null ? "—" : v;
     }
 
-    /** Come put, ma senza riempire gli eventi (valori che cambiano di continuo, es. corrente). */
+    /** Like put, but without filling the events (values that change constantly, e.g. current). */
     public static synchronized void putQuiet(String key, Object value) {
         VALUES.put(key, String.valueOf(value));
     }
@@ -69,8 +69,8 @@ public final class Diag {
     }
 
     /**
-     * Errore di rete per il log: messaggio con la causa più interna (es. "Unacceptable certificate … ← motivo") e, per gli
-     * errori dei certificati, l'orologio dell'auto se è indietro (con la data sbagliata nessun certificato risulta valido).
+     * Network error for the log: message with the innermost cause (e.g. "Unacceptable certificate … ← reason") and, for
+     * certificate errors, the car clock if it is behind (with the wrong date no certificate is valid).
      */
     public static String netError(Throwable e) {
         StringBuilder sb = new StringBuilder(String.valueOf(e.getMessage() == null ? e.getClass().getSimpleName() : e.getMessage()));
@@ -82,12 +82,12 @@ public final class Diag {
         boolean cert = false;
         for (Throwable t = e; t != null; t = t.getCause())
             if (t instanceof javax.net.ssl.SSLException || t instanceof java.security.cert.CertificateException) cert = true;
-        if (cert && System.currentTimeMillis() < 1735689600000L)   // prima del 2025
-            sb.append(" · orologio dell'auto al ").append(new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).format(new Date()));
+        if (cert && System.currentTimeMillis() < 1735689600000L)   // before 2025
+            sb.append(" · car clock at ").append(new SimpleDateFormat("dd/MM/yyyy", Locale.ITALY).format(new Date()));
         return sb.toString();
     }
 
-    /** Eccezione con le prime righe dello stack, per il log. */
+    /** Exception with the first stack lines, for the log. */
     public static String trace(Throwable t) {
         StringWriter sw = new StringWriter();
         t.printStackTrace(new PrintWriter(sw));
@@ -97,7 +97,7 @@ public final class Diag {
         return sb.toString();
     }
 
-    /** Salva la diagnostica in Android/data/com.mg4.launcher/files/diagnostica.txt (si recupera con adb pull). */
+    /** Saves the diagnostics to Android/data/com.mg4.launcher/files/diagnostica.txt (retrieve with adb pull). */
     public static void save(Context c) {
         try {
             File dir = c.getExternalFilesDir(null);
@@ -107,7 +107,7 @@ public final class Diag {
                 o.write(text.getBytes("UTF-8"));
             }
         } catch (Exception e) {
-            Log.w(TAG, "salvataggio diagnostica", e);
+            Log.w(TAG, "saving diagnostics", e);
         }
     }
 
@@ -117,7 +117,7 @@ public final class Diag {
             sb.append(e.getKey()).append(" = ").append(e.getValue()).append('\n');
         }
         if (!ERRORS.isEmpty()) {
-            sb.append("\nERRORI RECENTI\n");
+            sb.append("\nRECENT ERRORS\n");
             for (String s : ERRORS) sb.append(s).append('\n');
         }
         return sb.toString();
@@ -129,7 +129,7 @@ public final class Diag {
         return sb.toString();
     }
 
-    /** Righe di logcat del launcher (un'app può sempre leggere le proprie). */
+    /** Launcher logcat lines (an app can always read its own). */
     private static String logcat() {
         StringBuilder sb = new StringBuilder();
         try {
@@ -142,7 +142,7 @@ public final class Diag {
                     if (l.contains("MG4L")) {
                         sb.append(l).append('\n');
                     } else if (l.contains("Skipped ") && l.contains(" frames")) {
-                        if (skipped++ == 0) sb.append(l).append('\n'); else dropped++;   // solo il primo
+                        if (skipped++ == 0) sb.append(l).append('\n'); else dropped++;   // only the first
                     } else if (noise(l)) {
                         dropped++;
                     } else {
@@ -151,14 +151,14 @@ public final class Diag {
                 }
             }
             p.waitFor();
-            if (dropped > 0) sb.append("(").append(dropped).append(" righe di sistema ripetitive non incluse)\n");
+            if (dropped > 0) sb.append("(").append(dropped).append(" repetitive system lines omitted)\n");
         } catch (Exception e) {
-            sb.append("logcat non disponibile: ").append(e).append('\n');
+            sb.append("logcat unavailable: ").append(e).append('\n');
         }
         return sb.toString();
     }
 
-    /** Righe di sistema che non servono a capire i problemi del launcher (si ripetono a centinaia). */
+    /** System lines that do not help understand launcher problems (repeated by the hundreds). */
     private static final String[] NOISE = {
             "disconnect failed", "ioctl failed", "jdwp agent", "chatty", "gralloc", "Background concurrent copying",
             "Background young concurrent copying", "Explicit concurrent copying"};
@@ -168,7 +168,7 @@ public final class Diag {
         return false;
     }
 
-    /** Crash recenti di tutte le app (buffer crash di logcat, serve READ_LOGS concesso dalla firma platform). */
+    /** Recent crashes of all apps (logcat crash buffer, needs READ_LOGS granted by the platform signature). */
     private static String crashes() {
         StringBuilder sb = new StringBuilder();
         try {
@@ -179,19 +179,19 @@ public final class Diag {
             }
             p.waitFor();
         } catch (Exception e) {
-            sb.append("non disponibile: ").append(e).append('\n');
+            sb.append("unavailable: ").append(e).append('\n');
         }
-        return sb.length() == 0 ? "nessuno\n" : sb.toString();
+        return sb.length() == 0 ? "none\n" : sb.toString();
     }
 
     /**
-     * 1.0.4 (punto C3): righe di logcat con tag "RadioFix" (la patch del servizio radio ci scrive cambi di frequenza AF,
-     * segnale, scelte). Righe uniche (senza l'ora davanti per il confronto), al massimo le ultime 300.
-     * Se la patch non è installata: "radiofix = assente". Serve READ_LOGS (firma platform).
+     * 1.0.4 (point C3): logcat lines with tag "RadioFix" (the radio service patch writes AF frequency changes,
+     * signal, choices there). Unique lines (ignoring the leading time for comparison), at most the last 300.
+     * If the patch is not installed: "radiofix = absent". Needs READ_LOGS (platform signature).
      */
     static String radioFix(Context c) {
         String ver = null;
-        // 0.4.4: sulla SWI69 il servizio radio è com.saicmotor.radio; si guarda anche il pacchetto della SWI68
+        // 0.4.4: on the SWI69 the radio service is com.saicmotor.radio; the SWI68 package is checked too
         for (String pk : new String[]{"com.saicmotor.radio", "com.saicmotor.service.radio"}) {
             try {
                 String v = c.getPackageManager().getPackageInfo(pk, 0).versionName;
@@ -202,8 +202,8 @@ public final class Diag {
         boolean installed = ver != null && ver.toLowerCase(Locale.ROOT).contains("radiofix");
         StringBuilder sb = new StringBuilder();
         if (!installed) {
-            put("radiofix", "assente (servizio radio " + (ver == null ? "non trovato" : ver) + ")");
-            return "radiofix = assente\n";
+            put("radiofix", "absent (radio service " + (ver == null ? "not found" : ver) + ")");
+            return "radiofix = absent\n";
         }
         java.util.LinkedHashMap<String, String> uniq = new java.util.LinkedHashMap<>();
         try {
@@ -212,7 +212,7 @@ public final class Diag {
                 String l;
                 while ((l = r.readLine()) != null) {
                     if (l.startsWith("-----") || l.trim().isEmpty()) continue;
-                    // chiave senza data e ora: le righe uguali si tengono una volta sola (l'ultima)
+                    // key without date and time: identical lines are kept only once (the last one)
                     int i = l.indexOf(' ', l.indexOf(' ') + 1);
                     String key = i > 0 ? l.substring(i + 1) : l;
                     uniq.remove(key);
@@ -221,18 +221,18 @@ public final class Diag {
             }
             p.waitFor();
         } catch (Exception e) {
-            sb.append("logcat non disponibile: ").append(e).append('\n');
+            sb.append("logcat unavailable: ").append(e).append('\n');
         }
         List<String> lines = new ArrayList<>(uniq.values());
         int from = Math.max(0, lines.size() - 300);
         for (int i = from; i < lines.size(); i++) sb.append(lines.get(i)).append('\n');
-        put("radiofix", "presente (" + ver + ") · " + lines.size() + " righe uniche" + (from > 0 ? ", tenute le ultime 300" : ""));
-        return sb.length() == 0 ? "nessuna riga RadioFix nel logcat\n" : sb.toString();
+        put("radiofix", "present (" + ver + ") · " + lines.size() + " unique lines" + (from > 0 ? ", kept the last 300" : ""));
+        return sb.length() == 0 ? "no RadioFix lines in logcat\n" : sb.toString();
     }
 
     /**
-     * Fork 0.4.10: linhas de sistema do Android Auto / CarPlay (AllGo), USB e processos mortos, para perceber as quedas
-     * da projeção (o launcher só via as suas). Pids atuais das apps com.allgo.* + palavras-chave; últimas 800 linhas.
+     * Fork 0.4.10: system lines from Android Auto / CarPlay (AllGo), USB and dead processes, to understand projection
+     * drops (the launcher only saw its own). Current pids of com.allgo.* apps + keywords; last 800 lines.
      */
     static String projectionLog(Context c) {
         java.util.Set<String> pids = new java.util.HashSet<>();
@@ -267,16 +267,16 @@ public final class Diag {
             }
             p.waitFor();
         } catch (Exception e) {
-            return "logcat non disponibile: " + e + "\n";
+            return "logcat unavailable: " + e + "\n";
         }
         StringBuilder sb = new StringBuilder();
-        sb.append("pid AllGo: ").append(pids.isEmpty() ? "nenhum" : pids.toString()).append(" · linhas ").append(total)
-                .append(total > 800 ? " (últimas 800)" : "").append('\n');
+        sb.append("pid AllGo: ").append(pids.isEmpty() ? "none" : pids.toString()).append(" · lines ").append(total)
+                .append(total > 800 ? " (last 800)" : "").append('\n');
         for (String l : last) sb.append(l).append('\n');
         return sb.toString();
     }
 
-    /** Testo completo del log: versione, valori attuali, eventi recenti, logcat del launcher (stesso formato della SWI69). */
+    /** Full log text: version, current values, recent events, launcher logcat (same format as the SWI69). */
     public static String buildLog(Context c) {
         StringBuilder sb = new StringBuilder();
         String version = "?";
@@ -289,25 +289,25 @@ public final class Diag {
         sb.append(new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY).format(new Date())).append('\n');
         sb.append("Android ").append(Build.VERSION.RELEASE).append(" (API ").append(Build.VERSION.SDK_INT).append(") · ")
                 .append(Build.MANUFACTURER).append(' ').append(Build.MODEL).append(" · ").append(Build.DISPLAY).append("\n\n");
-        sb.append("===== VALORI ATTUALI =====\n").append(dump()).append('\n');
-        sb.append("===== EVENTI RECENTI =====\n").append(events()).append('\n');
-        sb.append("===== CRASH RECENTI (tutte le app) =====\n").append(crashes()).append('\n');
-        sb.append("===== ANDROID AUTO / CARPLAY / USB (sistema) =====\n").append(projectionLog(c)).append('\n');
+        sb.append("===== CURRENT VALUES =====\n").append(dump()).append('\n');
+        sb.append("===== RECENT EVENTS =====\n").append(events()).append('\n');
+        sb.append("===== RECENT CRASHES (all apps) =====\n").append(crashes()).append('\n');
+        sb.append("===== ANDROID AUTO / CARPLAY / USB (system) =====\n").append(projectionLog(c)).append('\n');
         sb.append("===== RadioFix =====\n").append(radioFix(c)).append('\n');
-        sb.append("===== LOGCAT DEL LAUNCHER =====\n").append(logcat());
+        sb.append("===== LAUNCHER LOGCAT =====\n").append(logcat());
         return sb.toString();
     }
 
-    /** Risultato del salvataggio del log: percorsi scritti e testo da mostrare. */
+    /** Log save result: written paths and text to show. */
     public static final class Saved {
         public final List<String> paths = new ArrayList<>();
         public boolean onUsb;
     }
 
     /**
-     * Salva un log completo (valori, errori, eventi, logcat del launcher). Lo scrive nella cartella dell'app
-     * su ogni memoria disponibile — compresa la chiavetta USB, se inserita — e, se possibile, in Download.
-     * Va chiamato fuori dal thread principale.
+     * Saves a full log (values, errors, events, launcher logcat). Writes it to the app folder
+     * on every available storage — including the USB stick, if inserted — and, if possible, to Download.
+     * Must be called off the main thread.
      */
     public static Saved saveLog(Context c) {
         Saved out = new Saved();
@@ -321,16 +321,16 @@ public final class Diag {
             data = text.getBytes();
         }
 
-        // fork: primeiro em pastas VISÍVEIS no gestor de ficheiros do carro e no computador:
-        //   pen USB → <raiz>/MG4Launcher/registos/   ·   memória do carro → Download/MG4Launcher/
-        // (Android/data/... da app fica só como reserva: muitos gestores de ficheiros não a mostram)
+        // fork: first into folders VISIBLE in the car's file manager and on a computer:
+        //   USB stick → <root>/MG4Launcher/registos/   ·   car storage → Download/MG4Launcher/
+        // (the app's Android/data/... is only a fallback: many file managers do not show it)
         grantWriteStorage(c);
         List<File> visible = new ArrayList<>();
         File[] vols = new File("/storage").listFiles();
         if (vols != null) for (File v : vols) {
             String n = v.getName();
             if (n.equals("emulated") || n.equals("self") || !v.isDirectory() || !v.canRead()) continue;
-            visible.add(new File(v, "MG4Launcher/registos"));   // pen USB
+            visible.add(new File(v, "MG4Launcher/registos"));   // USB stick
         }
         try {
             visible.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "MG4Launcher"));
@@ -348,11 +348,11 @@ public final class Diag {
                 scan.add(f.getAbsolutePath());
                 if (!dir.getAbsolutePath().startsWith(Environment.getExternalStorageDirectory().getAbsolutePath())) out.onUsb = true;
             } catch (Exception e) {
-                Log.w(TAG, "log non salvato in " + dir + ": " + e);
+                Log.w(TAG, "log not saved in " + dir + ": " + e);
             }
         }
         if (!scan.isEmpty()) {
-            // para o ficheiro aparecer logo nos gestores de ficheiros / no computador por MTP
+            // so the file shows up right away in file managers / on a computer via MTP
             try {
                 android.media.MediaScannerConnection.scanFile(c, scan.toArray(new String[0]), null, null);
             } catch (Throwable ignored) {
@@ -387,14 +387,14 @@ public final class Diag {
                 if (removable || (primary != null && !dir.equals(primary) && dir.getAbsolutePath().startsWith("/storage/")
                         && !dir.getAbsolutePath().startsWith("/storage/emulated"))) out.onUsb = true;
             } catch (Exception e) {
-                Log.w(TAG, "log non salvato in " + dir + ": " + e);
+                Log.w(TAG, "log not saved in " + dir + ": " + e);
             }
         }
-        put("log.salvato", out.paths.isEmpty() ? "nessuna cartella scrivibile" : out.paths.get(0));
+        put("log.saved", out.paths.isEmpty() ? "no writable folder" : out.paths.get(0));
         return out;
     }
 
-    /** Escrita na memória partilhada: o launcher concede-se a permissão sozinho (firma platform, GRANT_RUNTIME_PERMISSIONS). */
+    /** Writing to shared storage: the launcher grants itself the permission (platform signature, GRANT_RUNTIME_PERMISSIONS). */
     private static void grantWriteStorage(Context c) {
         String perm = android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
         if (c.checkSelfPermission(perm) == android.content.pm.PackageManager.PERMISSION_GRANTED) return;
@@ -402,10 +402,10 @@ public final class Diag {
             android.content.pm.PackageManager pm = c.getPackageManager();
             pm.getClass().getMethod("grantRuntimePermission", String.class, String.class, android.os.UserHandle.class)
                     .invoke(pm, c.getPackageName(), perm, android.os.Process.myUserHandle());
-            put("log.permessoScrittura", "concesso ora");
+            put("log.writePermission", "granted now");
         } catch (Throwable e) {
             Throwable t = e instanceof java.lang.reflect.InvocationTargetException && e.getCause() != null ? e.getCause() : e;
-            put("log.permessoScrittura", "non concesso (" + t.getClass().getSimpleName() + ")");
+            put("log.writePermission", "not granted (" + t.getClass().getSimpleName() + ")");
         }
     }
 }

@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Usar como inicio predeterminado</string>
     <string name="home_default_sub" formatted="false">MG4 Launcher se abre al encender y con el botón Inicio</string>
     <string name="home_default_off_sub" formatted="false">Apagado: se usa el inicio original de MG</string>
-    <string name="officina_until_sub">Modo taller hasta el %1$s</string>
-    <string name="officina_title" formatted="false">Modo taller</string>
-    <string name="officina_sub" formatted="false">Durante unos días el coche usa el inicio original de MG; después el launcher vuelve solo</string>
+    <string name="workshop_until_sub">Modo taller hasta el %1$s</string>
+    <string name="workshop_title" formatted="false">Modo taller</string>
+    <string name="workshop_sub" formatted="false">Durante unos días el coche usa el inicio original de MG; después el launcher vuelve solo</string>
     <string name="days_1" formatted="false">1 día</string>
     <string name="days_3" formatted="false">3 días</string>
     <string name="days_7" formatted="false">7 días</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Mantener</string>
     <string name="confirm_home_off_title" formatted="false">¿Usar el inicio original de MG?</string>
     <string name="confirm_home_off_msg" formatted="false">El inicio de MG pasa a ser el predeterminado, también al encender. El inicio de MG no muestra MG4 Launcher entre sus apps: para volver hará falta un ordenador (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Si solo es para unos días, usa el Modo taller: el launcher vuelve solo.</string>
-    <string name="confirm_officina_title" formatted="false">¿Activar el modo taller?</string>
-    <string name="confirm_officina_msg">Hasta el %1$s el coche usará el inicio original de MG y las actualizaciones quedarán en pausa. Al terminar, MG4 Launcher vuelve solo, como antes.</string>
-    <string name="officina_active_title" formatted="false">Modo taller activo</string>
-    <string name="officina_active_msg">Modo taller activo hasta el %1$s. ¿Quieres desactivarlo?</string>
+    <string name="confirm_workshop_title" formatted="false">¿Activar el modo taller?</string>
+    <string name="confirm_workshop_msg">Hasta el %1$s el coche usará el inicio original de MG y las actualizaciones quedarán en pausa. Al terminar, MG4 Launcher vuelve solo, como antes.</string>
+    <string name="workshop_active_title" formatted="false">Modo taller activo</string>
+    <string name="workshop_active_msg">Modo taller activo hasta el %1$s. ¿Quieres desactivarlo?</string>
     <string name="set_ui_size" formatted="false">TAMAÑO DE LOS CONTROLES</string>
     <string name="ui_size_normal" formatted="false">Normal</string>
     <string name="ui_size_large" formatted="false">Grande</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">¿Qué paquete quieres eliminar?</string>
     <string name="logos_usb_title" formatted="false">Logotipos de radio encontrados</string>
     <string name="logos_usb_msg">Hay un paquete de logotipos para %1$s en %2$s. ¿Lo instalo? Funciona también sin internet.</string>
-    <string name="group_clima" formatted="false">Clima</string>
+    <string name="group_climate" formatted="false">Clima</string>
     <string name="group_comfort" formatted="false">Confort</string>
     <string name="tap_outside_close" formatted="false">toca fuera para cerrar</string>
     <string name="lka_desc" formatted="false">Asistente de mantenimiento de carril (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">Temperatura interior oculta: el coche no la proporciona (mostraba la exterior); la estamos buscando en los registros</string>
     <string name="newsv_4" formatted="false">Los dongles CarPlay/Android Auto que aparecen como iPhone ahora se reconocen y se reinician si no arrancan</string>
     <string name="newsf_1" formatted="false">El ventilador en OFF ahora apaga de verdad el climatizador (antes volvía a 1)</string>
-    <string name="group_guida" formatted="false">Conducción</string>
+    <string name="group_drive" formatted="false">Conducción</string>
     <string name="tile_lka" formatted="false">Carril</string>
     <string name="tile_acc" formatted="false">Asistente</string>
     <string name="tile_pedal" formatted="false">Pedal de freno</string>
     <string name="recirc_in" formatted="false">Interior</string>
     <string name="recirc_out" formatted="false">Exterior</string>
-    <string name="guida_stopped" formatted="false">Solo se puede cambiar con el coche parado</string>
+    <string name="drive_stopped" formatted="false">Solo se puede cambiar con el coche parado</string>
     <string name="set_inside_none" formatted="false">No disponible: el coche no la envía a la pantalla. El valor «ambiente» que se leía antes era en realidad la temperatura exterior</string>
     <string name="newsg_1" formatted="false">Nuevo botón Conducción en la barra: LKA, One Pedal, asistente (Apagado/ACC/TJA) y pedal de freno (Comfort/Medium/Sport) en un solo panel</string>
     <string name="newsg_2" formatted="false">El asistente y el pedal de freno solo se cambian con el coche parado, por seguridad</string>

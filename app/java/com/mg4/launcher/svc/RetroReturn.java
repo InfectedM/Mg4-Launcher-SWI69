@@ -6,24 +6,24 @@ import android.os.Looper;
 import android.os.SystemClock;
 
 /**
- * 0.4.2 (punto 6): dopo la retromarcia si torna all'app che era davanti (CarPlay, Android Auto anche da box o dongle,
- * navigatore o un'altra app), invece di restare sul launcher.
+ * 0.4.2 (point 6): after reversing, return to the app that was in front (CarPlay, Android Auto also via box or dongle,
+ * navigator or another app), instead of staying on the launcher.
  * <p>
- * La retromarcia si riconosce dalla schermata delle telecamere che passa in primo piano (servizio di accessibilità) o dai
- * broadcast delle telecamere SAIC; la fine dalla schermata che si chiude. Se dopo la chiusura davanti c'è il launcher (o
- * la home MG che il launcher sostituirebbe) si riapre l'app memorizzata, come fa il suo pulsante nel launcher.
- * Non si riapre se: impostazione spenta, retromarcia più lunga di 3 minuti, l'utente ha scelto un'altra app o premuto
- * Home, il telefono/box non è più collegato.
+ * Reversing is detected from the camera screen coming to the foreground (accessibility service) or from the
+ * SAIC camera broadcasts; the end from the screen closing. If after closing the launcher is in front (or
+ * the MG home the launcher would replace) the remembered app is reopened, as its button in the launcher does.
+ * Not reopened if: setting off, reversing longer than 3 minutes, the user chose another app or pressed
+ * Home, the phone/box is no longer connected.
  */
 public final class RetroReturn {
     private RetroReturn() {}
 
-    /** Chi riapre le app: il launcher (MainActivity), con lo stesso metodo dei suoi pulsanti. */
+    /** Who reopens the apps: the launcher (MainActivity), with the same method as its buttons. */
     public interface Opener {
-        /** true se l'app è ancora collegata/apribile (per CarPlay/Android Auto: dispositivo collegato). */
+        /** true if the app is still connected/openable (for CarPlay/Android Auto: device connected). */
         boolean available(String pkg);
 
-        /** Riapre l'app come il suo pulsante nel launcher. */
+        /** Reopens the app like its button in the launcher. */
         boolean reopen(String pkg);
     }
 
@@ -31,8 +31,8 @@ public final class RetroReturn {
     private static final Handler h = new Handler(Looper.getMainLooper());
     private static volatile Opener opener;
 
-    private static String current = "";        // app in primo piano adesso (anche il launcher)
-    private static String saved;               // app memorizzata all'inizio della retromarcia
+    private static String current = "";        // app in the foreground now (including the launcher)
+    private static String saved;               // app remembered at the start of reversing
     private static long startedAt = -1;
     private static boolean inReverse, userChoice, restorePending;
     private static String broughtBy = "";
@@ -43,7 +43,7 @@ public final class RetroReturn {
     }
 
     public static boolean isCamera(String pkg) {
-        if (pkg == null || pkg.startsWith("com.mg4.")) return false;   // MG4 360 aperta apposta non è la retromarcia
+        if (pkg == null || pkg.startsWith("com.mg4.")) return false;   // MG4 360 opened on purpose is not reversing
         String p = pkg.toLowerCase(java.util.Locale.ROOT);
         return p.equals("com.saicmotor.evs") || p.contains("aroundview") || p.contains(".avm") || p.contains("rvc") || p.contains("camera");
     }
@@ -58,10 +58,10 @@ public final class RetroReturn {
     }
 
     /**
-     * 0.4.4 (issue #2, da SWI68 1.0.4): app da NON memorizzare né riaprire mai. Dopo la retromarcia compariva la richiesta
-     * "Grant Permissions" di un'altra app: il launcher riapriva da zero app passate davanti solo un attimo.
-     * Escluse: altri launcher (CATEGORY_HOME), app di sistema (tranne CarPlay/Android Auto), dashcam e app con sole
-     * finestre sovrapposte (MG4 Control, clusterprojection), la home MG.
+     * 0.4.4 (issue #2, from SWI68 1.0.4): apps NEVER to remember or reopen. After reversing the "Grant Permissions"
+     * request of another app appeared: the launcher restarted from scratch apps that were in front only briefly.
+     * Excluded: other launchers (CATEGORY_HOME), system apps (except CarPlay/Android Auto), dashcams and apps with only
+     * overlay windows (MG4 Control, clusterprojection), the MG home.
      */
     private static final String[] NEVER = {"com.drivehub.kamera", "com.saicmotor.hmi.clusterprojection", "com.tommasov.mg4swipenovalauncher"};
     private static java.util.Set<String> homeApps;
@@ -92,8 +92,8 @@ public final class RetroReturn {
     }
 
     /**
-     * App con una finestra vera (task) davanti, la più recente non esclusa: le app con sole finestre sovrapposte non
-     * hanno un task e restano fuori da sole. Restituisce {pacchetto, id del task} oppure null.
+     * App with a real window (task) in front, the most recent non-excluded one: apps with only overlay windows have
+     * no task and stay out on their own. Returns {package, task id} or null.
      */
     @SuppressWarnings("deprecation")
     private static Object[] topTask(Context c) {
@@ -102,9 +102,9 @@ public final class RetroReturn {
             for (android.app.ActivityManager.RunningTaskInfo ti : am.getRunningTasks(8)) {
                 if (ti.topActivity == null) continue;
                 String pkg = ti.topActivity.getPackageName();
-                // come la SWI68: si saltano solo systemui, tastiera e pannelli; launcher e home MG arrivano a neverReopen
+                // like the SWI68: only systemui, keyboard and panels are skipped; launcher and MG home reach neverReopen
                 if (isCamera(pkg) || topIgnored(pkg)) continue;
-                if (neverReopen(c, pkg)) return null;   // davanti c'era il launcher, la home MG o un'app esclusa
+                if (neverReopen(c, pkg)) return null;   // the launcher, the MG home or an excluded app was in front
                 return new Object[]{pkg, ti.id};
             }
         } catch (Exception ignored2) {
@@ -116,7 +116,7 @@ public final class RetroReturn {
         return pkg.equals("com.android.systemui") || pkg.equals("android") || pkg.contains("inputmethod");
     }
 
-    /** Id del task già aperto di un pacchetto, -1 se non c'è. */
+    /** Id of a package's already open task, -1 if none. */
     @SuppressWarnings("deprecation")
     private static int taskOf(Context c, String pkg) {
         try {
@@ -130,24 +130,24 @@ public final class RetroReturn {
         return -1;
     }
 
-    /** Nuova app in primo piano (servizio di accessibilità). */
+    /** New app in the foreground (accessibility service). */
     public static synchronized void onForeground(Context c, String pkg) {
         if (pkg == null || "com.android.systemui".equals(pkg)) return;
         if (isCamera(pkg)) {
-            if (!inReverse) start(c, "telecamere in primo piano (" + pkg + ")");
+            if (!inReverse) start(c, "cameras in foreground (" + pkg + ")");
             return;
         }
-        if (inReverse) end(c, "telecamere chiuse, davanti " + pkg);
+        if (inReverse) end(c, "cameras closed, in front " + pkg);
         else if (restorePending && !ignorable(c, pkg) && !pkg.equals(saved)) {
-            userChoice = true;   // tra la chiusura e il controllo l'utente ha aperto un'altra app
+            userChoice = true;   // between closing and the check the user opened another app
         }
         current = pkg;
     }
 
-    /** Broadcast delle telecamere SAIC (com.saicmotor.360camera.show / close). */
+    /** SAIC camera broadcasts (com.saicmotor.360camera.show / close). */
     public static synchronized void onCameraBroadcast(Context c, boolean show) {
-        if (show && !inReverse) start(c, "broadcast telecamere aperte");
-        else if (!show && inReverse) end(c, "broadcast telecamere chiuse");
+        if (show && !inReverse) start(c, "broadcast cameras opened");
+        else if (!show && inReverse) end(c, "broadcast cameras closed");
     }
 
     private static void start(Context c, String why) {
@@ -157,25 +157,25 @@ public final class RetroReturn {
         restorePending = false;
         broughtBy = "";
         startWhy = why;
-        // 0.4.4: l'app da riaprire è quella con una finestra vera davanti (task), non l'ultima finestra vista; mai altri
-        // launcher, app di sistema (tranne CarPlay/Android Auto), dashcam o app con sole finestre sovrapposte
+        // 0.4.4: the app to reopen is the one with a real window in front (task), not the last window seen; never other
+        // launchers, system apps (except CarPlay/Android Auto), dashcams or apps with only overlay windows
         Object[] top = topTask(c);
         String cand = current != null && !neverReopen(c, current) ? current : null;
         if (top != null && (cand == null || !isProjection(cand))) cand = (String) top[0];
         else if (top == null && cand != null && !isProjection(cand)) cand = null;
         saved = cand;
-        Diag.put("retro.ritorno", "retromarcia iniziata (" + why + ") · app memorizzata " + (saved == null ? "nessuna (davanti c'era il launcher)" : saved));
+        Diag.put("reverse.return", "reversing started (" + why + ") · saved app " + (saved == null ? "none (the launcher was in front)" : saved));
     }
 
     private static void end(Context c, String why) {
         inReverse = false;
         long dur = SystemClock.elapsedRealtime() - startedAt;
         if (saved == null) {
-            Diag.put("retro.ritorno", "fine retromarcia (" + why + ") · nessuna app da riaprire");
+            Diag.put("reverse.return", "reversing ended (" + why + ") · no app to reopen");
             return;
         }
         if (dur > MAX_REVERSE_MS) {
-            Diag.put("retro.ritorno", "fine retromarcia · " + saved + " NON riaperta: retromarcia durata " + (dur / 1000) + " s (più di 3 minuti)");
+            Diag.put("reverse.return", "reversing ended · " + saved + " NOT reopened: reversing lasted " + (dur / 1000) + " s (more than 3 minutes)");
             saved = null;
             return;
         }
@@ -184,28 +184,28 @@ public final class RetroReturn {
         h.postDelayed(() -> check(app, why, dur), CHECK_AFTER_MS);
     }
 
-    /** Annota chi ha riportato il launcher (o la home MG) in primo piano dopo le telecamere. */
+    /** Records who brought the launcher (or the MG home) to the foreground after the cameras. */
     public static synchronized void noteBroughtBy(String who) {
         if (inReverse || restorePending) broughtBy = who;
     }
 
-    /** Tasto Home premuto dall'utente: niente ritorno automatico. */
+    /** Home key pressed by the user: no automatic return. */
     public static synchronized void noteHomePressed() {
         if (inReverse || restorePending) {
             userChoice = true;
-            broughtBy = "tasto Home dell'utente";
+            broughtBy = "user's Home button";
         }
     }
 
     /**
-     * Chiamata da StartGuard quando compare la home MG da sostituire: se c'è un'app da riaprire dopo la retromarcia, si
-     * riapre quella al posto del launcher. true = gestito qui.
+     * Called by StartGuard when the MG home to replace appears: if there is an app to reopen after reversing,
+     * that one is reopened instead of the launcher. true = handled here.
      */
     public static synchronized boolean interceptMgHome(Context c) {
         if (!restorePending && !inReverse) return false;
-        broughtBy = "home MG aperta dal sistema dopo le telecamere";
+        broughtBy = "MG home opened by the system after the cameras";
         if (inReverse) return false;
-        return restoreNow(c, "home MG sostituita direttamente dall'app memorizzata");
+        return restoreNow(c, "MG home replaced directly by the saved app");
     }
 
     private static synchronized void check(Context c, String why, long dur) {
@@ -213,11 +213,11 @@ public final class RetroReturn {
         String top = StartGuard.topPackage(c);
         if (top != null && !top.equals(c.getPackageName()) && !BootWatcher.MG_HOME.equals(top)) {
             restorePending = false;
-            Diag.put("retro.ritorno", "fine retromarcia (" + (dur / 1000) + " s) · app memorizzata " + saved + " · davanti "
-                    + top + (top.equals(saved) ? ": già tornata da sola" : ": NON riaperta (scelta dell'utente)"));
+            Diag.put("reverse.return", "reversing ended (" + (dur / 1000) + " s) · saved app " + saved + " · in front "
+                    + top + (top.equals(saved) ? ": already returned on its own" : ": NOT reopened (user's choice)"));
             return;
         }
-        restoreNow(c, "launcher in primo piano dopo le telecamere" + (broughtBy.isEmpty() ? "" : " (riportato da: " + broughtBy + ")"));
+        restoreNow(c, "launcher in foreground after the cameras" + (broughtBy.isEmpty() ? "" : " (brought back by: " + broughtBy + ")"));
     }
 
     private static boolean restoreNow(Context c, String context) {
@@ -228,15 +228,15 @@ public final class RetroReturn {
         String reason = null;
         boolean on = com.mg4.launcher.ui.Prefs.retroReturn(c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE));
         Opener o = opener;
-        if (!on) reason = "impostazione spenta";
-        else if (userChoice) reason = "l'utente ha scelto un'altra app o premuto Home";
-        else if (o != null && !o.available(app)) reason = isProjection(app) ? "telefono/box non più collegato" : "app non più disponibile";
+        if (!on) reason = "setting off";
+        else if (userChoice) reason = "the user chose another app or pressed Home";
+        else if (o != null && !o.available(app)) reason = isProjection(app) ? "phone/box no longer connected" : "app no longer available";
         if (reason != null) {
-            Diag.put("retro.ritorno", context + " · app memorizzata " + app + " · NON riaperta: " + reason);
+            Diag.put("reverse.return", context + " · saved app " + app + " · NOT reopened: " + reason);
             return false;
         }
-        // 0.4.4: si riporta davanti la finestra già aperta (stesso stato, nessun riavvio, nessuna richiesta di permessi).
-        // Se il task non c'è più si avvia da zero solo CarPlay/Android Auto, come il suo pulsante; le altre app no.
+        // 0.4.4: the already open window is brought back to front (same state, no restart, no permission request).
+        // If the task is gone, only CarPlay/Android Auto is started from scratch, like its button; other apps are not.
         int task = taskOf(c, app);
         boolean ok = false;
         String method;
@@ -247,16 +247,16 @@ public final class RetroReturn {
             } catch (Exception e) {
                 ok = isProjection(app) && o != null && o.reopen(app);
             }
-            method = "task riportato davanti";
+            method = "task brought to front";
         } else if (isProjection(app)) {
             ok = o != null && o.reopen(app);
-            method = "avviata";
+            method = "started";
         } else {
-            Diag.put("retro.ritorno", context + " · app memorizzata " + app + " · NON riaperta: la sua finestra non è più aperta");
+            Diag.put("reverse.return", context + " · saved app " + app + " · NOT reopened: its window is no longer open");
             return false;
         }
-        Diag.put("retro.ritorno", context + " · app memorizzata " + app + " · " + (ok ? "riaperta" : "riapertura NON riuscita")
-                + " · metodo: " + method);
+        Diag.put("reverse.return", context + " · saved app " + app + " · " + (ok ? "reopened" : "reopen FAILED")
+                + " · method: " + method);
         return ok;
     }
 }

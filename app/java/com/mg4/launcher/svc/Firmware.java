@@ -4,33 +4,33 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 
 /**
- * Riconosce il firmware dell'auto. Questa versione del launcher è per la SWI69 (Color Radio): sulla SWI68 i servizi
- * e le app originali sono diversi (ci sono i pacchetti com.saicmotor.hmi.* e manca il fornitore di configurazione
- * com.saicmotor.caradapter.featureprovider), quindi lì il launcher non deve tentare nessun collegamento.
+ * Detects the car firmware. This launcher version is for the SWI69 (Color Radio): on the SWI68 the services
+ * and the stock apps are different (the com.saicmotor.hmi.* packages exist and the configuration provider
+ * com.saicmotor.caradapter.featureprovider is missing), so there the launcher must not attempt any connection.
  */
 public final class Firmware {
     public static final String SWI68_URL = "https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68";
 
-    /** App originali della SWI68: se ce n'è anche una sola, è una SWI68. */
+    /** Stock SWI68 apps: if even one of them is present, it is a SWI68. */
     private static final String[] SWI68_APPS = {
             "com.saicmotor.hmi.launcher", "com.saicmotor.hmi.systemsettings", "com.saicmotor.hmi.radio",
             "com.saicmotor.hmi.hvac", "com.saicmotor.hmi.btcall", "com.saicmotor.hmi.aroundview",
             "com.saicmotor.hmi.vehiclesettings"};
 
-    /** Esito: SWI69 (giusta), SWI68 (versione sbagliata), ALTRO (né l'una né l'altra, es. un telefono). */
+    /** Result: SWI69 (correct), SWI68 (wrong version), OTHER (neither, e.g. a phone). */
     public static final int SWI69 = 0, SWI68 = 1, OTHER = 2;
     private static Integer kind;
 
     private Firmware() {}
 
-    /** True se questa versione non è adatta al dispositivo: non si tenta nessun collegamento. */
+    /** True if this version does not fit the device: no connection is attempted. */
     public static boolean wrong(Context c) {
         return kind(c) != SWI69;
     }
 
     /**
-     * Telefono o emulatore invece dell'infotainment: restituisce il motivo, oppure null se è un'auto (anche con il
-     * firmware dell'altra versione). Su questi dispositivi il launcher non invia log.
+     * Phone or emulator instead of the infotainment: returns the reason, or null if it is a car (even with the
+     * firmware of the other version). On these devices the launcher does not send logs.
      */
     public static String notACar(Context c) {
         String fp = lower(android.os.Build.FINGERPRINT), hw = lower(android.os.Build.HARDWARE), prod = lower(android.os.Build.PRODUCT),
@@ -39,10 +39,10 @@ public final class Firmware {
         if (fp.startsWith("generic") || fp.contains("emulator") || fp.contains("sdk_gphone") || hw.contains("goldfish")
                 || hw.contains("ranchu") || prod.contains("sdk") || prod.contains("emulator") || model.contains("android sdk built for")
                 || model.startsWith("generic") || model.contains("emulator"))
-            return "emulatore (" + dev + ")";
-        if (kind(c) == OTHER) return "firmware non riconosciuto, nessuna app MG (" + dev + ")";
+            return "emulator (" + dev + ")";
+        if (kind(c) == OTHER) return "firmware not recognized, no MG apps (" + dev + ")";
         for (String b : new String[]{"google", "oneplus", "samsung", "xiaomi", "redmi", "huawei", "oppo", "motorola", "sony", "nothing"})
-            if (brand.equals(b) || man.equals(b)) return "telefono (" + dev + ")";
+            if (brand.equals(b) || man.equals(b)) return "phone (" + dev + ")";
         return null;
     }
 
@@ -72,9 +72,9 @@ public final class Firmware {
             mgHome = false;
         }
         kind = found > 0 || (!provider && !mgHome) ? (found > 0 ? SWI68 : OTHER) : SWI69;
-        Diag.put("firmware", (kind == SWI68 ? "SWI68 (versione sbagliata)" : kind == OTHER ? "non riconosciuto (nessuna app MG SWI69)" : "SWI69")
-                + " · fornitore config " + (provider ? "sì" : "no") + " · home MG SWI69 " + (mgHome ? "sì" : "no")
-                + (found > 0 ? " · app SWI68 trovate: " + sb : ""));
+        Diag.put("firmware", (kind == SWI68 ? "SWI68 (wrong version)" : kind == OTHER ? "not recognized (no MG SWI69 apps)" : "SWI69")
+                + " · config provider " + (provider ? "yes" : "no") + " · MG SWI69 home " + (mgHome ? "yes" : "no")
+                + (found > 0 ? " · SWI68 apps found: " + sb : ""));
         return kind;
     }
 }

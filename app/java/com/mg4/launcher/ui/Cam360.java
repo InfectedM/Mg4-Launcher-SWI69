@@ -8,8 +8,8 @@ import android.content.pm.ResolveInfo;
 import com.mg4.launcher.svc.Diag;
 
 /**
- * 1.0.0: cosa apre il tasto 360 della barra. Scelte: 360 originale (predefinito), MG4 360 (solo se installata),
- * un'altra app installata, nascosto. Se l'auto non ha la telecamera 360 il predefinito è "nascosto".
+ * 1.0.0: what the bar's 360 button opens. Choices: original 360 (default), MG4 360 (only if installed),
+ * another installed app, hidden. If the car has no 360 camera the default is "hidden".
  */
 public final class Cam360 {
     public static final String ORIG_PKG = "com.saicmotor.evs";
@@ -17,7 +17,7 @@ public final class Cam360 {
 
     public static final int ORIGINAL = 0, MG4 = 1, APP = 2, HIDDEN = 3;
 
-    /** Cosa fare: tipo, pacchetto e attività da aprire (cls null = attività principale del pacchetto). */
+    /** What to do: kind, package and activity to open (cls null = the package's main activity). */
     public static final class Target {
         public final int kind;
         public final String pkg, cls, label;
@@ -34,12 +34,12 @@ public final class Cam360 {
 
     private Cam360() {}
 
-    /** True se c'è l'app originale della telecamera 360 (l'auto ha la telecamera). */
+    /** True if the original 360 camera app is present (the car has the camera). */
     public static boolean hasOriginal(Context c) {
         return installed(c, ORIG_PKG);
     }
 
-    /** Pacchetto di MG4 360 se installata (com.mg4.* con "360" nel nome o nell'etichetta), altrimenti null. */
+    /** MG4 360 package if installed (com.mg4.* with "360" in the name or label), otherwise null. */
     public static String mg4Package(Context c) {
         PackageManager pm = c.getPackageManager();
         try {
@@ -81,7 +81,7 @@ public final class Cam360 {
         }
     }
 
-    /** Scelta effettiva; se l'app scelta non c'è più si torna al predefinito (e lo si scrive nella diagnostica). */
+    /** Effective choice; if the chosen app is gone, fall back to the default (and record it in the diagnostics). */
     public static Target resolve(Context c, Prefs p) {
         String v = p.cam360();
         boolean orig = hasOriginal(c);
@@ -94,29 +94,29 @@ public final class Cam360 {
             if (pkg != null) t = new Target(MG4, pkg, null, label(c, pkg));
             else {
                 t = def(orig);
-                note = " (MG4 360 non installata: predefinito)";
+                note = " (MG4 360 not installed: default)";
             }
         } else if (v.startsWith(Prefs.CAM_APP)) {
             String pkg = v.substring(Prefs.CAM_APP.length());
-            // 0.4.3: se l'app scelta non c'è più (o non si può aprire) torna il tasto predefinito, senza crash
+            // 0.4.3: if the chosen app is gone (or cannot be opened) the default button comes back, without crashing
             if (!pkg.isEmpty() && installed(c, pkg) && launchable(c, pkg)) t = new Target(APP, pkg, null, label(c, pkg));
             else {
                 t = def(orig);
-                note = " (" + (pkg.isEmpty() ? "app vuota" : pkg) + " non installata o non apribile: predefinito)";
+                note = " (" + (pkg.isEmpty() ? "empty app" : pkg) + " not installed or cannot be opened: default)";
             }
         } else if (Prefs.CAM_ORIGINAL.equals(v)) {
             t = orig ? new Target(ORIGINAL, ORIG_PKG, ORIG_CLS, "") : def(false);
-            if (!orig) note = " (360 originale assente: nascosto)";
+            if (!orig) note = " (original 360 missing: hidden)";
         } else {
             t = def(orig);
         }
-        String kind = t.kind == ORIGINAL ? "360 originale" : t.kind == MG4 ? "MG4 360 " + t.pkg
-                : t.kind == APP ? "app " + t.pkg : "nascosto";
-        String d = "scelta " + (v.isEmpty() ? "predefinita" : v) + " → " + kind + note + " · telecamera originale "
-                + (orig ? "presente" : "assente") + " · MG4 360 " + (mg4Package(c) != null ? "installata" : "assente");
+        String kind = t.kind == ORIGINAL ? "original 360" : t.kind == MG4 ? "MG4 360 " + t.pkg
+                : t.kind == APP ? "app " + t.pkg : "hidden";
+        String d = "choice " + (v.isEmpty() ? "default" : v) + " → " + kind + note + " · original camera "
+                + (orig ? "present" : "missing") + " · MG4 360 " + (mg4Package(c) != null ? "installed" : "missing");
         if (!d.equals(lastDiag)) {
             lastDiag = d;
-            Diag.put("barra.tasto360", d);
+            Diag.put("bar.button360", d);
         }
         return t;
     }

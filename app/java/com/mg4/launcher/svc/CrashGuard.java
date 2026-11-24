@@ -4,10 +4,10 @@ import android.content.Context;
 import android.content.SharedPreferences;
 
 /**
- * Salvavita dell'avvio sicuro (come MG4Dash): 3 crash del launcher in 3 minuti → la schermata della home MG si
- * riattiva subito, così lo schermo dell'auto non resta mai senza home. L'avvio sicuro resta sospeso finché
- * l'utente non apre di nuovo il launcher a mano (o non riaccende l'opzione).
- * I dati stanno nella memoria "device protected", leggibile anche prima dello sblocco.
+ * Safe-start lifesaver (like MG4Dash): 3 launcher crashes in 3 minutes → the MG home screen is
+ * re-enabled immediately, so the car screen is never left without a home. Safe start stays suspended until
+ * the user opens the launcher by hand again (or turns the option back on).
+ * The data lives in "device protected" storage, readable even before unlock.
  */
 public final class CrashGuard {
     private static final int LIMIT = 3;
@@ -25,7 +25,7 @@ public final class CrashGuard {
         return d.getSharedPreferences("mg4salvavita", Context.MODE_PRIVATE);
     }
 
-    /** Avvio sicuro sospeso dopo troppi crash? */
+    /** Safe start suspended after too many crashes? */
     public static boolean tripped(Context c) {
         try {
             return sp(c).getBoolean("scattato", false);
@@ -34,7 +34,7 @@ public final class CrashGuard {
         }
     }
 
-    /** L'utente ha aperto il launcher a mano: si può riprovare l'avvio sicuro. */
+    /** The user opened the launcher by hand: safe start can be retried. */
     public static void reset(Context c) {
         try {
             SharedPreferences s = sp(c);
@@ -45,7 +45,7 @@ public final class CrashGuard {
         }
     }
 
-    /** Da chiamare all'avvio del processo (attività, servizio di accessibilità, receiver). */
+    /** To be called at process start (activity, accessibility service, receiver). */
     public static synchronized void install(Context c) {
         if (installed) return;
         installed = true;
@@ -72,12 +72,12 @@ public final class CrashGuard {
                 if (n >= LIMIT) {
                     ed.putBoolean("scattato", true).putLong("scattatoAlle", now);
                     ed.commit();
-                    HomeLock.release(app, "salvavita: " + n + " crash in 3 minuti");
+                    HomeLock.release(app, "safeguard: " + n + " crashes in 3 minutes");
                 } else {
                     ed.commit();
                 }
             } catch (Throwable ignored) {
-                // mai nascondere il crash originale
+                // never hide the original crash
             }
             if (prev != null) prev.uncaughtException(t, e);
         });

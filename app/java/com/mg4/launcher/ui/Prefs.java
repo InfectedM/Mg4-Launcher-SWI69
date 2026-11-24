@@ -6,7 +6,7 @@ import android.content.SharedPreferences;
 import java.util.HashSet;
 import java.util.Set;
 
-/** Impostazioni del launcher. */
+/** Launcher settings. */
 public final class Prefs {
     public static final String[] CAR_COLORS = {
             "Arctic White", "Black Pearl", "Camden Grey", "Cosmic Silver",
@@ -14,13 +14,13 @@ public final class Prefs {
     public static final int[] CAR_COLOR_VALUES = {
             0xFFE8E9E6, 0xFF202227, 0xFF5D6166, 0xFFA9ADB2,
             0xFF4C6A5A, 0xFF2E5597, 0xFFA5161E, 0xFFE1621F};
-    /** Cerchi: nomi, immagini e grandezza rispetto ai 17" della foto. */
+    /** Rims: names, images and size relative to the 17" of the photo. */
     public static final int[] WHEEL_NAMES = {com.mg4.launcher.R.string.wheel_16, com.mg4.launcher.R.string.wheel_17,
             com.mg4.launcher.R.string.wheel_18_lux, com.mg4.launcher.R.string.wheel_18_xpower};
-    public static final int[] WHEEL_RES = {com.mg4.launcher.R.drawable.rim_nero16, com.mg4.launcher.R.drawable.rim_aero17,
+    public static final int[] WHEEL_RES = {com.mg4.launcher.R.drawable.rim_black16, com.mg4.launcher.R.drawable.rim_aero17,
             com.mg4.launcher.R.drawable.rim_luxury18, com.mg4.launcher.R.drawable.rim_xpower18};
     public static final float[] WHEEL_SCALE = {0.95f, 1f, 1.06f, 1.06f};
-    /** I cerchi della foto dell'auto (di serie): non si ridisegnano. */
+    /** The rims of the car photo (stock): not redrawn. */
     public static final int WHEEL_PHOTO = 1;
     public static final String THEME_AUTO = "auto", THEME_NIGHT = "notte", THEME_DAY = "giorno";
 
@@ -31,7 +31,7 @@ public final class Prefs {
         migrateFrom02x();
     }
 
-    /** Impostazioni della SWI69 0.2.x con i nomi vecchi: si copiano una volta nei nomi della 0.3.0 (comuni alla SWI68). */
+    /** SWI69 0.2.x settings with the old names: copied once into the 0.3.0 names (shared with the SWI68). */
     private void migrateFrom02x() {
         if (sp.getBoolean("migrato030", false)) return;
         SharedPreferences.Editor e = sp.edit();
@@ -58,8 +58,8 @@ public final class Prefs {
         sp.edit().putInt("cerchi", i).apply();
     }
 
-    // --- Vidros: fecho automático ao sair do carro ---
-    /** Modo de cada vidro: AUTO = fecho automático do carro, PULSE = comando "subir" mantido, OFF = nunca. */
+    // --- Windows: automatic closing when leaving the car ---
+    /** Mode of each window: AUTO = car's automatic closing, PULSE = held "up" command, OFF = never. */
     public static final int WIN_AUTO = 0, WIN_PULSE = 1, WIN_OFF = 2;
     public static final int[] WIN_SPEEDS = {5, 10, 20, 30, 40};
     public static final int[] WIN_MINUTES = {1, 3, 5, 10, 15};
@@ -98,7 +98,7 @@ public final class Prefs {
         sp.edit().putInt("vidros.atraso", s).apply();
     }
 
-    /** true = a contagem começa quando a porta abre; false = quando fecha. */
+    /** true = the countdown starts when the door opens; false = when it closes. */
     public boolean winOnDoorOpen() {
         return sp.getBoolean("vidros.portaAbre", true);
     }
@@ -123,7 +123,7 @@ public final class Prefs {
         sp.edit().putInt("vidros.bipVolume", v).apply();
     }
 
-    /** area: 0 frente esquerda, 1 frente direita, 2 trás esquerda, 3 trás direita. */
+    /** area: 0 front left, 1 front right, 2 rear left, 3 rear right. */
     public int winMode(int area) {
         int m = sp.getInt("vidros.modo" + area, WIN_PULSE);
         return m < WIN_AUTO || m > WIN_OFF ? WIN_PULSE : m;
@@ -149,7 +149,7 @@ public final class Prefs {
         sp.edit().putString("theme", m).apply();
     }
 
-    // --- app installate nascoste dalla griglia ---
+    // --- installed apps hidden from the grid ---
 
     public Set<String> hiddenApps() {
         return new HashSet<>(sp.getStringSet("hiddenApps", new HashSet<>()));
@@ -162,10 +162,10 @@ public final class Prefs {
         sp.edit().putStringSet("hiddenApps", s).apply();
     }
 
-    // --- aggiornamenti da GitHub ---
+    // --- updates from GitHub ---
     public static final String DEFAULT_REPO = "InfectedM/Mg4-Launcher-SWI69";
-    /** Nomi precedenti del repository (rinominato): si passa da soli al nuovo. */
-    // fork: quem vinha da versão original com o repositório guardado passa para o do fork
+    /** Previous repository names (renamed): switched to the new one automatically. */
+    // fork: anyone coming from the original version with the repository saved moves to the fork's one
     private static final String[] OLD_REPOS = {"ernestomicco2026-cell/Mg4-Launcher-SW169", "ernestomicco2026-cell/Mg4-Launcher-SWI69"};
 
     public String updateRepo() {
@@ -183,7 +183,7 @@ public final class Prefs {
         sp.edit().putString("ghRepo", r == null || r.trim().isEmpty() ? DEFAULT_REPO : r.trim()).apply();
     }
 
-    /** Token GitHub di sola lettura: serve perché il repository è privato. */
+    /** Read-only GitHub token: needed because the repository is private. */
     public String githubToken() {
         return sp.getString("ghToken", "");
     }
@@ -192,11 +192,11 @@ public final class Prefs {
         sp.edit().putString("ghToken", tok == null ? "" : tok.trim()).apply();
     }
 
-    // --- navigatore predefinito: "auto" (telefono se collegato, altrimenti MG), "mg", "phone" o nome pacchetto ---
+    // --- default navigator: "auto" (phone if connected, otherwise MG), "mg", "phone" or package name ---
     public static final String NAV_AUTO = "auto", NAV_MG = "mg", NAV_PHONE = "phone";
 
     public String navApp() {
-        // 0.4.4: sulla SWI69 non c'è il navigatore MG: predefinito Automatico (anche per un vecchio valore "mg")
+        // 0.4.4: the SWI69 has no MG navigator: default Automatic (also for an old "mg" value)
         String v = sp.getString("navApp", NAV_AUTO);
         return NAV_MG.equals(v) ? NAV_AUTO : v;
     }
@@ -205,7 +205,7 @@ public final class Prefs {
         sp.edit().putString("navApp", v).apply();
     }
 
-    // --- lingua: "auto" (lingua di sistema) o codice (it, en, es, de, pt, fr, tr) ---
+    // --- language: "auto" (system language) or code (it, en, es, de, pt, fr, tr) ---
     public String language() {
         return sp.getString("language", com.mg4.launcher.L.AUTO);
     }
@@ -214,7 +214,7 @@ public final class Prefs {
         sp.edit().putString("language", code).apply();
     }
 
-    // --- visualizzazione ---
+    // --- display ---
     public boolean socDecimals() {
         return sp.getBoolean("socDecimals", false);
     }
@@ -223,7 +223,7 @@ public final class Prefs {
         sp.edit().putBoolean("socDecimals", b).apply();
     }
 
-    /** 0.3.4: percentuale della batteria in grande e autonomia accanto alla barra (km e % invertiti). */
+    /** 0.3.4: battery percentage large and range next to the bar (km and % swapped). */
     public boolean socBig() {
         return sp.getBoolean("socBig", false);
     }
@@ -240,12 +240,12 @@ public final class Prefs {
         sp.edit().putBoolean("showTpms", b).apply();
     }
 
-    /** Popup discreto quando su GitHub c'è una versione nuova. */
+    /** Discreet popup when a new version is on GitHub. */
     public boolean updatePopup() {
         return sp.getBoolean("updatePopup", true);
     }
 
-    /** Ultima versione per cui è stato premuto "Più tardi": per quella il popup non ricompare. */
+    /** Last version for which "Più tardi" was pressed: for that one the popup does not reappear. */
     public String dismissedUpdate() {
         return sp.getString("dismissedUpdate", "");
     }
@@ -254,7 +254,7 @@ public final class Prefs {
         sp.edit().putString("dismissedUpdate", tag == null ? "" : tag).apply();
     }
 
-    /** Dimensione dei comandi: 0 Normale, 1 Grande, 2 Molto grande. */
+    /** Control size: 0 Normal, 1 Large, 2 Very large. */
     public static final float[] UI_SCALES = {1f, 1.15f, 1.3f};
 
     public int uiScale() {
@@ -265,7 +265,7 @@ public final class Prefs {
         sp.edit().putInt("dimensioneComandi", i).apply();
     }
 
-    /** Dimensione della schermata App (icone e testo): 0 Normale, 1 Grande, 2 Molto grande (1.x). */
+    /** Size of the App screen (icons and text): 0 Normal, 1 Large, 2 Very large (1.x). */
     public static final float[] APPS_SCALES = {1f, 1.25f, 1.5f};
 
     public int appsScale() {
@@ -284,7 +284,7 @@ public final class Prefs {
         return UI_SCALES[uiScale()];
     }
 
-    /** Posizione di guida: "auto" (come l'auto), "left", "right". */
+    /** Driving position: "auto" (as the car), "left", "right". */
     public static final String DRIVE_AUTO = "auto", DRIVE_LEFT = "left", DRIVE_RIGHT = "right";
 
     public String driveSide() {
@@ -296,7 +296,7 @@ public final class Prefs {
         sp.edit().putString("posizioneGuida", v).apply();
     }
 
-    /** Temperatura interna sotto quella esterna (spenta di default: molte auto non la forniscono). */
+    /** Inside temperature under the outside one (off by default: many cars do not provide it). */
     public boolean showInsideTemp() {
         return sp.getBoolean("showInsideTemp", false);
     }
@@ -305,14 +305,14 @@ public final class Prefs {
         sp.edit().putBoolean("showInsideTemp", b).apply();
     }
 
-    /** True se l'auto non fornisce la temperatura interna (l'opzione allora si nasconde). */
+    /** True if the car does not provide the inside temperature (the option is then hidden). */
     public boolean insideTempMissing() {
         return sp.getBoolean("tempInternaAssente", false);
     }
 
     /**
-     * 0.4.3: temperatura interna Automatico (solo se l'auto la fornisce) / Mostra (anche "--") / Nascondi.
-     * Chi aveva acceso l'interruttore della 1.0.2 passa ad Automatico, chi non l'aveva toccato resta con Nascondi.
+     * 0.4.3: inside temperature Automatic (only if the car provides it) / Show (even "--") / Hide.
+     * Those who had turned on the 1.0.2 switch move to Automatic, those who had not touched it stay on Hide.
      */
     public String insideTempMode() {
         String v = sp.getString("tempInternaModo", null);
@@ -324,9 +324,9 @@ public final class Prefs {
         sp.edit().putString("tempInternaModo", v).apply();
     }
 
-    // --- novità 0.8.0 ---
+    // --- new in 0.8.0 ---
 
-    /** Data tra l'autonomia e l'ora (spenta di default). */
+    /** Date between the range and the time (off by default). */
     public boolean showDate() {
         return sp.getBoolean("mostraData", false);
     }
@@ -335,7 +335,7 @@ public final class Prefs {
         sp.edit().putBoolean("mostraData", b).apply();
     }
 
-    /** Unità della pressione pneumatici: "auto" (come il quadro), "bar", "kpa", "psi". */
+    /** Tyre pressure unit: "auto" (as the cluster), "bar", "kpa", "psi". */
     public static final String TYRE_AUTO = "auto", TYRE_BAR = "bar", TYRE_KPA = "kpa", TYRE_PSI = "psi";
 
     public String tyreUnit() {
@@ -347,7 +347,7 @@ public final class Prefs {
         sp.edit().putString("unitaPressione", v).apply();
     }
 
-    /** Pulsanti di ricarica sotto l'auto (spenti di default: lo spazio va all'auto). */
+    /** Charging buttons under the car (off by default: the space goes to the car). */
     public boolean chargeButtons() {
         return sp.getBoolean("pulsantiRicarica", false);
     }
@@ -356,7 +356,7 @@ public final class Prefs {
         sp.edit().putBoolean("pulsantiRicarica", b).apply();
     }
 
-    /** Pulsante retronebbia: "auto" (nascosto se la barra di sistema ha già la sua spia), "show", "hide". */
+    /** Rear fog button: "auto" (hidden if the system bar already has its indicator), "show", "hide". */
     public static final String FOG_AUTO = "auto", FOG_SHOW = "show", FOG_HIDE = "hide";
 
     public String rearFogMode() {
@@ -368,13 +368,13 @@ public final class Prefs {
         sp.edit().putString("retronebbia", v).apply();
     }
 
-    /** Pulsante retronebbia visibile? systemIndicator = la barra di sistema mostra già la spia luci. */
+    /** Rear fog button visible? systemIndicator = the system bar already shows the lights indicator. */
     public boolean showRearFog(boolean systemIndicator) {
         String m = rearFogMode();
         return FOG_SHOW.equals(m) || (FOG_AUTO.equals(m) && !systemIndicator);
     }
 
-    /** Barra in basso grande (150 px, pulsanti 120 px); senza mini player. */
+    /** Large bottom bar (150 px, buttons 120 px); without mini player. */
     public boolean bigBar() {
         return sp.getBoolean("barraGrande", false);
     }
@@ -383,7 +383,7 @@ public final class Prefs {
         sp.edit().putBoolean("barraGrande", b).apply();
     }
 
-    /** 0.8.2: A/C, AUTO e ricircolo in "Clima", sedili e volante in "Comfort" (un pulsante per gruppo). */
+    /** 0.8.2: A/C, AUTO and recirculation in "Clima", seats and wheel in "Comfort" (one button per group). */
     public boolean groupedButtons() {
         return sp.getBoolean("pulsantiRaggruppati", true);
     }
@@ -392,7 +392,7 @@ public final class Prefs {
         sp.edit().putBoolean("pulsantiRaggruppati", b).apply();
     }
 
-    /** 0.8.2: pulsanti LKA e OPD nella barra (se l'auto li ha). */
+    /** 0.8.2: LKA and OPD buttons in the bar (if the car has them). */
     public boolean showAssist() {
         return sp.getBoolean("mostraAssistenza", true);
     }
@@ -401,7 +401,7 @@ public final class Prefs {
         sp.edit().putBoolean("mostraAssistenza", b).apply();
     }
 
-    /** Secondi dopo l'accensione per premere Home da soli: 0 = spento, 5/10/15/20/30. */
+    /** Seconds after power-on to press Home automatically: 0 = off, 5/10/15/20/30. */
     public static final int[] AUTO_HOME_SECONDS = {0, 5, 10, 15, 20, 30};
 
     public int autoHomeSeconds() {
@@ -418,7 +418,7 @@ public final class Prefs {
         sp.edit().putInt("premiHomeSecondi", s).apply();
     }
 
-    /** Ultima versione per cui è stato mostrato il popup "Novità". */
+    /** Last version for which the "Novità" popup was shown. */
     public String newsShownFor() {
         return sp.getString("novitaVersione", "");
     }
@@ -429,7 +429,7 @@ public final class Prefs {
 
     // --- 0.4.0 ---
 
-    /** Unità delle distanze: "auto" (come il quadro), "km", "mi". */
+    /** Distance unit: "auto" (as the cluster), "km", "mi". */
     public static final String DIST_AUTO = "auto", DIST_KM = "km", DIST_MI = "mi";
 
     public String distUnit() {
@@ -441,7 +441,7 @@ public final class Prefs {
         sp.edit().putString("unitaDistanza", v).apply();
     }
 
-    /** Tasto 360 della barra: "" predefinito, "orig", "mg4", "app:<pacchetto>", "nascosto". */
+    /** 360 key of the bar: "" default, "orig", "mg4", "app:<package>", "nascosto". */
     public static final String CAM_ORIGINAL = "orig", CAM_MG4 = "mg4", CAM_APP = "app:", CAM_HIDDEN = "nascosto";
 
     public String cam360() {
@@ -454,17 +454,17 @@ public final class Prefs {
 
     // --- 0.4.2 ---
 
-    /** Scelte a tre vie: "auto" (come l'auto), "show" (mostra sempre), "hide" (nascondi sempre). */
+    /** Three-way choices: "auto" (as the car), "show" (always show), "hide" (always hide). */
     public static final String SHOW_AUTO = "auto", SHOW_ON = "show", SHOW_OFF = "hide";
 
     // --- 0.4.3 ---
 
     /**
-     * 1.0.4 (issue #28): sorgenti audio da mostrare. Si salvano quelle NASCOSTE (così le sorgenti nuove compaiono da
-     * sole); predefinito: nessuna nascosta. CarPlay e Android Auto non si nascondono.
+     * 1.0.4 (issue #28): audio sources to show. The HIDDEN ones are saved (so new sources appear by
+     * themselves); default: none hidden. CarPlay and Android Auto cannot be hidden.
      */
     public boolean sourceShown(int src) {
-        // 0.4.4 (SWI69): la seconda porta USB segue la scelta di "USB"
+        // 0.4.4 (SWI69): the second USB port follows the "USB" choice
         if (src == com.mg4.launcher.svc.MediaClient.SRC_USB2) src = com.mg4.launcher.svc.MediaClient.SRC_USB;
         return !("," + sp.getString("sorgentiNascoste", "") + ",").contains("," + src + ",");
     }
@@ -477,7 +477,7 @@ public final class Prefs {
         sp.edit().putString("sorgentiNascoste", android.text.TextUtils.join(",", set)).apply();
     }
 
-    /** 1.0.4 (punto F): animazione di ricarica (predefinito: attiva). */
+    /** 1.0.4 (point F): charging animation (default: on). */
     public boolean chargeAnim() {
         return sp.getBoolean("animazioneRicarica", true);
     }
@@ -486,9 +486,9 @@ public final class Prefs {
         sp.edit().putBoolean("animazioneRicarica", on).apply();
     }
 
-    /** Ordine in alto nel riquadro destro: false = sorgenti poi Mappa/Media (attuale, predefinito), true = scambiato. */
+    /** Order at the top of the right panel: false = sources then Map/Media (current, default), true = swapped. */
 
-    /** Riquadro in basso accanto al clima: "media" (come prima, predefinito), "telefono" (preferiti), "app" (scorciatoie). */
+    /** Bottom panel next to the climate: "media" (as before, default), "telefono" (favourites), "app" (shortcuts). */
     public static final String TILE_MEDIA = "media", TILE_PHONE = "telefono", TILE_APPS = "app";
     public static final int TILE_MAX = 6;
 
@@ -501,7 +501,7 @@ public final class Prefs {
         sp.edit().putString("riquadroBasso", v).apply();
     }
 
-    /** Preferiti telefono scelti dall'utente (nome, numero), al massimo 6. Restano solo sull'auto, mai nei log. */
+    /** Phone favourites chosen by the user (name, number), at most 6. They stay only on the car, never in the logs. */
     public java.util.List<String[]> tileContacts() {
         java.util.List<String[]> out = new java.util.ArrayList<>();
         for (String line : sp.getString("riquadroContatti", "").split("\n")) {
@@ -522,7 +522,7 @@ public final class Prefs {
         sp.edit().putString("riquadroContatti", sb.toString()).apply();
     }
 
-    /** Scorciatoie app del riquadro (pacchetti), al massimo 6. */
+    /** App shortcuts of the panel (packages), at most 6. */
     public java.util.List<String> tileApps() {
         java.util.List<String> out = new java.util.ArrayList<>();
         for (String p : sp.getString("riquadroApp", "").split(",")) if (!p.trim().isEmpty() && out.size() < TILE_MAX) out.add(p.trim());
@@ -538,7 +538,7 @@ public final class Prefs {
         return SHOW_ON.equals(v) || SHOW_OFF.equals(v) ? v : SHOW_AUTO;
     }
 
-    /** Punto 7d: limite di ricarica (Automatico = solo se l'auto supporta il comando). */
+    /** Point 7d: charge limit (Automatic = only if the car supports the command). */
     public String chargeLimitMode() {
         return tri("limiteRicaricaModo");
     }
@@ -547,7 +547,7 @@ public final class Prefs {
         sp.edit().putString("limiteRicaricaModo", v).apply();
     }
 
-    /** Punto 9: riscaldamento sedili e volante (Automatico = secondo la configurazione dell'auto). */
+    /** Point 9: seat and wheel heating (Automatic = according to the car configuration). */
     public String heatMode() {
         return tri("riscaldamentoModo");
     }
@@ -556,7 +556,7 @@ public final class Prefs {
         sp.edit().putString("riscaldamentoModo", v).apply();
     }
 
-    /** Punto 6: dopo la retromarcia si torna all'app di prima (CarPlay, Android Auto, navigatore…). */
+    /** Point 6: after reversing, return to the previous app (CarPlay, Android Auto, navigator…). */
     public boolean retroReturn() {
         return sp.getBoolean("retroRitorno", true);
     }
@@ -569,10 +569,10 @@ public final class Prefs {
         return sp.getBoolean("retroRitorno", true);
     }
 
-    /** Punto 8b: pulsante in alto a destra: "proj" (CarPlay / Android Auto), "app:<pacchetto>", "none". */
+    /** Point 8b: top-right button: "proj" (CarPlay / Android Auto), "app:<package>", "none". */
     /**
-     * Pulsante accanto a Mappa/Media (dalla SWI68 1.0.4): nessuno o un'app. CarPlay/Android Auto stanno nella barra in
-     * basso. 0.4.4: si riprende la scelta "un'app" del vecchio pulsante in alto a destra della 0.4.2–0.4.3.
+     * Button next to Map/Media (from SWI68 1.0.4): none or an app. CarPlay/Android Auto are in the bottom
+     * bar. 0.4.4: the "an app" choice of the old top-right button of 0.4.2–0.4.3 is carried over.
      */
     public static final String TOP_PROJECTION = "proiezione", TOP_APP = "app:", TOP_NONE = "nessuno";
 

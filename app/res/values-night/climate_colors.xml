@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- MG4 Clima 1.4.0 · climate button colours, NIGHT theme. -->
+<resources>
+    <color name="climate_on">#FF4FB3FF</color>
+    <color name="climate_on_bg">#FF13324D</color>
+    <color name="climate_off">#FF9AA5B5</color>
+    <color name="climate_off_bg">#FF1A202B</color>
+    <color name="climate_unavailable">#669AA5B5</color>
+    <color name="climate_warm">#FFFF7A3D</color>
+    <color name="climate_warm_bg">#FF2E241F</color>
+    <color name="climate_label_on">#FFF2F5FA</color>
+</resources>

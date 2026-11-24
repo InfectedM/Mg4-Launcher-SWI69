@@ -4,71 +4,71 @@
 
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
-    <!-- indicatori Bluetooth e Wi-Fi in alto a destra -->
+    <!-- Bluetooth and Wi-Fi indicators at top right -->
     <uses-permission android:name="android.permission.BLUETOOTH" />
-    <!-- 0.4.3: rubrica del telefono Bluetooth per i "Preferiti telefono" del riquadro sotto la stazione -->
+    <!-- 0.4.3: Bluetooth phone contacts for the "Phone favourites" in the panel below the station -->
     <uses-permission android:name="android.permission.READ_CONTACTS" />
-    <!-- 0.4.4: il launcher scrive il tema giorno/notte nel sistema (Settings.System SKIN_THEME_CONFIG, come le app SAIC EH32) -->
+    <!-- 0.4.4: the launcher writes the day/night theme to the system (Settings.System SKIN_THEME_CONFIG, like the SAIC EH32 apps) -->
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
-    <!-- 1.0.4: luci dell'auto (posizione, anabbaglianti, leva) per i fari e il tema -->
+    <!-- 1.0.4: car lights (position, low beam, stalk) for the headlights and the theme -->
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_LIGHTS" />
-    <!-- 1.0.4: riportare davanti la finestra già aperta dopo la retromarcia -->
+    <!-- 1.0.4: bring the already open window back to front after reverse gear -->
     <uses-permission android:name="android.permission.REORDER_TASKS" />
     <uses-permission android:name="android.permission.ACCESS_WIFI_STATE" />
-    <!-- CarService: pressione pneumatici (TPMS) e temperatura interna -->
+    <!-- CarService: tyre pressure (TPMS) and cabin temperature -->
     <uses-permission android:name="android.car.permission.CAR_TIRES" />
     <uses-permission android:name="android.car.permission.CAR_SPEED" />
     <uses-permission android:name="android.car.permission.CAR_ENGINE_DETAILED" />
     <uses-permission android:name="android.car.permission.CAR_VENDOR_EXTENSION" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_CLIMATE" />
-    <!-- fork 0.4.8: vidros pelas propriedades do CarService (VEHICLE_DRIVERWINDOW…), como o MG4Control -->
+    <!-- fork 0.4.8: windows via CarService properties (VEHICLE_DRIVERWINDOW…), like MG4Control -->
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS" />
     <uses-permission android:name="android.car.permission.CONTROL_CAR_WINDOWS" />
     <uses-permission android:name="android.car.permission.CAR_EXTERIOR_ENVIRONMENT" />
     <uses-permission android:name="android.car.permission.CAR_INFO" />
-    <!-- concessi automaticamente perché l'app è firmata con la chiave platform del sistema -->
+    <!-- granted automatically because the app is signed with the system platform key -->
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <uses-permission android:name="android.permission.REAL_GET_TASKS" />
-    <!-- avvio all'accensione e riconferma della home predefinita -->
+    <!-- start at power-on and re-confirm the default home -->
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.SET_PREFERRED_APPLICATIONS" />
-    <!-- avvio sicuro: disattiva solo la schermata della home MG (firma platform) -->
+    <!-- safe start: disables only the MG home screen (platform signature) -->
     <uses-permission android:name="android.permission.CHANGE_COMPONENT_ENABLED_STATE" />
-    <!-- attivazione permanente del servizio di accessibilità (concesso dalla firma platform) -->
+    <!-- permanent enabling of the accessibility service (granted by the platform signature) -->
     <uses-permission android:name="android.permission.WRITE_SECURE_SETTINGS" />
-    <!-- aggiornamento da GitHub senza conferma (permesso di sistema, concesso dalla firma platform) -->
+    <!-- update from GitHub without confirmation (system permission, granted by the platform signature) -->
     <uses-permission android:name="android.permission.INSTALL_PACKAGES" />
     <uses-permission android:name="android.permission.REQUEST_INSTALL_PACKAGES" />
-    <!-- loghi radio dell'utente (cartella MG4Launcher/loghi su memoria o chiavetta): il permesso si concede da solo -->
+    <!-- user radio logos (MG4Launcher/loghi folder on storage or USB stick): the permission is granted automatically -->
     <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE" />
-    <!-- fork: "Guardar registo" em pastas visíveis (Download/MG4Launcher e MG4Launcher/registos na pen USB);
-         WRITE_MEDIA_STORAGE (concedido pela firma platform) permite escrever na raiz da pen USB -->
+    <!-- fork: "Save log" to visible folders (Download/MG4Launcher and MG4Launcher/registos on the USB stick);
+         WRITE_MEDIA_STORAGE (granted by the platform signature) allows writing to the USB stick root -->
     <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE" />
     <uses-permission android:name="android.permission.WRITE_MEDIA_STORAGE" />
     <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS" />
 
-    <!-- 0.8.2: riavvio del dongle CarPlay/AA (permesso USB e reset della porta, arresto del servizio Allgo) -->
+    <!-- 0.8.2: CarPlay/AA dongle restart (USB permission and port reset, stopping the Allgo service) -->
     <uses-permission android:name="android.permission.MANAGE_USB" />
     <uses-permission android:name="android.permission.FORCE_STOP_PACKAGES" />
-    <!-- 0.3.3: disinstallazione dalle impostazioni, senza computer -->
+    <!-- 0.3.3: uninstall from settings, without a computer -->
     <uses-permission android:name="android.permission.DELETE_PACKAGES" />
 
-    <!-- SWI69: gestore batteria ("bms"), clima e luci dal CarService, concessi dalla firma platform -->
+    <!-- SWI69: battery manager ("bms"), climate and lights from CarService, granted by the platform signature -->
     <uses-permission android:name="android.car.permission.CAR_ENERGY" />
     <uses-permission android:name="android.car.permission.CAR_ENERGY_PORTS" />
     <uses-permission android:name="android.car.permission.CAR_HVAC" />
     <uses-permission android:name="android.car.permission.CAR_POWER" />
     <uses-permission android:name="android.car.permission.CAR_POWERTRAIN" />
     <uses-permission android:name="android.car.permission.CAR_RADIO" />
-    <!-- 0.4.2: misura della finestra della spia luci della SystemUI (dumpsys window, sola lettura; firma platform) -->
+    <!-- 0.4.2: measures the SystemUI light indicator window (dumpsys window, read-only; platform signature) -->
     <uses-permission android:name="android.permission.DUMP" />
-    <!-- fork: ler crashes e linhas do Android Auto/CarPlay no registo guardado (concedida pela firma platform) -->
+    <!-- fork: read crashes and Android Auto/CarPlay lines into the saved log (granted by the platform signature) -->
     <uses-permission android:name="android.permission.READ_LOGS" />
-    <!-- 0.4.2: alba e tramonto per il tema automatico (ultima posizione nota, nessun GPS acceso dal launcher) -->
+    <!-- 0.4.2: sunrise and sunset for the automatic theme (last known location, the launcher never turns on GPS) -->
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-feature android:name="android.hardware.location" android:required="false" />
-    <!-- telecamere: EvsService della home originale -->
+    <!-- cameras: EvsService of the original home -->
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
 
     <application android:networkSecurityConfig="@xml/network_security_config"
@@ -81,7 +81,7 @@
         android:directBootAware="true"
         android:defaultToDeviceProtectedStorage="true">
 
-        <!-- libreria del CarService (presente sull'auto; facoltativa altrove) -->
+        <!-- CarService library (present in the car; optional elsewhere) -->
         <uses-library android:name="android.car" android:required="false" />
 
         <activity
@@ -103,7 +103,7 @@
             </intent-filter>
         </activity>
 
-        <!-- avvio sicuro: home dei primi secondi prima dello sblocco (priorità -1, sotto il launcher vero) -->
+        <!-- safe start: home for the first seconds before unlock (priority -1, below the real launcher) -->
         <activity
             android:name=".BootSplashActivity"
             android:directBootAware="true"
@@ -120,7 +120,7 @@
             </intent-filter>
         </activity>
 
-        <!-- all'accensione il firmware apre la home MG per nome: questo receiver riporta in primo piano il launcher -->
+        <!-- at power-on the firmware opens the MG home by name: this receiver brings the launcher back to front -->
         <receiver
             android:name=".svc.BootWatcher"
             android:directBootAware="true"
@@ -131,7 +131,7 @@
             </intent-filter>
         </receiver>
 
-        <!-- solo per sapere quale app passa in primo piano all'accensione (nessun contenuto dello schermo) -->
+        <!-- only to know which app comes to front at power-on (no screen content) -->
         <service
             android:name=".svc.BootAccessibility"
             android:label="@string/app_name"

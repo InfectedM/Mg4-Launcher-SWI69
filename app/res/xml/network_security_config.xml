@@ -1,9 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <!--
-  Certificati radice per le connessioni HTTPS (loghi radio, aggiornamenti, invio log), insieme a quelli di sistema.
-  Android 9 dell'auto non conosce le radici Sectigo più recenti: GitHub usa catene Sectigo (es. "Sectigo Public Server
-  Authentication CA DV E36", che porta alla radice E46 o, con la firma incrociata, a USERTrust ECC).
-  Radici dal Mozilla CA store: USERTrust RSA e ECC, Sectigo Public Server Authentication Root R46 ed E46.
+  Root certificates for HTTPS connections (radio logos, updates, log upload), in addition to the system ones.
+  The car's Android 9 does not know the newer Sectigo roots: GitHub uses Sectigo chains (e.g. "Sectigo Public Server
+  Authentication CA DV E36", which leads to the E46 root or, via cross-signing, to USERTrust ECC).
+  Roots from the Mozilla CA store: USERTrust RSA and ECC, Sectigo Public Server Authentication Root R46 and E46.
 -->
 <network-security-config>
     <base-config>

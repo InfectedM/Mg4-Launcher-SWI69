@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Aggiunge ai pacchetti loghi/<CC>.zip i loghi nuovi da zip "CC - Nome.zip" (PNG con il nome della stazione).
+"""Adds new logos to the loghi/<CC>.zip packs from zips named "CC - Name.zip" (PNGs named after the station).
 
-Ogni logo viene ridotto come gli altri (WebP, max 256 px, trasparenza) e salvato con il nome normalizzato; se c'era
-già un logo con quel nome viene sostituito. Poi si lancia loghi_rifinisci.py per alias, indice.json e riepilogo.md.
-Uso: python3 tools/loghi_aggiungi.py loghi-nuovi loghi
+Each logo is shrunk like the others (WebP, max 256 px, transparency) and saved under its normalized name; if a logo
+with that name already exists it is replaced. Then run logos_refine.py for aliases, indice.json and riepilogo.md.
+Usage: python3 tools/logos_add.py new-logos loghi
 """
 import io
 import os
@@ -11,7 +11,7 @@ import sys
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from loghi_pacchetti import norm, load, shrink  # noqa: E402
+from logos_packs import norm, load, shrink  # noqa: E402
 
 
 def main():
@@ -22,7 +22,7 @@ def main():
         cc = f[:2].upper()
         pack = os.path.join(dst, cc + ".zip")
         if not os.path.exists(pack):
-            print("manca il pacchetto", cc)
+            print("missing pack", cc)
             continue
         new = {}
         with zipfile.ZipFile(os.path.join(src, f)) as z:

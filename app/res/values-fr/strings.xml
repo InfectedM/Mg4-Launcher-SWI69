@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Utiliser comme accueil par défaut</string>
     <string name="home_default_sub" formatted="false">MG4 Launcher s\'ouvre au démarrage et avec le bouton Accueil</string>
     <string name="home_default_off_sub" formatted="false">Désactivé : l\'accueil MG d\'origine est utilisé</string>
-    <string name="officina_until_sub">Mode atelier jusqu\'au %1$s</string>
-    <string name="officina_title" formatted="false">Mode atelier</string>
-    <string name="officina_sub" formatted="false">Pendant quelques jours, la voiture utilise l\'accueil MG d\'origine, puis le launcher revient tout seul</string>
+    <string name="workshop_until_sub">Mode atelier jusqu\'au %1$s</string>
+    <string name="workshop_title" formatted="false">Mode atelier</string>
+    <string name="workshop_sub" formatted="false">Pendant quelques jours, la voiture utilise l\'accueil MG d\'origine, puis le launcher revient tout seul</string>
     <string name="days_1" formatted="false">1 jour</string>
     <string name="days_3" formatted="false">3 jours</string>
     <string name="days_7" formatted="false">7 jours</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Garder</string>
     <string name="confirm_home_off_title" formatted="false">Utiliser l\'accueil MG d\'origine ?</string>
     <string name="confirm_home_off_msg" formatted="false">L\'accueil MG devient celui par défaut, y compris au démarrage. L\'accueil MG n\'affiche pas MG4 Launcher parmi ses apps : pour revenir, il faudra un ordinateur (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Si c\'est seulement pour quelques jours, utilise le Mode atelier : le launcher revient tout seul.</string>
-    <string name="confirm_officina_title" formatted="false">Activer le mode atelier ?</string>
-    <string name="confirm_officina_msg">Jusqu\'au %1$s, la voiture utilisera l\'accueil MG d\'origine et les mises à jour seront suspendues. À l\'échéance, MG4 Launcher revient tout seul, comme avant.</string>
-    <string name="officina_active_title" formatted="false">Mode atelier actif</string>
-    <string name="officina_active_msg">Mode atelier actif jusqu\'au %1$s. Veux-tu le désactiver ?</string>
+    <string name="confirm_workshop_title" formatted="false">Activer le mode atelier ?</string>
+    <string name="confirm_workshop_msg">Jusqu\'au %1$s, la voiture utilisera l\'accueil MG d\'origine et les mises à jour seront suspendues. À l\'échéance, MG4 Launcher revient tout seul, comme avant.</string>
+    <string name="workshop_active_title" formatted="false">Mode atelier actif</string>
+    <string name="workshop_active_msg">Mode atelier actif jusqu\'au %1$s. Veux-tu le désactiver ?</string>
     <string name="set_ui_size" formatted="false">TAILLE DES COMMANDES</string>
     <string name="ui_size_normal" formatted="false">Normale</string>
     <string name="ui_size_large" formatted="false">Grande</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">Quel pack voulez-vous supprimer ?</string>
     <string name="logos_usb_title" formatted="false">Logos radio trouvés</string>
     <string name="logos_usb_msg">Un pack de logos pour %1$s se trouve dans %2$s. L\'installer ? Il fonctionne aussi sans internet.</string>
-    <string name="group_clima" formatted="false">Climatisation</string>
+    <string name="group_climate" formatted="false">Climatisation</string>
     <string name="group_comfort" formatted="false">Confort</string>
     <string name="tap_outside_close" formatted="false">touchez à l\'extérieur pour fermer</string>
     <string name="lka_desc" formatted="false">Aide au maintien de voie (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">Température intérieure masquée : la voiture ne la fournit pas (elle affichait l\'extérieure) ; nous la cherchons dans les journaux</string>
     <string name="newsv_4" formatted="false">Les dongles CarPlay/Android Auto qui se présentent comme un iPhone sont reconnus et redémarrés s\'ils ne démarrent pas</string>
     <string name="newsf_1" formatted="false">La ventilation sur OFF éteint maintenant vraiment la climatisation (avant elle revenait à 1)</string>
-    <string name="group_guida" formatted="false">Conduite</string>
+    <string name="group_drive" formatted="false">Conduite</string>
     <string name="tile_lka" formatted="false">Voie</string>
     <string name="tile_acc" formatted="false">Assistant</string>
     <string name="tile_pedal" formatted="false">Pédale de frein</string>
     <string name="recirc_in" formatted="false">Intérieur</string>
     <string name="recirc_out" formatted="false">Extérieur</string>
-    <string name="guida_stopped" formatted="false">Modifiable uniquement voiture à l\'arrêt</string>
+    <string name="drive_stopped" formatted="false">Modifiable uniquement voiture à l\'arrêt</string>
     <string name="set_inside_none" formatted="false">Non disponible : la voiture ne l\'envoie pas à l\'écran. La valeur « ambiante » lue auparavant était en fait la température extérieure</string>
     <string name="newsg_1" formatted="false">Nouveau bouton Conduite dans la barre : LKA, One Pedal, assistant (Désactivé/ACC/TJA) et pédale de frein (Comfort/Medium/Sport) dans un seul panneau</string>
     <string name="newsg_2" formatted="false">L\'assistant et la pédale de frein ne se modifient qu\'à l\'arrêt, par sécurité</string>

@@ -9,8 +9,8 @@ import android.view.ViewConfiguration;
 import android.view.ViewGroup;
 
 /**
- * Pagine affiancate a scorrimento orizzontale (Home ↔ App). Il trascinamento verticale resta ai figli
- * (es. la griglia delle app che scorre in verticale).
+ * Side-by-side pages with horizontal scrolling (Home ↔ App). Vertical dragging is left to the children
+ * (e.g. the app grid that scrolls vertically).
  */
 public final class Pager extends ViewGroup {
     public interface Listener {
@@ -23,7 +23,7 @@ public final class Pager extends ViewGroup {
     private boolean dragging;
     private VelocityTracker vt;
     private int page;
-    private float offset;          // 0 = pagina 0, larghezza = pagina 1, ...
+    private float offset;          // 0 = page 0, width = page 1, ...
     private ValueAnimator anim;
     private Listener listener;
 
@@ -67,7 +67,7 @@ public final class Pager extends ViewGroup {
         return Math.max(0, (getChildCount() - 1) * getWidth());
     }
 
-    /** Va alla pagina indicata, con animazione. */
+    /** Goes to the given page, with animation. */
     public void show(int p, boolean animate) {
         p = Math.max(0, Math.min(getChildCount() - 1, p));
         boolean changedPage = p != page;
@@ -81,9 +81,9 @@ public final class Pager extends ViewGroup {
             layers(false);
             if (changedPage && listener != null) listener.onPageChanged(newPage);
         } else {
-            // 0.4.2 (punto 7c): animazione morbida: curva "veloce poi lenta", durata in proporzione allo spazio da fare,
-            // pagine disegnate come immagini (strati hardware) durante il movimento; il ricaricamento della pagina App
-            // avviene a fine animazione, non durante (era la causa degli scatti)
+            // 0.4.2 (point 7c): smooth animation: "fast then slow" curve, duration proportional to the distance to cover,
+            // pages drawn as images (hardware layers) during the movement; the App page reload
+            // happens at the end of the animation, not during it (it was the cause of the stutter)
             float frac = Math.min(1f, Math.abs(offset - target) / Math.max(1f, getWidth()));
             anim = ValueAnimator.ofFloat(offset, target);
             anim.setDuration(Math.max(160, Math.round(300 * frac)));
@@ -112,7 +112,7 @@ public final class Pager extends ViewGroup {
         }
     }
 
-    /** Strati hardware sulle pagine solo durante il movimento (poi si liberano: la RAM è poca). */
+    /** Hardware layers on the pages only during the movement (then released: RAM is scarce). */
     private boolean layered;
 
     private void layers(boolean on) {

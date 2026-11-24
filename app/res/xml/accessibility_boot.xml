@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- i cambi di finestra (quale app è in primo piano) e, dalla 0.4.0 (punto 1), i tocchi sul tasto Home
-     di sistema (per sapere solo se è quello il tasto toccato: nessun altro contenuto delle finestre, nessun gesto) -->
+<!-- window changes (which app is in front) and, since 0.4.0 (item 1), taps on the system Home
+     button (only to know whether that button was tapped: no other window content, no gestures) -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeWindowStateChanged|typeViewClicked"
     android:accessibilityFeedbackType="feedbackGeneric"

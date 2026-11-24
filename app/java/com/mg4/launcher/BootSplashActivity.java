@@ -16,9 +16,9 @@ import android.view.View;
 import android.widget.TextView;
 
 /**
- * Schermata dei primi secondi dopo l'accensione (avvio sicuro): finché l'utente Android non è sbloccato Android apre
- * solo home "directBootAware". Questa (priorità −1: sopra l'attesa di Android, sotto il launcher vero) non legge
- * nulla dalla memoria cifrata: aspetta lo sblocco e apre il launcher.
+ * Screen for the first seconds after power-on (direct boot): until the Android user is unlocked, Android only opens
+ * "directBootAware" homes. This one (priority −1: above Android's waiting screen, below the real launcher) reads
+ * nothing from encrypted storage: it waits for the unlock and opens the launcher.
  */
 public final class BootSplashActivity extends Activity {
     private final Handler h = new Handler(Looper.getMainLooper());

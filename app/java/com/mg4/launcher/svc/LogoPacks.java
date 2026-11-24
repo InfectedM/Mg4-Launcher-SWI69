@@ -32,25 +32,25 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Pacchetti dei loghi radio per paese (loghi/&lt;CC&gt;.zip + loghi/indice.json del repository).
+ * Radio logo packs per country (loghi/&lt;CC&gt;.zip + loghi/indice.json of the repository).
  * <ul>
- *   <li>si scaricano appena c'è rete per i paesi scelti (automatico = paese del sistema), si controlla lo SHA-256,
- *   si estraggono nella memoria dell'app e restano per sempre: poi funzionano senza rete;</li>
- *   <li>gli aggiornamenti si controllano al massimo una volta alla settimana, oppure con "Aggiorna";</li>
- *   <li>da chiavetta: MG4Launcher/loghi/&lt;CC&gt;.zip si installa senza internet (dopo conferma).</li>
+ *   <li>downloaded as soon as there is network for the chosen countries (automatic = system country), SHA-256 checked,
+ *   extracted into the app storage and kept forever: then they work without network;</li>
+ *   <li>updates are checked at most once a week, or with "Aggiorna";</li>
+ *   <li>from USB stick: MG4Launcher/loghi/&lt;CC&gt;.zip installs without internet (after confirmation).</li>
  * </ul>
- * Ogni pacchetto contiene un file per stazione (nome normalizzato, .webp o .png) e alias.txt (nome trasmesso = file).
+ * Each pack holds one file per station (normalized name, .webp or .png) and alias.txt (broadcast name = file).
  */
 public final class LogoPacks {
-    /** Indirizzo dei pacchetti: le altre versioni del launcher cambiano solo questa riga. */
-    // fork: pacotes de logótipos do repositório InfectedM (mesmos ficheiros e hashes do original)
+    /** Address of the packs: the other launcher versions change only this line. */
+    // fork: logo packs from the InfectedM repository (same files and hashes as the original)
     public static final String BASE_URL = "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/loghi/";
     public static final String AUTO = "auto";
     private static final long WEEK_MS = 7L * 24 * 3600 * 1000;
     private static final long RETRY_MS = 30 * 60_000L;
     private static final String PREFS = "loghi_pacchetti";
 
-    /** Lingua del launcher -> paese, quando il sistema non indica la regione. */
+    /** Launcher language -> country, when the system does not report the region. */
     private static final Map<String, String> LANG_COUNTRY = new HashMap<>();
 
     static {
@@ -58,18 +58,18 @@ public final class LogoPacks {
         for (String[] x : m) LANG_COUNTRY.put(x[0], x[1]);
     }
 
-    /** Paesi disponibili (stesso elenco dei pacchetti; i nomi si prendono dal sistema nella lingua del launcher). */
+    /** Available countries (same list as the packs; the names come from the system in the launcher language). */
     public static final String[] COUNTRIES = {"AD", "AL", "AT", "AX", "BA", "BE", "BG", "BY", "CH", "CY", "CZ", "DE", "DK",
             "EE", "ES", "FI", "FO", "FR", "GB", "GI", "GR", "HR", "HU", "IE", "IM", "IS", "IT", "LI", "LT", "LU", "LV", "MC",
             "MD", "ME", "MK", "MT", "NL", "NO", "PL", "PT", "RO", "RS", "RU", "SE", "SI", "SK", "SM", "TR", "UA", "VA", "XK",
-            // 0.9.6: Australia e Sud America
+            // 0.9.6: Australia and South America
             "AU", "AR", "BO", "BR", "CL", "CO", "EC", "GY", "PY", "PE", "SR", "UY", "VE"};
 
     public interface Listener {
         void changed();
     }
 
-    /** Pacchetto installato. */
+    /** Installed pack. */
     public static final class Pack {
         public String cc;
         public int version;
@@ -97,7 +97,7 @@ public final class LogoPacks {
     private volatile String status = "";
     private volatile boolean busy;
     private long nextTry;
-    /** Zip trovati su chiavetta e non ancora proposti (percorso + dimensione + data). */
+    /** Zips found on USB stick and not yet offered (path + size + date). */
     private final Set<String> offered = new LinkedHashSet<>();
 
     private LogoPacks(Context c) {
@@ -134,27 +134,27 @@ public final class LogoPacks {
         });
     }
 
-    // ---- scelta del paese ------------------------------------------------------------------
+    // ---- country choice --------------------------------------------------------------------
 
-    /** "auto" oppure codici separati da virgola (es. "IT,FR"). */
+    /** "auto" or comma-separated codes (e.g. "IT,FR"). */
     public String choice() {
         return sp.getString("paesi", AUTO);
     }
 
     public void setChoice(String v) {
         sp.edit().putString("paesi", v == null || v.isEmpty() ? AUTO : v).apply();
-        Diag.put("loghi.paesi", v);
+        Diag.put("logos.countries", v);
         refresh(true);
     }
 
-    // ---- paese automatico ------------------------------------------------------------------
+    // ---- automatic country -----------------------------------------------------------------
     //
-    // Il firmware MG usa regioni della lingua che non corrispondono al paese (auto italiane "it-CH", francesi "fr-BE"),
-    // quindi l'ordine è: fuso orario del sistema → lingua del launcher → regione della lingua di sistema.
-    // Le stazioni DAB (identificativo del servizio: paese RDS nei 4 bit alti, ECC se presente) confermano la scelta,
-    // oppure la correggono quando il fuso non indica un paese dei pacchetti.
+    // The MG firmware uses language regions that do not match the country (Italian cars "it-CH", French "fr-BE"),
+    // so the order is: system time zone → launcher language → region of the system language.
+    // DAB stations (service identifier: RDS country in the top 4 bits, ECC if present) confirm the choice,
+    // or correct it when the time zone does not point to a pack country.
 
-    /** Fuso orario del sistema -> paese (tutti i paesi dei pacchetti; il Kosovo usa Europe/Belgrade). */
+    /** System time zone -> country (all pack countries; Kosovo uses Europe/Belgrade). */
     private static final Map<String, String> TZ_COUNTRY = new HashMap<>();
 
     static {
@@ -180,7 +180,7 @@ public final class LogoPacks {
                 {"SE", "Europe/Stockholm"}, {"SI", "Europe/Ljubljana"}, {"SK", "Europe/Bratislava"},
                 {"SM", "Europe/San_Marino"}, {"TR", "Europe/Istanbul", "Asia/Istanbul", "Turkey"},
                 {"UA", "Europe/Kiev", "Europe/Kyiv", "Europe/Uzhgorod", "Europe/Zaporozhye"}, {"VA", "Europe/Vatican"},
-                // 0.9.6: Australia e Sud America
+                // 0.9.6: Australia and South America
                 {"AU", "Australia/Sydney", "Australia/Melbourne", "Australia/Brisbane", "Australia/Adelaide", "Australia/Perth",
                         "Australia/Hobart", "Australia/Darwin", "Australia/Canberra", "Australia/ACT", "Australia/NSW",
                         "Australia/Victoria", "Australia/Queensland", "Australia/West", "Australia/South", "Australia/North",
@@ -202,7 +202,7 @@ public final class LogoPacks {
         for (String[] r : tz) for (int i = 1; i < r.length; i++) TZ_COUNTRY.put(r[i], r[0]);
     }
 
-    /** Paese RDS/DAB: chiave "ECC:cifra" (es. "E0:5" = Italia), per i paesi dei pacchetti. */
+    /** RDS/DAB country: key "ECC:digit" (e.g. "E0:5" = Italy), for the pack countries. */
     private static final Map<String, String> RDS_COUNTRY = new HashMap<>();
 
     static {
@@ -217,7 +217,7 @@ public final class LogoPacks {
         for (String s : m) RDS_COUNTRY.put(s.substring(0, 4), s.substring(5));
     }
 
-    /** Cifra del paese RDS di un paese (i territori usano quella del paese a cui appartengono le stazioni). */
+    /** RDS country digit of a country (territories use that of the country their stations belong to). */
     static char rdsDigit(String cc) {
         if ("AX".equals(cc)) cc = "FI";
         else if ("FO".equals(cc)) cc = "DK";
@@ -226,7 +226,7 @@ public final class LogoPacks {
         return 0;
     }
 
-    /** Paesi dei pacchetti con quella cifra RDS. */
+    /** Pack countries with that RDS digit. */
     static List<String> rdsCandidates(char digit) {
         List<String> out = new ArrayList<>();
         for (Map.Entry<String, String> e : RDS_COUNTRY.entrySet())
@@ -239,10 +239,10 @@ public final class LogoPacks {
         return cc != null && Arrays.asList(COUNTRIES).contains(cc);
     }
 
-    /** Fonti del paese automatico, per la scelta e la diagnostica. */
+    /** Sources of the automatic country, for the choice and the diagnostics. */
     public static final class AutoInfo {
         public String tz = "", tzCountry, lang = "", langCountry, region = "", regionCountry;
-        /** RDS: cifra più frequente (0 = nessun dato), paese esatto se c'è l'ECC, numero di servizi. */
+        /** RDS: most frequent digit (0 = no data), exact country if ECC is present, number of services. */
         public char rdsDigit;
         public String rdsExact;
         public int rdsServices;
@@ -250,26 +250,26 @@ public final class LogoPacks {
 
         public String describe() {
             StringBuilder sb = new StringBuilder();
-            sb.append("fuso ").append(tz.isEmpty() ? "?" : tz).append(" → ").append(tzCountry == null ? "—" : tzCountry);
-            sb.append(" · lingua ").append(lang.isEmpty() ? "?" : lang).append(" → ").append(langCountry == null ? "—" : langCountry);
-            sb.append(" · regione ").append(region.isEmpty() ? "?" : region).append(" → ").append(regionCountry == null ? "—" : regionCountry);
+            sb.append("timezone ").append(tz.isEmpty() ? "?" : tz).append(" → ").append(tzCountry == null ? "—" : tzCountry);
+            sb.append(" · language ").append(lang.isEmpty() ? "?" : lang).append(" → ").append(langCountry == null ? "—" : langCountry);
+            sb.append(" · region ").append(region.isEmpty() ? "?" : region).append(" → ").append(regionCountry == null ? "—" : regionCountry);
             sb.append(" · RDS ");
-            if (rdsDigit == 0) sb.append("nessun dato");
+            if (rdsDigit == 0) sb.append("no data");
             else {
                 sb.append(rdsDigit).append(" (").append(rdsExact != null ? rdsExact : String.join("/", rdsCandidates(rdsDigit)))
-                        .append(", ").append(rdsServices).append(" servizi DAB)");
+                        .append(", ").append(rdsServices).append(" DAB services)");
             }
             sb.append(" ⇒ ").append(country).append(" (").append(reason).append(rdsNote.isEmpty() ? "" : ", " + rdsNote).append(')');
             return sb.toString();
         }
     }
 
-    /** Dati RDS raccolti dalle stazioni DAB (identificativi distinti -> cifra/ECC). */
+    /** RDS data collected from DAB stations (distinct identifiers -> digit/ECC). */
     private final Map<Long, String> rdsSeen = new HashMap<>();
     private volatile AutoInfo lastAuto;
     private volatile String lastAutoDiag = "";
 
-    /** Paese automatico (compatibilità: senza dati RDS). */
+    /** Automatic country (compatibility: without RDS data). */
     public static String autoCountry(String launcherLang) {
         LogoPacks p = instance;
         return p != null ? p.auto(launcherLang).country : resolve(launcherLang, (char) 0, null, 0).country;
@@ -282,7 +282,7 @@ public final class LogoPacks {
         synchronized (rdsSeen) {
             services = rdsSeen.size();
             if (services == 0) {
-                // ultimo dato RDS sicuro delle accensioni precedenti
+                // last reliable RDS data from previous power-ons
                 String saved = sp.getString("rds_dato", "");
                 if (saved.length() >= 1) {
                     digit = saved.charAt(0);
@@ -302,7 +302,7 @@ public final class LogoPacks {
                     best = e.getValue();
                     digit = e.getKey();
                 }
-                // dato sicuro: almeno 3 servizi e 3 su 4 con la stessa cifra
+                // reliable data: at least 3 services and 3 out of 4 with the same digit
                 if (best < 3 || best * 4 < services * 3) digit = 0;
                 exact = digit == 0 ? null : ex.get(digit);
                 if (digit != 0) {
@@ -317,12 +317,12 @@ public final class LogoPacks {
         String d = a.describe();
         if (!d.equals(lastAutoDiag)) {
             lastAutoDiag = d;
-            Diag.put("loghi.paeseAuto", d);
+            Diag.put("logos.carCountry", d);
         }
         return a;
     }
 
-    /** Scelta (0.4.0): RDS/DAB → lingua e regione d'accordo → fuso → regione da sola (→ lingua → IT). */
+    /** Choice (0.4.0): RDS/DAB → language and region agreeing → time zone → region alone (→ language → IT). */
     static AutoInfo resolve(String launcherLang, char digit, String exact, int services) {
         AutoInfo a = new AutoInfo();
         try {
@@ -351,11 +351,11 @@ public final class LogoPacks {
         a.rdsExact = exact;
         a.rdsServices = services;
 
-        // 0.4.0: il fuso orario delle auto non è affidabile (auto italiane o spagnole con Europe/London o Europe/Paris).
-        // Ordine: 1) RDS/DAB  2) lingua e regione d'accordo (es. it + IT)  3) fuso  4) regione da sola.
-        // (La lingua da sola resta come ultima riserva prima del predefinito.)
-        // L'inglese (en-GB) è la lingua di partenza del firmware anche fuori dal Regno Unito (Australia, Germania,
-        // Francia nei log): "en + GB" non dice nulla sul paese e non conta come accordo.
+        // 0.4.0: the cars' time zone is unreliable (Italian or Spanish cars with Europe/London or Europe/Paris).
+        // Order: 1) RDS/DAB  2) language and region agreeing (e.g. it + IT)  3) time zone  4) region alone.
+        // (Language alone remains as the last fallback before the default.)
+        // English (en-GB) is the firmware's starting language even outside the United Kingdom (Australia, Germany,
+        // France in the logs): "en + GB" says nothing about the country and does not count as agreement.
         String agree = known(a.langCountry) && a.langCountry.equals(a.regionCountry) && !"en".equals(a.lang)
                 ? a.langCountry : null;
         if (digit != 0) {
@@ -363,40 +363,40 @@ public final class LogoPacks {
             String pick = null;
             if (cand.size() == 1) pick = cand.get(0);
             else {
-                // stessa cifra RDS per più paesi: decide l'altra fonte che RDS conferma, nello stesso ordine
+                // same RDS digit for several countries: the other source RDS confirms decides, in the same order
                 for (String s : new String[]{agree, a.tzCountry, a.regionCountry, a.langCountry})
                     if (s != null && cand.contains(s)) { pick = s; break; }
             }
             if (known(pick)) {
                 a.country = pick;
                 a.reason = "RDS";
-                a.rdsNote = exact != null ? "ECC esatto" : cand.size() == 1 ? "cifra RDS" : "cifra RDS confermata da un'altra fonte";
+                a.rdsNote = exact != null ? "exact ECC" : cand.size() == 1 ? "RDS digit" : "RDS digit confirmed by another source";
                 return a;
             }
-            a.rdsNote = "RDS ambiguo (" + String.join("/", cand) + ")";
+            a.rdsNote = "ambiguous RDS (" + String.join("/", cand) + ")";
         }
         if (agree != null) {
             a.country = agree;
-            a.reason = "lingua e regione";
+            a.reason = "language and region";
         } else if (known(a.tzCountry)) {
             a.country = a.tzCountry;
-            a.reason = "fuso";
+            a.reason = "timezone";
         } else if (a.regionCountry != null) {
             a.country = a.regionCountry;
-            a.reason = "regione";
+            a.reason = "region";
         } else if (known(a.langCountry)) {
             a.country = a.langCountry;
-            a.reason = "lingua";
+            a.reason = "language";
         } else {
             a.country = "IT";
-            a.reason = "predefinito";
+            a.reason = "default";
         }
         return a;
     }
 
     /**
-     * Stazioni DAB trovate dalla radio: dall'identificativo del servizio si ricava il paese RDS
-     * (4 bit alti dei 16 bit; con 32 bit c'è anche l'ECC). Le FM si scrivono solo nella diagnostica.
+     * DAB stations found by the radio: the RDS country is derived from the service identifier
+     * (top 4 bits of the 16 bits; with 32 bits there is also the ECC). FM ones are written only to the diagnostics.
      */
     public static void noteStations(int band, List<MediaClient.Station> list) {
         LogoPacks p = instance;
@@ -408,7 +408,7 @@ public final class LogoPacks {
                 if (sb.length() > 120) { sb.append('…'); break; }
                 sb.append(sb.length() == 0 ? "" : " ").append(Long.toHexString(st.sid).toUpperCase(Locale.ROOT));
             }
-            Diag.put("loghi.rdsFM", sb.length() == 0 ? "nessun codice" : sb.toString());
+            Diag.put("logos.rdsFM", sb.length() == 0 ? "no code" : sb.toString());
             return;
         }
         if (band != MediaClient.BAND_DAB) return;
@@ -419,7 +419,7 @@ public final class LogoPacks {
                 if (sid <= 0 || p.rdsSeen.containsKey(sid)) continue;
                 String v;
                 if (sid > 0xFFFFL) {
-                    // servizio a 32 bit: ECC (8 bit) + cifra del paese (4 bit) + numero
+                    // 32-bit service: ECC (8 bits) + country digit (4 bits) + number
                     int ecc = (int) ((sid >> 24) & 0xFF);
                     char d = Character.toUpperCase(Character.forDigit((int) ((sid >> 20) & 0xF), 16));
                     String cc = RDS_COUNTRY.get(String.format(Locale.ROOT, "%02X:%c", ecc, d));
@@ -436,7 +436,7 @@ public final class LogoPacks {
             String before = p.lastAuto == null ? "" : p.lastAuto.country;
             AutoInfo a = p.auto(com.mg4.launcher.L.locale().getLanguage());
             if (AUTO.equals(p.choice()) && !a.country.equals(before)) {
-                Diag.put("loghi.paesi", AUTO + " → [" + a.country + "]");
+                Diag.put("logos.countries", AUTO + " → [" + a.country + "]");
                 p.refresh(false);
             }
         }
@@ -458,7 +458,7 @@ public final class LogoPacks {
         return n == null || n.isEmpty() || n.equals(cc) ? cc : n;
     }
 
-    // ---- stato -----------------------------------------------------------------------------
+    // ---- state -----------------------------------------------------------------------------
 
     public Map<String, Pack> installed() {
         return packs;
@@ -472,9 +472,9 @@ public final class LogoPacks {
         return busy;
     }
 
-    // ---- ricerca dei loghi -----------------------------------------------------------------
+    // ---- logo lookup -----------------------------------------------------------------------
 
-    /** File del logo per il nome normalizzato (anche tramite alias), nei pacchetti dei paesi scelti per primi. */
+    /** Logo file for the normalized name (also via alias), in the packs of the countries chosen first. */
     public File find(String norm) {
         if (norm == null || norm.isEmpty()) return null;
         Map<String, Pack> p = packs;
@@ -492,8 +492,8 @@ public final class LogoPacks {
             if (f == null) f = pk.files.get("radio" + norm);
             if (f != null) return f;
         }
-        // varianti di una stazione senza logo proprio ("RTL 102.5 Traffic" → rtl1025): solo nei paesi scelti,
-        // con un nome di almeno 7 caratteri e mai tra due cifre ("radio10" non vale per "radio101")
+        // variants of a station without its own logo ("RTL 102.5 Traffic" → rtl1025): only in the chosen countries,
+        // with a name of at least 7 characters and never between two digits ("radio10" does not match "radio101")
         for (String cc : chosen()) {
             Pack pk = p.get(cc);
             if (pk == null) continue;
@@ -508,7 +508,7 @@ public final class LogoPacks {
         return null;
     }
 
-    // ---- caricamento -----------------------------------------------------------------------
+    // ---- loading ---------------------------------------------------------------------------
 
     private void loadAll() {
         Map<String, Pack> out = new HashMap<>();
@@ -561,24 +561,24 @@ public final class LogoPacks {
         StringBuilder sb = new StringBuilder();
         for (Pack p : packs.values()) {
             if (sb.length() > 0) sb.append(", ");
-            sb.append(p.cc).append(" v").append(p.version).append(' ').append(p.logos).append(" loghi ")
+            sb.append(p.cc).append(" v").append(p.version).append(' ').append(p.logos).append(" logos ")
                     .append(String.format(Locale.ROOT, "%.1f MB", p.size / 1048576f))
                     .append(p.source.isEmpty() ? "" : " (" + p.source + ")");
         }
-        Diag.put("loghi.paesi", choice() + " → " + chosen());
+        Diag.put("logos.countries", choice() + " → " + chosen());
         AutoInfo a = auto(com.mg4.launcher.L.locale().getLanguage());
-        if (!AUTO.equals(choice())) Diag.put("loghi.paeseAuto", a.describe() + " · non usato: paesi scelti a mano");
-        Diag.put("loghi.pacchetti", sb.length() == 0 ? "nessuno" : sb.toString());
+        if (!AUTO.equals(choice())) Diag.put("logos.carCountry", a.describe() + " · not used: countries chosen manually");
+        Diag.put("logos.packs", sb.length() == 0 ? "none" : sb.toString());
     }
 
     // ---- download --------------------------------------------------------------------------
 
-    /** Controllo dei pacchetti: subito se manca un paese scelto, altrimenti al massimo una volta alla settimana. */
+    /** Pack check: immediately if a chosen country is missing, otherwise at most once a week. */
     public void refresh(boolean force) {
         bg.post(() -> check(force));
     }
 
-    /** Da chiamare ogni tanto (es. ogni minuto): scarica quando la rete arriva. */
+    /** Call every now and then (e.g. every minute): downloads when the network arrives. */
     public void tick() {
         bg.post(() -> {
             boolean missing = false;
@@ -608,44 +608,44 @@ public final class LogoPacks {
             for (String cc : chosen()) {
                 JSONObject o = byCc.get(cc);
                 if (o == null) {
-                    res.append(cc).append(": nessun pacchetto; ");
+                    res.append(cc).append(": no pack; ");
                     continue;
                 }
                 Pack cur = packs.get(cc);
                 String sha = o.optString("sha256", "");
                 if (!force && cur != null && sha.equals(sp.getString("sha_" + cc, ""))) {
-                    res.append(cc).append(": aggiornato; ");
+                    res.append(cc).append(": up to date; ");
                     continue;
                 }
                 if (cur != null && sha.equals(sp.getString("sha_" + cc, ""))) {
-                    res.append(cc).append(": già all'ultima versione; ");
+                    res.append(cc).append(": already at the latest version; ");
                     continue;
                 }
                 byte[] zip = fetch(BASE_URL + o.optString("file", cc + ".zip"), 40_000_000);
                 String got = sha256(zip);
                 if (!got.equalsIgnoreCase(sha)) {
-                    res.append(cc).append(": hash diverso, scartato; ");
-                    Diag.error("loghi.download", cc + " hash " + got + " invece di " + sha);
+                    res.append(cc).append(": hash mismatch, discarded; ");
+                    Diag.error("logos.download", cc + " hash " + got + " instead of " + sha);
                     continue;
                 }
                 int n = install(cc, zip);
                 sp.edit().putString("sha_" + cc, sha).putInt("ver_" + cc, o.optInt("versione", 1)).putString("src_" + cc, "internet").apply();
-                res.append(cc).append(": scaricato (").append(n).append(" loghi); ");
+                res.append(cc).append(": downloaded (").append(n).append(" logos); ");
             }
             sp.edit().putLong("controllo", System.currentTimeMillis()).apply();
-            Diag.put("loghi.download", res.toString().trim());
+            Diag.put("logos.download", res.toString().trim());
             migrate083();
             setStatus("ok");
             nextTry = 0;
             Offline.ok();
         } catch (Exception e) {
             nextTry = System.currentTimeMillis() + RETRY_MS;
-            if (Offline.failed("pacchetti loghi", e)) {
-                // 0.4.0: senza rete una riga sola (rete.offline), non un errore per tentativo
+            if (Offline.failed("logo packs", e)) {
+                // 0.4.0: without network a single line (rete.offline), not one error per attempt
                 nextTry = Math.max(System.currentTimeMillis() + Offline.waitMs(), System.currentTimeMillis() + 60_000L);
                 setStatus("offline");
             } else {
-                Diag.error("loghi.download", e.toString());
+                Diag.error("logos.download", e.toString());
                 setStatus("error");
             }
         } finally {
@@ -655,9 +655,9 @@ public final class LogoPacks {
     }
 
     /**
-     * 0.8.3, una volta sola: chi era su "Automatico" aveva il pacchetto del paese sbagliato (regione del firmware, es. CH
-     * per le auto italiane). Appena c'è quello giusto, si tolgono gli altri pacchetti scaricati in automatico.
-     * Chi ha scelto i paesi a mano non viene toccato.
+     * 0.8.3, only once: those on "Automatico" had the wrong country's pack (firmware region, e.g. CH
+     * for Italian cars). As soon as the right one is present, the other automatically downloaded packs are removed.
+     * Those who chose countries by hand are not touched.
      */
     private void migrate083() {
         if (sp.getBoolean("migrazione083", false)) return;
@@ -666,7 +666,7 @@ public final class LogoPacks {
             return;
         }
         List<String> ch = chosen();
-        for (String cc : ch) if (!new File(root, cc).isDirectory()) return;   // prima deve esserci quello giusto
+        for (String cc : ch) if (!new File(root, cc).isDirectory()) return;   // the right one must be there first
         StringBuilder gone = new StringBuilder();
         for (String cc : new ArrayList<>(packs.keySet())) {
             if (ch.contains(cc) || !"internet".equals(sp.getString("src_" + cc, ""))) continue;
@@ -675,7 +675,7 @@ public final class LogoPacks {
             gone.append(gone.length() == 0 ? "" : ", ").append(cc);
         }
         sp.edit().putBoolean("migrazione083", true).apply();
-        Diag.put("loghi.migrazione", gone.length() == 0 ? "niente da cambiare (" + ch + ")" : "tolto " + gone + ", ora " + ch);
+        Diag.put("logos.migration", gone.length() == 0 ? "nothing to change (" + ch + ")" : "removed " + gone + ", now " + ch);
     }
 
     private void setStatus(String s) {
@@ -683,7 +683,7 @@ public final class LogoPacks {
         notifyChanged();
     }
 
-    /** Estrae lo zip in una cartella nuova e poi la sostituisce a quella vecchia (mai a metà). */
+    /** Extracts the zip into a new folder and then swaps it with the old one (never halfway). */
     private int install(String cc, byte[] zip) throws Exception {
         File tmp = new File(root, cc + ".tmp");
         deleteTree(tmp);
@@ -695,7 +695,7 @@ public final class LogoPacks {
             byte[] buf = new byte[16384];
             while ((e = z.getNextEntry()) != null) {
                 if (e.isDirectory()) continue;
-                String name = new File(e.getName()).getName();   // niente percorsi dentro lo zip
+                String name = new File(e.getName()).getName();   // no paths inside the zip
                 String low = name.toLowerCase(Locale.ROOT);
                 boolean img = low.endsWith(".webp") || low.endsWith(".png") || low.endsWith(".jpg");
                 if (!img && !low.equals("alias.txt")) continue;
@@ -704,7 +704,7 @@ public final class LogoPacks {
                     long total = 0;
                     while ((r = z.read(buf)) > 0) {
                         total += r;
-                        if (total > 2_000_000) throw new IllegalStateException("file troppo grande: " + name);
+                        if (total > 2_000_000) throw new IllegalStateException("file too large: " + name);
                         o.write(buf, 0, r);
                     }
                 }
@@ -713,11 +713,11 @@ public final class LogoPacks {
         }
         if (n == 0) {
             deleteTree(tmp);
-            throw new IllegalStateException("nessun logo nello zip");
+            throw new IllegalStateException("no logo in the zip");
         }
         File dst = new File(root, cc);
         deleteTree(dst);
-        if (!tmp.renameTo(dst)) throw new IllegalStateException("rinomina non riuscita");
+        if (!tmp.renameTo(dst)) throw new IllegalStateException("rename failed");
         return n;
     }
 
@@ -725,14 +725,14 @@ public final class LogoPacks {
         bg.post(() -> {
             deleteTree(new File(root, cc));
             sp.edit().remove("sha_" + cc).remove("ver_" + cc).remove("src_" + cc).apply();
-            Diag.put("loghi.eliminato", cc);
+            Diag.put("logos.deleted", cc);
             loadAll();
         });
     }
 
-    // ---- chiavetta USB ---------------------------------------------------------------------
+    // ---- USB stick -------------------------------------------------------------------------
 
-    /** Zip dei pacchetti trovati su memoria o chiavetta (MG4Launcher/loghi/CC.zip), non ancora proposti. */
+    /** Pack zips found on storage or USB stick (MG4Launcher/loghi/CC.zip), not yet offered. */
     public List<File> usbPacksToOffer() {
         List<File> out = new ArrayList<>();
         List<File> dirs = new ArrayList<>();
@@ -759,7 +759,7 @@ public final class LogoPacks {
         return out;
     }
 
-    /** Installa (o rifiuta, install = false) lo zip trovato su chiavetta; non verrà più proposto. */
+    /** Installs (or rejects, install = false) the zip found on the USB stick; it will not be offered again. */
     public void installUsb(File f, boolean install) {
         String id = f.getPath() + ":" + f.length() + ":" + f.lastModified();
         sp.edit().putBoolean("usb_" + id, true).apply();
@@ -770,15 +770,15 @@ public final class LogoPacks {
                 byte[] zip = readAll(in);
                 int n = install(cc, zip);
                 sp.edit().putString("sha_" + cc, sha256(zip)).putString("src_" + cc, "chiavetta").apply();
-                Diag.put("loghi.chiavetta", cc + ": installato (" + n + " loghi) da " + f.getPath());
+                Diag.put("logos.usbStick", cc + ": installed (" + n + " logos) from " + f.getPath());
             } catch (Exception e) {
-                Diag.error("loghi.chiavetta", cc + ": " + e);
+                Diag.error("logos.usbStick", cc + ": " + e);
             }
             loadAll();
         });
     }
 
-    // ---- utilità ---------------------------------------------------------------------------
+    // ---- utilities -------------------------------------------------------------------------
 
     private boolean online() {
         try {
@@ -829,7 +829,7 @@ public final class LogoPacks {
                 int n, total = 0;
                 while ((n = in.read(buf)) > 0) {
                     total += n;
-                    if (total > maxBytes) throw new IllegalStateException("troppo grande");
+                    if (total > maxBytes) throw new IllegalStateException("too large");
                     bo.write(buf, 0, n);
                 }
                 return bo.toByteArray();

@@ -11,10 +11,10 @@ import android.os.Handler;
 import android.os.Looper;
 
 /**
- * 1.0.4 (issue #26): disinstallazione di un'app dall'elenco App (pressione lunga → "Disinstalla").
- * Solo app installate dall'utente: app di sistema (anche aggiornate), app MG (com.saicmotor.*) e nostre app (com.mg4.*)
- * sono protette. Usa il permesso DELETE_PACKAGES che il launcher ha già (firma platform); se Android chiede comunque
- * una conferma la mostra. Log "app.disinstallata" = pacchetto · esito.
+ * 1.0.4 (issue #26): uninstalling an app from the App list (long press → "Uninstall").
+ * Only user-installed apps: system apps (even updated ones), MG apps (com.saicmotor.*) and our own apps (com.mg4.*)
+ * are protected. Uses the DELETE_PACKAGES permission the launcher already has (platform signature); if Android still asks
+ * for a confirmation, it is shown. Log "app.uninstalled" = package · outcome.
  */
 public final class AppUninstall {
     public interface Done {
@@ -26,7 +26,7 @@ public final class AppUninstall {
 
     private AppUninstall() {}
 
-    /** true se l'app si può togliere dall'elenco App. */
+    /** true if the app can be removed from the App list. */
     public static boolean allowed(Context c, String pkg) {
         if (pkg == null || pkg.isEmpty()) return false;
         if (pkg.startsWith("com.saicmotor") || pkg.startsWith("com.mg4.") || pkg.equals(c.getPackageName())) return false;
@@ -42,7 +42,7 @@ public final class AppUninstall {
         Context app = ctx.getApplicationContext();
         Handler main = new Handler(Looper.getMainLooper());
         if (!allowed(app, pkg)) {
-            Diag.put("app.disinstallata", pkg + " · rifiutata (app protetta)");
+            Diag.put("app.uninstalled", pkg + " · refused (protected app)");
             main.post(() -> done.done(false));
             return;
         }
@@ -56,7 +56,7 @@ public final class AppUninstall {
                     if (confirm != null) {
                         try {
                             app.startActivity(confirm.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                            return;   // l'esito arriva dopo la conferma
+                            return;   // the outcome arrives after the confirmation
                         } catch (Exception ignored) {
                         }
                     }
@@ -67,7 +67,7 @@ public final class AppUninstall {
                 }
                 String msg = i.getStringExtra(PackageInstaller.EXTRA_STATUS_MESSAGE);
                 boolean ok = st == PackageInstaller.STATUS_SUCCESS;
-                Diag.put("app.disinstallata", pkg + " · " + (ok ? "ok" : "non riuscita (" + (msg == null ? "codice " + st : msg) + ")"));
+                Diag.put("app.uninstalled", pkg + " · " + (ok ? "ok" : "failed (" + (msg == null ? "code " + st : msg) + ")"));
                 done.done(ok);
             }
         };
@@ -81,7 +81,7 @@ public final class AppUninstall {
                 app.unregisterReceiver(rcv);
             } catch (Exception ignored) {
             }
-            Diag.put("app.disinstallata", pkg + " · non riuscita (" + e.getClass().getSimpleName() + ")");
+            Diag.put("app.uninstalled", pkg + " · failed (" + e.getClass().getSimpleName() + ")");
             main.post(() -> done.done(false));
         }
     }

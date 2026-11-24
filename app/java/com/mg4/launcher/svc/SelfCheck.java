@@ -10,14 +10,14 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 0.4.3 (punto 10, dalla SWI68 0.4.3 adattato alla SWI69 R45): Controllo funzioni, come l'AutoTest di MG4 Clima e il controllo di MG4 Voice.
+ * 0.4.3 (point 10, from SWI68 0.4.3 adapted to SWI69 R45): Function check, like MG4 Clima's AutoTest and MG4 Voice's check.
  * <p>
- * Tutto in SOLA LETTURA: si guardano i servizi collegati e i valori già letti, non si manda nessun comando all'auto
- * (niente clima, radio, play, chiamate). Ogni prova dà ✓ (funziona), ✗ (non funziona) o — (non presente su questa auto,
- * oppure saltata). Nel log: controllo.&lt;nome&gt; = ✓/✗/— dettaglio, più controllo.riepilogo.
+ * Everything is READ ONLY: it looks at the connected services and the values already read, no command is sent to the car
+ * (no climate, radio, play, calls). Each test gives ✓ (works), ✗ (does not work) or — (not present on this car,
+ * or skipped). In the log: controllo.&lt;name&gt; = ✓/✗/— detail, plus controllo.riepilogo.
  * <p>
- * Dopo ogni aggiornamento il controllo parte da solo, in silenzio, 60 s dopo l'avvio: solo log, senza la prova dei
- * tasti al volante (che chiede di premere un tasto).
+ * After every update the check starts by itself, silently, 60 s after startup: log only, without the steering wheel
+ * keys test (which asks to press a key).
  */
 public final class SelfCheck {
     public static final int OK = 1, FAIL = 0, ABSENT = -1, SKIPPED = -2;
@@ -26,9 +26,9 @@ public final class SelfCheck {
         public final String key;
         public final int label;
         public int status = SKIPPED;
-        /** Dettaglio in italiano per il log. */
+        /** Detail in Italian for the log. */
         public String detail = "";
-        /** Dettaglio senza parole (numeri, °C, porte) mostrato a schermo accanto alla frase tradotta. */
+        /** Word-free detail (numbers, °C, ports) shown on screen next to the translated sentence. */
         public String shown = "";
 
         Item(String key, int label) {
@@ -42,13 +42,13 @@ public final class SelfCheck {
     }
 
     public interface Progress {
-        /** Una riga è cambiata (sul thread principale). */
+        /** A row changed (on the main thread). */
         void onItem(Item it);
 
-        /** Prova dei tasti: secondi che restano (sul thread principale); 0 = finita. */
+        /** Keys test: seconds remaining (on the main thread); 0 = finished. */
         void onKeysCountdown(int seconds);
 
-        /** 1.0.4: prova dei fari: secondi che restano (sul thread principale); 0 = finita. */
+        /** 1.0.4: lights test: seconds remaining (on the main thread); 0 = finished. */
         default void onLightsCountdown(int seconds) {
         }
 
@@ -62,7 +62,7 @@ public final class SelfCheck {
 
     private SelfCheck() {}
 
-    /** Chiamato da MainActivity: i client già collegati (il controllo non ne apre di nuovi). */
+    /** Called by MainActivity: the already connected clients (the check does not open new ones). */
     public static void bind(VehicleClient v, MediaClient m) {
         vehicle = v;
         media = m;
@@ -72,37 +72,37 @@ public final class SelfCheck {
         return running;
     }
 
-    /** Elenco delle prove, nell'ordine in cui compaiono a schermo. */
+    /** List of tests, in the order they appear on screen. */
     public static List<Item> items() {
         List<Item> l = new ArrayList<>();
-        l.add(new Item("veicolo", R.string.chk_vehicle));
-        l.add(new Item("clima", R.string.chk_climate));
+        l.add(new Item("vehicle", R.string.chk_vehicle));
+        l.add(new Item("climate", R.string.chk_climate));
         l.add(new Item("radio", R.string.chk_radio));
         l.add(new Item("media", R.string.chk_media));
         l.add(new Item("bms", R.string.chk_bms));
         l.add(new Item("carplayAA", R.string.chk_projection));
-        l.add(new Item("tempEsterna", R.string.chk_out_temp));
-        l.add(new Item("tempInterna", R.string.chk_in_temp));
-        l.add(new Item("tema", R.string.chk_theme));
-        l.add(new Item("temaSistema", R.string.chk_theme_system));
-        l.add(new Item("fari", R.string.chk_lights));
+        l.add(new Item("tempOutside", R.string.chk_out_temp));
+        l.add(new Item("tempInside", R.string.chk_in_temp));
+        l.add(new Item("theme", R.string.chk_theme));
+        l.add(new Item("themeSystem", R.string.chk_theme_system));
+        l.add(new Item("lights", R.string.chk_lights));
         l.add(new Item("usb", R.string.chk_usb));
         l.add(new Item("bluetooth", R.string.chk_bt));
-        l.add(new Item("stazioni", R.string.chk_stations));
-        l.add(new Item("tastiVolante", R.string.chk_keys));
-        l.add(new Item("tastoClima", R.string.chk_sys_button));
-        l.add(new Item("spiaFendinebbia", R.string.chk_fog_window));
-        l.add(new Item("sediliVolante", R.string.chk_comfort));
-        l.add(new Item("aggiornamento", R.string.chk_update));
-        l.add(new Item("avvisi", R.string.chk_notices));
-        l.add(new Item("animazione", R.string.chk_charge_anim));
+        l.add(new Item("stations", R.string.chk_stations));
+        l.add(new Item("wheelKeys", R.string.chk_keys));
+        l.add(new Item("climateButton", R.string.chk_sys_button));
+        l.add(new Item("fogIndicator", R.string.chk_fog_window));
+        l.add(new Item("seatsWheel", R.string.chk_comfort));
+        l.add(new Item("update", R.string.chk_update));
+        l.add(new Item("notices", R.string.chk_notices));
+        l.add(new Item("chargeAnim", R.string.chk_charge_anim));
         l.add(new Item("ready", R.string.chk_ready));
         return l;
     }
 
     /**
-     * Avvia il controllo su un thread a parte. interactive = true: con la prova dei tasti al volante (10 s).
-     * Progress può essere null (controllo silenzioso dopo un aggiornamento).
+     * Starts the check on a separate thread. interactive = true: with the steering wheel keys test (10 s).
+     * Progress can be null (silent check after an update).
      */
     public static void run(Context ctx, boolean interactive, Progress p) {
         if (running) return;
@@ -111,16 +111,16 @@ public final class SelfCheck {
         List<Item> items = items();
         new Thread(() -> {
             try {
-                Diag.put("controllo.avvio", (interactive ? "dalle impostazioni" : "automatico dopo l'aggiornamento") + " · "
+                Diag.put("selfcheck.start", (interactive ? "from settings" : "automatic after update") + " · "
                         + new java.text.SimpleDateFormat("dd/MM HH:mm:ss", java.util.Locale.ITALY).format(new java.util.Date()));
                 for (Item it : items) {
                     try {
                         check(c, it, interactive, p);
                     } catch (Throwable e) {
                         it.status = FAIL;
-                        it.detail = "errore " + e.getClass().getSimpleName();
+                        it.detail = "error " + e.getClass().getSimpleName();
                     }
-                    Diag.put("controllo." + it.key, it.mark() + " " + it.detail);
+                    Diag.put("selfcheck." + it.key, it.mark() + " " + it.detail);
                     if (p != null) main.post(() -> p.onItem(it));
                 }
                 int ok = 0, fail = 0, absent = 0;
@@ -129,13 +129,13 @@ public final class SelfCheck {
                     else if (it.status == FAIL) fail++;
                     else absent++;
                 }
-                Diag.put("controllo.riepilogo", ok + " ok · " + fail + " errori · " + absent + " assenti");
+                Diag.put("selfcheck.summary", ok + " ok · " + fail + " errors · " + absent + " absent");
                 int o = ok, f = fail, a = absent;
                 if (p != null) main.post(() -> p.onDone(items, o, f, a));
             } finally {
                 running = false;
             }
-        }, "mg4-controllo").start();
+        }, "mg4-selfcheck").start();
     }
 
     private static void set(Item it, int status, String detail, String shown) {
@@ -149,102 +149,102 @@ public final class SelfCheck {
         MediaClient m = media;
         VehicleClient.State s = v == null ? null : v.last();
         switch (it.key) {
-            case "veicolo": {
+            case "vehicle": {
                 CarProps cp = VehicleClient.carProps();
                 boolean hub = s != null && s.connected;
                 boolean props = cp != null && cp.ready();
-                set(it, hub ? OK : FAIL, "servizio veicolo " + (hub ? "collegato" : "non collegato") + " · CarService "
-                        + (props ? "pronto" : "non pronto"), "");
+                set(it, hub ? OK : FAIL, "vehicle service " + (hub ? "connected" : "not connected") + " · CarService "
+                        + (props ? "ready" : "not ready"), "");
                 break;
             }
-            case "clima": {
+            case "climate": {
                 boolean read = s != null && (s.hvacPower >= 0 || s.acTemp > 0 || s.fanLevel >= 0);
                 boolean app = installed(c, com.mg4.launcher.apps.MgApps.HVAC_PKG);
-                if (read) set(it, OK, "stato letto (acceso " + s.hvacPower + ", temperatura " + s.acTemp + ", ventola " + s.fanLevel + ")",
+                if (read) set(it, OK, "state read (power " + s.hvacPower + ", temperature " + s.acTemp + ", fan " + s.fanLevel + ")",
                         s.acTemp > 0 ? s.acTemp + "°" : "");
-                else set(it, FAIL, "stato del clima non letto" + (app ? "" : " · app Clima assente"), "");
+                else set(it, FAIL, "climate state not read" + (app ? "" : " · Climate app absent"), "");
                 break;
             }
             case "radio": {
                 if (!installed(c, "com.saicmotor.radio")) {
-                    set(it, ABSENT, "servizio radio non installato", "");
+                    set(it, ABSENT, "radio service not installed", "");
                     break;
                 }
                 boolean ok = m != null && m.radioLinked();
-                set(it, ok ? OK : FAIL, "servizio radio " + (ok ? "collegato" : "non collegato") + " · callback " + Diag.value("radio.callback"), "");
+                set(it, ok ? OK : FAIL, "radio service " + (ok ? "connected" : "not connected") + " · callback " + Diag.value("radio.callback"), "");
                 break;
             }
             case "media": {
                 boolean ok = m != null && m.mediaLinked();
-                set(it, ok ? OK : FAIL, "servizio media (sessione USB 1) " + (ok ? "collegato" : "non collegato"), "");
+                set(it, ok ? OK : FAIL, "media service (USB session 1) " + (ok ? "connected" : "not connected"), "");
                 break;
             }
             case "bms": {
                 boolean ok = s != null && s.bmsAvailable && s.soc >= 0;
-                set(it, ok ? OK : FAIL, ok ? "carica letta " + Math.round(s.soc) + "%" : "carica della batteria non letta",
+                set(it, ok ? OK : FAIL, ok ? "charge read " + Math.round(s.soc) + "%" : "battery charge not read",
                         ok ? Math.round(s.soc) + "%" : "");
                 break;
             }
             case "carplayAA": {
                 Boolean l = m == null ? Boolean.FALSE : m.projectionLinked();
-                if (l == null) set(it, ABSENT, "Allgo (CarPlay/Android Auto) non installato", "");
-                else set(it, l ? OK : FAIL, "servizio Allgo " + (l ? "collegato" : "non collegato")
-                        + (m != null && m.last().deviceType != 0 ? " · telefono collegato" : " · nessun telefono"), "");
+                if (l == null) set(it, ABSENT, "Allgo (CarPlay/Android Auto) not installed", "");
+                else set(it, l ? OK : FAIL, "Allgo service " + (l ? "connected" : "not connected")
+                        + (m != null && m.last().deviceType != 0 ? " · phone connected" : " · no phone"), "");
                 break;
             }
-            case "tempEsterna": {
+            case "tempOutside": {
                 boolean ok = s != null && s.outsideTemp > -60 && s.outsideTemp < 70;
-                set(it, ok ? OK : FAIL, ok ? "letta " + s.outsideTemp + " °C" : "non letta", ok ? Math.round(s.outsideTemp) + "°C" : "");
+                set(it, ok ? OK : FAIL, ok ? "read " + s.outsideTemp + " °C" : "not read", ok ? Math.round(s.outsideTemp) + "°C" : "");
                 break;
             }
-            case "tempInterna": {
+            case "tempInside": {
                 CarProps cp = VehicleClient.carProps();
                 if (cp != null && cp.ready() && !cp.has(CarProps.HVAC_TEMPERATURE_CURRENT)) {
-                    set(it, ABSENT, "proprietà assente (l'opzione si nasconde da sola)", "");
-                    // l'opzione "Automatico" si nasconde, come fa anche la lettura normale
+                    set(it, ABSENT, "property absent (the option hides itself)", "");
+                    // the "Automatico" option hides itself, as the normal reading also does
                     c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).edit().putBoolean("tempInternaAssente", true).apply();
                     break;
                 }
                 boolean ok = s != null && !Float.isNaN(s.insideTemp) && !s.insideSource.isEmpty();
-                set(it, ok ? OK : FAIL, ok ? "letta " + s.insideTemp + " °C da " + s.insideSource : "nessun valore valido · " + Diag.value("clima.tempInterna"),
+                set(it, ok ? OK : FAIL, ok ? "read " + s.insideTemp + " °C from " + s.insideSource : "no valid value · " + Diag.value("climate.tempInside"),
                         ok ? Math.round(s.insideTemp) + "°C" : "");
                 break;
             }
-            case "tema": {
+            case "theme": {
                 DayNight dn = DayNight.get(c);
                 Boolean day = dn.applied();
                 double sun = dn.sunElevation();
                 String mode = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getString("theme", "auto");
-                String base = "fonte " + dn.source() + " · applicato " + (day == null ? "—" : day ? "giorno" : "notte")
-                        + (Double.isNaN(sun) ? "" : " · sole a " + Math.round(sun) + "°") + (dn.uiStuck() ? " · uiMode bloccato: ignorato" : "");
+                String base = "source " + dn.source() + " · applied " + (day == null ? "—" : day ? "day" : "night")
+                        + (Double.isNaN(sun) ? "" : " · sun at " + Math.round(sun) + "°") + (dn.uiStuck() ? " · uiMode stuck: ignored" : "");
                 if (!"auto".equals(mode)) {
-                    set(it, OK, "scelta manuale " + mode + " · " + base, "");
+                    set(it, OK, "manual choice " + mode + " · " + base, "");
                 } else if (day == null || Double.isNaN(sun)) {
-                    set(it, FAIL, "tema non ancora deciso · " + base, "");
+                    set(it, FAIL, "theme not decided yet · " + base, "");
                 } else {
                     boolean wrong = !day && sun > 6 || day && sun < -6;
-                    set(it, wrong ? FAIL : OK, (wrong ? "non coerente col sole · " : "coerente col sole · ") + base, "");
+                    set(it, wrong ? FAIL : OK, (wrong ? "inconsistent with the sun · " : "consistent with the sun · ") + base, "");
                 }
                 break;
             }
-            case "temaSistema": {
-                // 0.4.4: il tema scritto dal launcher nel sistema, riletto da Settings.System SKIN_THEME_CONFIG
+            case "themeSystem": {
+                // 0.4.4: the theme written by the launcher into the system, read back from Settings.System SKIN_THEME_CONFIG
                 Boolean[] r = DayNight.get(c).systemCheck();
-                if (r[0] == null) set(it, FAIL, "tema non ancora deciso · " + DayNight.get(c).systemTxt(), "");
-                else if (r[1] == null) set(it, FAIL, "SKIN_THEME_CONFIG non leggibile · " + DayNight.get(c).systemTxt(), "");
-                else set(it, r[0].equals(r[1]) && DayNight.get(c).systemApplied() ? OK : FAIL, "voluto " + (r[0] ? "giorno" : "notte") + " · sistema " + (r[1] ? "giorno" : "notte")
-                        + (DayNight.get(c).systemApplied() ? "" : " · configurazione diversa")
+                if (r[0] == null) set(it, FAIL, "theme not decided yet · " + DayNight.get(c).systemTxt(), "");
+                else if (r[1] == null) set(it, FAIL, "SKIN_THEME_CONFIG unreadable · " + DayNight.get(c).systemTxt(), "");
+                else set(it, r[0].equals(r[1]) && DayNight.get(c).systemApplied() ? OK : FAIL, "wanted " + (r[0] ? "day" : "night") + " · system " + (r[1] ? "day" : "night")
+                        + (DayNight.get(c).systemApplied() ? "" : " · configuration differs")
                         + " · " + DayNight.get(c).systemTxt(), r[1] ? "☀" : "☾");
                 break;
             }
-            case "fari": {
-                // 1.0.4 (punto B): con la prova interattiva si chiede di accendere le luci di posizione entro 10 s
+            case "lights": {
+                // 1.0.4 (point B): the interactive test asks to turn on the position lights within 10 s
                 if (VehicleClient.lights() < 0) {
-                    set(it, FAIL, "fari non leggibili · " + VehicleClient.lightsDescription(), "");
+                    set(it, FAIL, "headlights unreadable · " + VehicleClient.lightsDescription(), "");
                     break;
                 }
                 if (!interactive) {
-                    set(it, OK, "leggibili · " + VehicleClient.lightsDescription(), "");
+                    set(it, OK, "readable · " + VehicleClient.lightsDescription(), "");
                     break;
                 }
                 boolean seenOn = VehicleClient.lights() == 1;
@@ -256,51 +256,51 @@ public final class SelfCheck {
                     seenOn = VehicleClient.lights() == 1;
                 }
                 if (p != null) main.post(() -> p.onLightsCountdown(0));
-                set(it, seenOn ? OK : FAIL, (seenOn ? "accensione vista" : "nessuna accensione vista in 10 s") + " · "
+                set(it, seenOn ? OK : FAIL, (seenOn ? "switch-on seen" : "no switch-on seen in 10 s") + " · "
                         + VehicleClient.lightsDescription(), "");
                 break;
             }
-            case "animazione": {
+            case "chargeAnim": {
                 String color = com.mg4.launcher.ui.Prefs.CAR_COLORS[Math.max(0, Math.min(7,
                         c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getInt("carColor", 5)))];
                 boolean on = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getBoolean("animazioneRicarica", true);
-                if (com.mg4.launcher.ui.ChargeAnimView.errors > 0) set(it, FAIL, "errori di riproduzione: " + com.mg4.launcher.ui.ChargeAnimView.errors
+                if (com.mg4.launcher.ui.ChargeAnimView.errors > 0) set(it, FAIL, "playback errors: " + com.mg4.launcher.ui.ChargeAnimView.errors
                         + " · " + ChargePack.state(), "");
-                else if (ChargePack.complete(c, color)) set(it, OK, "pacchetto " + color + " presente" + (on ? "" : " (animazione spenta)"), "");
+                else if (ChargePack.complete(c, color)) set(it, OK, "pack " + color + " present" + (on ? "" : " (animation off)"), "");
                 else if (ChargePack.failed()) set(it, FAIL, ChargePack.state(), "");
-                else set(it, ABSENT, "non ancora disponibile · " + ChargePack.state(), "");
+                else set(it, ABSENT, "not available yet · " + ChargePack.state(), "");
                 break;
             }
             case "usb": {
                 List<String> ports = m == null ? null : m.usbPortsSeen();
                 if (ports == null) {
-                    set(it, FAIL, "servizio media non risponde", "");
+                    set(it, FAIL, "media service not responding", "");
                     break;
                 }
                 boolean u1 = m.mediaLinked(), u2 = m.usb2Linked();
                 String txt = android.text.TextUtils.join(" · ", ports);
-                if (!u1 && !u2) set(it, FAIL, "sessioni USB non collegate · " + txt, "");
-                else set(it, OK, "USB 1 " + (u1 ? "sì" : "no") + " · USB 2 " + (u2 ? "sì" : "no") + " (sorgenti separate) · " + txt,
+                if (!u1 && !u2) set(it, FAIL, "USB sessions not connected · " + txt, "");
+                else set(it, OK, "USB 1 " + (u1 ? "yes" : "no") + " · USB 2 " + (u2 ? "yes" : "no") + " (separate sources) · " + txt,
                         "USB 1" + (u2 ? " · USB 2" : ""));
                 break;
             }
             case "bluetooth": {
                 if (m == null || !m.btLinked()) {
-                    set(it, FAIL, "servizio Bluetooth musica non collegato", "");
+                    set(it, FAIL, "Bluetooth music service not connected", "");
                     break;
                 }
                 int st = m.btState();
-                if (st != 2) set(it, ABSENT, "nessun telefono collegato in Bluetooth (stato " + st + ")", "");
-                else set(it, OK, "telefono collegato · titoli da " + (MediaClient.btMetaSource.isEmpty() ? "— (aprire la sorgente Bluetooth)"
-                        : MediaClient.btMetaSource) + " · " + Diag.value("media.bt.attesa"), "");
+                if (st != 2) set(it, ABSENT, "no phone connected via Bluetooth (state " + st + ")", "");
+                else set(it, OK, "phone connected · titles from " + (MediaClient.btMetaSource.isEmpty() ? "— (open the Bluetooth source)"
+                        : MediaClient.btMetaSource) + " · " + Diag.value("media.bt.wait"), "");
                 break;
             }
-            case "stazioni": {
+            case "stations": {
                 if (m == null || !m.radioLinked()) {
-                    set(it, FAIL, "servizio radio non collegato", "");
+                    set(it, FAIL, "radio service not connected", "");
                     break;
                 }
-                // 1.0.4 (punto C2): l'elenco può arrivare dopo l'avvio del controllo: si aspetta fino a 30 s
+                // 1.0.4 (point C2): the list may arrive after the check starts: wait up to 30 s
                 MediaClient.State ms = m.last();
                 long until = android.os.SystemClock.uptimeMillis() + 30_000;
                 while ((ms.stations == null || ms.stations.isEmpty()) && (ms.favorites == null || ms.favorites.isEmpty())
@@ -310,14 +310,14 @@ public final class SelfCheck {
                 }
                 int n = ms.stations == null ? 0 : ms.stations.size();
                 int f = ms.favorites == null ? 0 : ms.favorites.size();
-                String elenco = Diag.value("radio.elenco");
-                if (n > 0 || f > 0) set(it, OK, n + " stazioni · " + f + " preferiti · " + elenco, String.valueOf(Math.max(n, f)));
-                else set(it, FAIL, "nessuna stazione ricevuta (aprire la Radio e fare una ricerca) · " + elenco, "0");
+                String listing = Diag.value("radio.list");
+                if (n > 0 || f > 0) set(it, OK, n + " stations · " + f + " favorites · " + listing, String.valueOf(Math.max(n, f)));
+                else set(it, FAIL, "no stations received (open the Radio and run a scan) · " + listing, "0");
                 break;
             }
-            case "tastiVolante": {
+            case "wheelKeys": {
                 if (!interactive) {
-                    set(it, SKIPPED, "saltata (controllo automatico: serve premere un tasto)", "");
+                    set(it, SKIPPED, "skipped (automatic check: a key press is needed)", "");
                     break;
                 }
                 final int[] seen = {-1};
@@ -340,56 +340,56 @@ public final class SelfCheck {
                     WheelKeys.setProbe(null);
                     if (p != null) main.post(() -> p.onKeysCountdown(0));
                 }
-                if (seen[0] > 0) set(it, OK, "visto codice " + seen[0] + " (" + WheelKeys.name(seen[0]) + ")", "#" + seen[0]);
-                else set(it, FAIL, "nessun tasto avanti/indietro visto in 10 s · " + Diag.value("media.tastiVolante"), "");
+                if (seen[0] > 0) set(it, OK, "seen code " + seen[0] + " (" + WheelKeys.name(seen[0]) + ")", "#" + seen[0]);
+                else set(it, FAIL, "no next/previous key seen in 10 s · " + Diag.value("media.wheelKeys"), "");
                 break;
             }
             case "ready": {
-                // 0.4.5: READY letto da SENSOR_EPTRDY (sola lettura); l'accensione non conta come READY
+                // 0.4.5: READY read from SENSOR_EPTRDY (read only); ignition does not count as READY
                 if (s == null) {
-                    set(it, FAIL, "servizio veicolo non collegato", "");
+                    set(it, FAIL, "vehicle service not connected", "");
                     break;
                 }
-                String txt = "ready " + s.ready + " (" + s.readySource + ") · marcia " + VehicleClient.gearName(s.gear);
+                String txt = "ready " + s.ready + " (" + s.readySource + ") · gear " + VehicleClient.gearName(s.gear);
                 if (s.ready == 1) set(it, OK, txt, "READY");
                 else if (s.ready == 0) set(it, OK, txt, "—");
-                else set(it, FAIL, txt + " · READY sconosciuto: l'animazione non si blocca", "");
+                else set(it, FAIL, txt + " · READY unknown: the animation is not blocked", "");
                 break;
             }
-            case "tastoClima": {
+            case "climateButton": {
                 boolean app = installed(c, com.mg4.launcher.apps.MgApps.HVAC_PKG) || installed(c, "com.mg4.clima");
-                if (app) set(it, OK, "apre " + (installed(c, "com.mg4.clima") ? "MG4 Clima o l'app Clima" : "l'app Clima originale"), "");
-                else set(it, ABSENT, "app Clima non installata", "");
+                if (app) set(it, OK, "opens " + (installed(c, "com.mg4.clima") ? "MG4 Clima or the Climate app" : "the original Climate app"), "");
+                else set(it, ABSENT, "Climate app not installed", "");
                 break;
             }
-            case "spiaFendinebbia": {
-                // finestra della SystemUI (tipo 2021) in alto a sinistra: la home lascia libero l'angolo
+            case "fogIndicator": {
+                // SystemUI window (type 2021) in the top left: the home leaves the corner free
                 boolean on = CarFeatures.hasSystemLightIndicator(c);
                 int inset = CarFeatures.systemLightInset(c);
-                if (!on) set(it, ABSENT, "configurazione: nessuna spia luci di sistema · " + Diag.value("auto.config.spiaLuci"), "");
-                else set(it, OK, "angolo lasciato libero " + inset + " dp · " + Diag.value("luci.pulsanteSistema"), inset + " dp");
+                if (!on) set(it, ABSENT, "configuration: no system light indicator · " + Diag.value("car.config.lightIndicator"), "");
+                else set(it, OK, "corner left free " + inset + " dp · " + Diag.value("lights.systemButton"), inset + " dp");
                 break;
             }
-            case "sediliVolante": {
+            case "seatsWheel": {
                 if (s == null) {
-                    set(it, FAIL, "servizio veicolo non collegato", "");
+                    set(it, FAIL, "vehicle service not connected", "");
                     break;
                 }
-                String cfg = "configurazione EH32 · sedile sinistro " + (s.seatLeft >= 0 ? "sì" : "no") + " · sedile destro " + (s.seatRight >= 0 ? "sì" : "no")
-                        + " · volante " + (s.wheelHeat >= 0 ? "sì" : "no");
+                String cfg = "EH32 configuration · left seat " + (s.seatLeft >= 0 ? "yes" : "no") + " · right seat " + (s.seatRight >= 0 ? "yes" : "no")
+                        + " · steering wheel " + (s.wheelHeat >= 0 ? "yes" : "no");
                 boolean any = s.seatLeft >= 0 || s.seatRight >= 0 || s.wheelHeat >= 0;
                 set(it, any ? OK : ABSENT, cfg, "");
                 break;
             }
-            case "aggiornamento":
-            case "avvisi": {
+            case "update":
+            case "notices": {
                 String[] r = remote();
-                if ("aggiornamento".equals(it.key)) {
-                    if (r[0] != null) set(it, OK, "latest.json letto: versione " + r[0], r[0]);
-                    else set(it, FAIL, "latest.json non raggiungibile (internet assente?)", "");
+                if ("update".equals(it.key)) {
+                    if (r[0] != null) set(it, OK, "latest.json read: version " + r[0], r[0]);
+                    else set(it, FAIL, "latest.json unreachable (no internet?)", "");
                 } else {
-                    if (r[1] != null) set(it, OK, "avvisi.json letto: " + r[1] + " avvisi", r[1]);
-                    else set(it, FAIL, "avvisi.json non letto (internet assente?)", "");
+                    if (r[1] != null) set(it, OK, "avvisi.json read: " + r[1] + " notices", r[1]);
+                    else set(it, FAIL, "avvisi.json not read (no internet?)", "");
                 }
                 break;
             }
@@ -401,7 +401,7 @@ public final class SelfCheck {
     private static String[] remoteCache;
     private static long remoteAt;
 
-    /** latest.json e avvisi.json letti una volta per controllo (sola lettura). */
+    /** latest.json and avvisi.json read once per check (read only). */
     private static synchronized String[] remote() {
         long now = android.os.SystemClock.uptimeMillis();
         if (remoteCache == null || now - remoteAt > 30_000) {
@@ -420,11 +420,11 @@ public final class SelfCheck {
         }
     }
 
-    // ---- controllo automatico dopo un aggiornamento --------------------------------------------
+    // ---- automatic check after an update ------------------------------------------------------
 
     private static final String K_DONE_FOR = "controlloFattoPer";
 
-    /** Se questa versione non è ancora stata controllata, il controllo silenzioso parte 60 s dopo. */
+    /** If this version has not been checked yet, the silent check starts 60 s later. */
     public static void scheduleAfterUpdate(Context ctx, String version) {
         Context c = ctx.getApplicationContext();
         android.content.SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);

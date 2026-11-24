@@ -85,9 +85,9 @@
     <string name="home_default_title" formatted="false">Usa come home predefinita</string>
     <string name="home_default_sub" formatted="false">All\'accensione e con il tasto Home si apre MG4 Launcher</string>
     <string name="home_default_off_sub" formatted="false">Spento: si usa la home MG originale</string>
-    <string name="officina_until_sub">Modalità officina fino al %1$s</string>
-    <string name="officina_title" formatted="false">Modalità officina</string>
-    <string name="officina_sub" formatted="false">Per qualche giorno l\'auto usa la home MG originale, poi il launcher torna da solo</string>
+    <string name="workshop_until_sub">Modalità officina fino al %1$s</string>
+    <string name="workshop_title" formatted="false">Modalità officina</string>
+    <string name="workshop_sub" formatted="false">Per qualche giorno l\'auto usa la home MG originale, poi il launcher torna da solo</string>
     <string name="days_1" formatted="false">1 giorno</string>
     <string name="days_3" formatted="false">3 giorni</string>
     <string name="days_7" formatted="false">7 giorni</string>
@@ -98,10 +98,10 @@
     <string name="btn_keep" formatted="false">Lascia attiva</string>
     <string name="confirm_home_off_title" formatted="false">Usare la home MG originale?</string>
     <string name="confirm_home_off_msg" formatted="false">La home MG diventa quella predefinita, anche all\'accensione. La home MG non mostra MG4 Launcher tra le sue app: per tornare servirà un computer (adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity). Se ti serve solo per qualche giorno, usa la Modalità officina: il launcher torna da solo.</string>
-    <string name="confirm_officina_title" formatted="false">Attivare la modalità officina?</string>
-    <string name="confirm_officina_msg">Fino al %1$s l\'auto userà la home MG originale e gli aggiornamenti saranno sospesi. Alla scadenza MG4 Launcher torna da solo, come prima.</string>
-    <string name="officina_active_title" formatted="false">Modalità officina attiva</string>
-    <string name="officina_active_msg">Modalità officina attiva fino al %1$s. Vuoi disattivarla?</string>
+    <string name="confirm_workshop_title" formatted="false">Attivare la modalità officina?</string>
+    <string name="confirm_workshop_msg">Fino al %1$s l\'auto userà la home MG originale e gli aggiornamenti saranno sospesi. Alla scadenza MG4 Launcher torna da solo, come prima.</string>
+    <string name="workshop_active_title" formatted="false">Modalità officina attiva</string>
+    <string name="workshop_active_msg">Modalità officina attiva fino al %1$s. Vuoi disattivarla?</string>
     <string name="set_ui_size" formatted="false">DIMENSIONE COMANDI</string>
     <string name="ui_size_normal" formatted="false">Normale</string>
     <string name="ui_size_large" formatted="false">Grande</string>
@@ -281,7 +281,7 @@
     <string name="logos_delete_pick" formatted="false">Quale pacchetto vuoi eliminare?</string>
     <string name="logos_usb_title" formatted="false">Loghi radio trovati</string>
     <string name="logos_usb_msg">C\'è il pacchetto dei loghi per %1$s in %2$s. Lo installo? Funziona anche senza internet.</string>
-    <string name="group_clima" formatted="false">Clima</string>
+    <string name="group_climate" formatted="false">Clima</string>
     <string name="group_comfort" formatted="false">Comfort</string>
     <string name="tap_outside_close" formatted="false">tocca fuori per chiudere</string>
     <string name="lka_desc" formatted="false">Mantenimento corsia (LKA)</string>
@@ -333,13 +333,13 @@
     <string name="newsv_3" formatted="false">Temperatura interna nascosta: l\'auto non la fornisce (mostrava quella esterna); la stiamo cercando nei log</string>
     <string name="newsv_4" formatted="false">I dongle CarPlay/Android Auto che si presentano come iPhone ora vengono riconosciuti e riavviati se non partono</string>
     <string name="newsf_1" formatted="false">La ventola su OFF ora spegne davvero il clima (prima tornava a 1)</string>
-    <string name="group_guida" formatted="false">Guida</string>
+    <string name="group_drive" formatted="false">Guida</string>
     <string name="tile_lka" formatted="false">Corsia</string>
     <string name="tile_acc" formatted="false">Assistente</string>
     <string name="tile_pedal" formatted="false">Pedale freno</string>
     <string name="recirc_in" formatted="false">Interno</string>
     <string name="recirc_out" formatted="false">Esterno</string>
-    <string name="guida_stopped" formatted="false">Si cambia solo ad auto ferma</string>
+    <string name="drive_stopped" formatted="false">Si cambia solo ad auto ferma</string>
     <string name="set_inside_none" formatted="false">Non disponibile: l\'auto non la manda allo schermo. Il valore «ambiente» che si leggeva prima era in realtà la temperatura esterna</string>
     <string name="newsg_1" formatted="false">Nuovo pulsante Guida nella barra: LKA, One Pedal, assistente (Spento/ACC/TJA) e pedale del freno (Comfort/Medium/Sport) in un unico riquadro</string>
     <string name="newsg_2" formatted="false">Assistente e pedale del freno si cambiano solo ad auto ferma, per sicurezza</string>

@@ -6,9 +6,9 @@ import java.util.LinkedHashSet;
 import java.util.Locale;
 
 /**
- * 1.0.0: auto senza internet. Invio dei log, controllo aggiornamenti e loghi condividono una sola pausa crescente
- * (1, 2, 4, 8, 16, 30, 60 min) dopo un errore di rete (DNS, connessione, timeout, SSL), invece di riprovare ognuno per
- * conto suo. Nella diagnostica c'è una sola riga "rete.offline" al posto di un errore per ogni tentativo.
+ * 1.0.0: car without internet. Log upload, update check and logos share a single growing pause
+ * (1, 2, 4, 8, 16, 30, 60 min) after a network error (DNS, connection, timeout, SSL), instead of each retrying on
+ * its own. The diagnostics hold a single "rete.offline" line instead of one error per attempt.
  */
 public final class Offline {
     private static final long MIN_MS = 60_000L, MAX_MS = 60 * 60_000L;
@@ -20,9 +20,9 @@ public final class Offline {
 
     private Offline() {}
 
-    /** True se è un errore di rete (non un errore del server o dei dati). */
+    /** True if it is a network error (not a server or data error). */
     public static boolean isNetError(Throwable e) {
-        // un certificato rifiutato (es. orologio dell'auto indietro) non è "offline": resta un errore con la sua causa
+        // a rejected certificate (e.g. car clock behind) is not "offline": it stays an error with its cause
         for (Throwable t = e; t != null; t = t.getCause()) {
             if (t instanceof java.security.cert.CertificateException || t instanceof java.security.cert.CertPathValidatorException)
                 return false;
@@ -35,19 +35,19 @@ public final class Offline {
         return false;
     }
 
-    /** True se si può provare ad andare in rete adesso (nessuna pausa in corso). */
+    /** True if going online can be attempted now (no pause in progress). */
     public static synchronized boolean canTry() {
         return System.currentTimeMillis() >= until;
     }
 
-    /** Minuti che mancano alla fine della pausa (0 = nessuna pausa). */
+    /** Minutes left until the end of the pause (0 = no pause). */
     public static synchronized long waitMs() {
         return Math.max(0, until - System.currentTimeMillis());
     }
 
     /**
-     * Da chiamare quando un'operazione di rete fallisce. Se è un errore di rete allunga la pausa comune, aggiorna la
-     * riga della diagnostica e restituisce true (il chiamante non scrive altri errori); altrimenti restituisce false.
+     * Call when a network operation fails. If it is a network error it extends the shared pause, updates the
+     * diagnostics line and returns true (the caller writes no other errors); otherwise returns false.
      */
     public static synchronized boolean failed(String what, Throwable e) {
         if (!isNetError(e)) return false;
@@ -66,11 +66,11 @@ public final class Offline {
         return true;
     }
 
-    /** Da chiamare quando un'operazione di rete riesce: fine della pausa. */
+    /** Call when a network operation succeeds: end of the pause. */
     public static synchronized void ok() {
         if (failures == 0) return;
-        Diag.put("rete.offline", "no · tornata alle " + hhmm(System.currentTimeMillis()) + " dopo " + failures
-                + " tentativi falliti (dalle " + hhmm(since) + ")");
+        Diag.put("network.offline", "no · back at " + hhmm(System.currentTimeMillis()) + " after " + failures
+                + " failed attempts (since " + hhmm(since) + ")");
         failures = 0;
         until = 0;
         step = MIN_MS;
@@ -78,8 +78,8 @@ public final class Offline {
     }
 
     private static void write() {
-        Diag.put("rete.offline", "sì dalle " + hhmm(since) + " · " + failures + " tentativi falliti (" + String.join(", ", who)
-                + ") · ultimo errore " + lastError + " · prossimo tentativo alle " + hhmm(until));
+        Diag.put("network.offline", "yes since " + hhmm(since) + " · " + failures + " failed attempts (" + String.join(", ", who)
+                + ") · last error " + lastError + " · next attempt at " + hhmm(until));
     }
 
     private static String hhmm(long t) {
