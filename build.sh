@@ -126,47 +126,14 @@ echo "==> risorse (aapt2)"
   -o "$OUT/base.apk" \
   "$OUT/res/compiled.zip"
 
-echo "==> configurazione invio log"
-# Il token del repository privato dei log NON è nel repository: sta in tools/log-token.txt (escluso da git)
-# oppure, se il file manca, nella variabile d'ambiente MG4_LOG_TOKEN. Il token non viene mai stampato.
-# Qui diventa una classe generata in build/ (esclusa da git), offuscata con XOR (solo per non lasciarlo in chiaro nell'APK).
-python3 - "$T/log-token.txt" "$OUT/gen/com/mg4/launcher/svc/LogConfig.java" <<'PY'
-import os, random, sys
-src, dst = sys.argv[1], sys.argv[2]
-if os.path.exists(src):
-    tok, fonte = open(src).read().strip(), "tools/log-token.txt"
-else:
-    tok, fonte = os.environ.get("MG4_LOG_TOKEN", "").strip(), "variabile MG4_LOG_TOKEN"
-# solo caratteri validi
-import re
-tok = re.sub(r"[^A-Za-z0-9_]", "", tok)
-key = [random.randrange(1, 255) for _ in tok] or [0]
-enc = [ord(ch) ^ key[i] for i, ch in enumerate(tok)]
-os.makedirs(os.path.dirname(dst), exist_ok=True)
-open(dst, "w").write(
-    "package com.mg4.launcher.svc;\n\n/** Generato da build.sh: non modificare, non salvare in git. */\n"
-    "final class LogConfig {\n    private LogConfig() {}\n"
-    "    private static final int[] A = {%s};\n    private static final int[] B = {%s};\n"
-    "    static String token() {\n        char[] c = new char[A.length];\n"
-    "        for (int i = 0; i < A.length; i++) c[i] = (char) (A[i] ^ B[i]);\n        return new String(c);\n    }\n}\n"
-    % (",".join(map(str, enc)), ",".join(map(str, key[:len(enc)]))))
-if tok:
-    print("    token: presente (da %s)" % fonte)
-else:
-    print("    ATTENZIONE: token assente (né tools/log-token.txt né MG4_LOG_TOKEN).")
-    print("    Compilo lo stesso, ma questo APK NON invierà i log.")
-PY
-
 echo "==> java (javac, bytecode 8)"
 find "$SRC" "$OUT/gen" -name '*.java' > "$OUT/sources.txt"
 # API Java 8 dal JDK (lambda), API Android da android.jar
 if ! javac -nowarn -encoding UTF-8 --release 8 -classpath "$ANDROID_JAR" \
      -d "$OUT/classes" @"$OUT/sources.txt" > "$OUT/javac.log" 2>&1; then
   grep -v 'Picked up JAVA_TOOL_OPTIONS' "$OUT/javac.log"
-  rm -f "$OUT/gen/com/mg4/launcher/svc/LogConfig.java"
   echo "compilazione fallita"; exit 1
 fi
-rm -f "$OUT/gen/com/mg4/launcher/svc/LogConfig.java"   # non lascio in giro il sorgente col token
 grep -v -E '^(Picked up JAVA_TOOL_OPTIONS|Note: )' "$OUT/javac.log" || true
 
 echo "==> dex (D8)"

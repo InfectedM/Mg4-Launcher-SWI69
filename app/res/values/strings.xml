@@ -21,12 +21,6 @@
     <string name="seat_left" formatted="false">Left heated seat</string>
     <string name="seat_right" formatted="false">Right heated seat</string>
     <string name="wheel_heat" formatted="false">Heated steering wheel</string>
-    <string name="log_upload_on" formatted="false">Send logs automatically</string>
-    <string name="log_upload_last">Last sent at %1$s</string>
-    <string name="log_upload_never" formatted="false">No log sent yet (the first one goes 90 s after start)</string>
-    <string name="log_upload_error">Upload failed (%1$s): will retry later</string>
-    <string name="log_upload_off" formatted="false">Log upload turned off</string>
-    <string name="log_upload_nokey" formatted="false">Log upload not available in this version</string>
     <string name="sec_car" formatted="false">Car</string>
     <string name="sec_car_sub" formatted="false">Colour, wheels, roof, driving side</string>
     <string name="sec_home" formatted="false">Home</string>
@@ -442,8 +436,6 @@
     <string name="check_skipped" formatted="false">Skipped</string>
     <string name="check_press_keys">Press next or previous on the steering wheel (%s s)</string>
     <string name="check_summary">%1$s ok · %2$s errors · %3$s missing</string>
-    <string name="check_send_log" formatted="false">Send log</string>
-    <string name="check_log_sent" formatted="false">Sending log</string>
     <string name="chk_vehicle" formatted="false">Vehicle service</string>
     <string name="chk_climate" formatted="false">Climate</string>
     <string name="chk_radio" formatted="false">Radio service</string>
@@ -460,7 +452,6 @@
     <string name="chk_sys_button" formatted="false">Climate button</string>
     <string name="chk_comfort" formatted="false">Heated seats and wheel</string>
     <string name="chk_update" formatted="false">Updates reachable</string>
-    <string name="chk_logs" formatted="false">Log upload</string>
     <string name="chk_notices" formatted="false">Remote notices</string>
     <string name="set_top_order" formatted="false">Order at the top</string>
     <string name="set_top_order_sub" formatted="false">Order of the controls at the top of the right panel</string>

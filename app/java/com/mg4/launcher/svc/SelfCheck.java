@@ -57,17 +57,15 @@ public final class SelfCheck {
 
     private static VehicleClient vehicle;
     private static MediaClient media;
-    private static LogUploader logs;
     private static volatile boolean running;
     private static final Handler main = new Handler(Looper.getMainLooper());
 
     private SelfCheck() {}
 
     /** Chiamato da MainActivity: i client già collegati (il controllo non ne apre di nuovi). */
-    public static void bind(VehicleClient v, MediaClient m, LogUploader l) {
+    public static void bind(VehicleClient v, MediaClient m) {
         vehicle = v;
         media = m;
-        logs = l;
     }
 
     public static boolean running() {
@@ -96,7 +94,6 @@ public final class SelfCheck {
         l.add(new Item("spiaFendinebbia", R.string.chk_fog_window));
         l.add(new Item("sediliVolante", R.string.chk_comfort));
         l.add(new Item("aggiornamento", R.string.chk_update));
-        l.add(new Item("log", R.string.chk_logs));
         l.add(new Item("avvisi", R.string.chk_notices));
         l.add(new Item("animazione", R.string.chk_charge_anim));
         l.add(new Item("ready", R.string.chk_ready));
@@ -394,22 +391,6 @@ public final class SelfCheck {
                     if (r[1] != null) set(it, OK, "avvisi.json letto: " + r[1] + " avvisi", r[1]);
                     else set(it, FAIL, "avvisi.json non letto (internet assente?)", "");
                 }
-                break;
-            }
-            case "log": {
-                if (LogUploader.DISABLED_IN_FORK) {
-                    set(it, ABSENT, "invio disattivato in questa versione (fork)", "");
-                    break;
-                }
-                if (!LogUploader.configured()) {
-                    set(it, FAIL, "invio non configurato in questa versione", "");
-                    break;
-                }
-                boolean on = logs == null || logs.enabled();
-                String st = LogUploader.status();
-                boolean bad = st != null && (st.contains("non riuscito") || st.contains("errore"));
-                if (!on) set(it, ABSENT, "invio spento dall'utente", "");
-                else set(it, bad ? FAIL : OK, "stato: " + (st == null || st.isEmpty() ? "—" : st), "");
                 break;
             }
             default:

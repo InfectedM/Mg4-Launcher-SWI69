@@ -320,7 +320,6 @@ public final class Diag {
         } catch (Exception e) {
             data = text.getBytes();
         }
-        LogUploader.requestNow();   // con l'invio automatico attivo, il log va anche nel repository dei log
 
         // fork: primeiro em pastas VISÍVEIS no gestor de ficheiros do carro e no computador:
         //   pen USB → <raiz>/MG4Launcher/registos/   ·   memória do carro → Download/MG4Launcher/

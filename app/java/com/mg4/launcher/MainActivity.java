@@ -46,7 +46,6 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     private MediaClient media;
     private NavClient nav;
     private Updater updater;
-    private com.mg4.launcher.svc.LogUploader logs;
 
     private FrameLayout root;
     private Theme theme;
@@ -69,11 +68,9 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         getWindow().getDecorView().setSystemUiVisibility(IMMERSIVE);
         if (com.mg4.launcher.svc.Firmware.wrong(this)) {
             wrongFirmware = true;
-            logs = new com.mg4.launcher.svc.LogUploader(this);
             root = new FrameLayout(this);
             setContentView(root);
             showWrongFirmware();
-            logs.start();
             root.postDelayed(saveDiag, 15000);
             return;
         }
@@ -86,9 +83,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         media = new MediaClient(this);
         nav = new NavClient(this);
         updater = new Updater(this);
-        logs = new com.mg4.launcher.svc.LogUploader(this);
         // 0.4.3: Controllo funzioni (sola lettura) e controllo automatico 60 s dopo l'avvio di una versione nuova
-        com.mg4.launcher.svc.SelfCheck.bind(vehicle, media, logs);
+        com.mg4.launcher.svc.SelfCheck.bind(vehicle, media);
         com.mg4.launcher.svc.SelfCheck.scheduleAfterUpdate(this, updater.currentVersion());
         // 1.0.4 (punto F): pacchetto dell'animazione di ricarica del colore scelto (in background, se attiva)
         android.os.Handler later = new android.os.Handler(android.os.Looper.getMainLooper());
@@ -175,7 +171,6 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
             conn.start();
             media.start();
             // SWI69: nessun navigatore MG (si naviga con CarPlay / Android Auto): il servizio di navigazione non si usa
-            logs.start();
             com.mg4.launcher.svc.DongleWatch.get(this, media).start();
             // Vidros (fork): fecho automático ao sair do carro, corre sempre em segundo plano
             com.mg4.launcher.svc.Windows.get(this).start();
@@ -669,7 +664,6 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     protected void onDestroy() {
         super.onDestroy();
         root.removeCallbacks(saveDiag);
-        logs.stop();
         if (wrongFirmware) return;
         root.removeCallbacks(autoCheck);
         root.removeCallbacks(hidePopup);
@@ -1032,11 +1026,6 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     @Override
     public Updater updater() {
         return updater;
-    }
-
-    @Override
-    public com.mg4.launcher.svc.LogUploader logs() {
-        return logs;
     }
 
     @Override

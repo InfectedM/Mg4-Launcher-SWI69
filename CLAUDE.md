@@ -1,54 +1,45 @@
-# MG4 Launcher (SWI69) — regole del progetto
+# MG4 Launcher (SWI69) — InfectedM fork
 
-## Come rispondere
-- Rispondere sempre in italiano, in modo leggibile, con spiegazioni semplici.
-- Se manca qualcosa (un file, un APK da analizzare, uno strumento), fermarsi e chiedere a Ernesto. Non inventare.
+Independent fork of Ernesto Micco's MG4 Launcher SWI69. Nothing is pulled from the original repository any more;
+credits stay in the README ("Sobre este fork").
 
-## Git e GitHub
-- Niente va su GitHub (codice, APK, README, `releases/latest.json`) senza l'ok esplicito di Ernesto.
-  Prima si consegna l'APK da provare, poi, solo dopo l'ok, si fa commit e push.
-- Messaggio di commit sempre generico: `Aggiornamento`.
-  Autore: `ernestomicco2026-cell <ernesto.micco@gmail.com>`.
-  I dettagli delle modifiche vanno solo nel changelog del README.
-- Non toccare gli APK vecchi in `releases/` né le Release di GitHub: restano tutti.
-  La Release su GitHub la crea Ernesto.
+## How to reply
+- Reply in Portuguese (pt-PT), plainly. If something is missing (a file, an APK to analyse, a tool), stop and ask.
+- Code, comments, identifiers and diagnostic log keys are in **English**.
+- User-visible strings go through `tools/i18n.py` (+ `tools/i18n_pl.py` for Polish), then `python3 tools/i18n.py`.
+  Never hand-edit `app/res/values*/strings.xml`.
 
-## File segreti ed esclusi da git
-- `tools/android.jar`, `tools/d8.jar`, `tools/apksig.jar`, `tools/log-token.txt` e ogni token sono esclusi da git
-  (vedi `.gitignore`): mai committarli, mai stamparli, mai scriverli in file del repository.
-- Il token dei log si prende da `tools/log-token.txt` oppure dalla variabile d'ambiente `MG4_LOG_TOKEN`.
+## Git and GitHub
+- Ask before commit, push or release unless explicitly told to go ahead.
+- Commit author: `InfectedM <6432694+InfectedM@users.noreply.github.com>`. Descriptive commit messages.
+- Never delete old APKs in `releases/` or existing GitHub Releases.
 
-## README
-- Changelog in italiano e in inglese (sezioni "Versioni" e "Changelog").
-- Solo numeri di versione, niente date.
+## Secret / excluded files
+- `tools/android.jar`, `tools/d8.jar`, `tools/apksig.jar`, `tools/*.apk` and any token are excluded from git
+  (see `.gitignore`): never commit them, print them or write them into repository files.
+- The fork never uploads logs anywhere: "Save log" only writes to the car (USB stick or `Download/MG4Launcher`).
 
-## A ogni nuova versione
-- Alzare `VERSION_CODE` e `VERSION_NAME` in `version.properties`.
-- Aggiornare le immagini in `screenshots/` (`home.png` e le altre usate nel README) se cambia la grafica.
-- Aggiornare il changelog del README (IT + EN).
+## Every new version
+- Bump `VERSION_CODE` and `VERSION_NAME` in `version.properties`.
+- Add `news_vXYZ_*` strings and a `case "X.Y.Z"` in `MainActivity.newsFor`, otherwise the update popup shows a stale list.
+- Update the README changelog (Portuguese, version numbers only, no dates), the download badge and install examples.
+- Copy `build/MG4Launcher-<ver>.apk` to `releases/MG4Launcher-SWI69-<ver>.apk`, update `releases/latest.json`
+  (`version`, `apk`, `size`, `notes`) and publish with `gh release create v<ver> <apk> --latest`.
+  The in-car updater reads `releases/latest.json` from this fork.
 
-## Varianti
-- Questa è la versione **SWI69** (Color Radio MY23, riferimento revisione R45).
-- La grafica di riferimento è quella della SWI68.
-- La grafica deve restare identica tra le versioni SWI68, SWI69, SWI132 e SWI133.
-- Le correzioni vanno fatte uguali in tutte le varianti, dove possibile.
+## Compatibility
+- SWI69 (Color Radio MY23). Must stay compatible with the original HVAC app (`ICarHvacService`) and MG4 Clima.
+- Preference keys stored in SharedPreferences are persistent data: renaming one needs a one-time migration.
 
-## Compatibilità
-- Il launcher deve restare compatibile con l'app clima originale (`ICarHvacService`) e con MG4 Clima.
-
-## Come compilare
+## Build
 ```bash
 ./build.sh
 ```
-- Serve Java (JDK 17 o più recente), `python3`, `zip`, `unzip`, `curl`.
-- La versione viene letta da `version.properties`.
-- Se mancano `tools/android.jar` o `tools/d8.jar`, `build.sh` li scarica da dl.google.com
-  (piattaforma Android API 28 `platform-28_r06` e R8/D8 8.5.35 da Google Maven) e controlla l'hash SHA-256.
-  Se d8.jar non contiene la libreria di firma, scarica anche `tools/apksig.jar` (apksig 8.5.2, Google Maven).
-  Se lo scaricamento non riesce, si ferma e dice quale file allegare.
-- Se manca il token (né `tools/log-token.txt` né `MG4_LOG_TOKEN`), compila lo stesso ma avvisa
-  che l'APK non invierà i log.
-- Passaggi: aapt2 (risorse) → javac (bytecode 8) → D8 → firma v1+v2 con `keys/platform.p12`.
-- L'APK esce in `build/MG4Launcher-<VERSION_NAME>.apk` (la cartella `build/` è esclusa da git).
-  Va copiato in `releases/` come `MG4Launcher-SWI69-<VERSION_NAME>.apk` solo per una nuova versione,
-  e solo con l'ok di Ernesto.
+- Needs Java (JDK 17+), `python3`, `zip`, `unzip`, `curl`. Version comes from `version.properties`.
+- Missing `tools/android.jar` / `tools/d8.jar` / `tools/apksig.jar` are downloaded from Google and SHA-256 checked.
+- `tools/MG4Store.apk` is optional (bundled into the launcher only if present).
+- Steps: aapt2 (resources) → javac (bytecode 8) → D8 → v1+v2 signing with `keys/platform.p12`.
+
+## Testing
+- Emulator AVD `MG4` (1920x720, API 28) with a stub `com.saicmotor.launcher` package so `Firmware.wrong()` passes.
+- The emulator platform key differs from the car's: grant signature permissions with `adb shell pm grant`.

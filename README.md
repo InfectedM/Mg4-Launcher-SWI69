@@ -220,7 +220,7 @@ Se o experimentares noutra versão, os relatos são bem-vindos: abre um *issue* 
   espera um dia).
 - **Música que retoma sozinha**: se uma notificação do telemóvel fizer a música Bluetooth (ou USB / online) passar para
   o rádio, o launcher retoma a tua música após alguns segundos. Não faz nada se foste tu a escolher o rádio.
-- **Sem envio de registos**: nesta versão (fork) o envio automático de registos está **desligado de forma permanente**.
+- **Sem envio de registos**: o código de envio de registos foi removido; "Guardar registo" grava só no carro.
   O launcher não envia diagnósticos para nenhum servidor; **Guardar registo** grava o registo apenas no carro, em
   `Download/MG4Launcher/`, e na pen USB, em `MG4Launcher/registos/`, para o anexares tu a um *issue* se quiseres.
 - **Arranque ao ligar**: o launcher volta sozinho para a frente se o sistema abrir o ecrã inicial MG; além disso, a opção

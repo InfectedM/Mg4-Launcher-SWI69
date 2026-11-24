@@ -21,12 +21,6 @@
     <string name="seat_left" formatted="false">Sitzheizung links</string>
     <string name="seat_right" formatted="false">Sitzheizung rechts</string>
     <string name="wheel_heat" formatted="false">Lenkradheizung</string>
-    <string name="log_upload_on" formatted="false">Logs automatisch senden</string>
-    <string name="log_upload_last">Zuletzt gesendet um %1$s</string>
-    <string name="log_upload_never" formatted="false">Noch kein Log gesendet (das erste 90 s nach dem Start)</string>
-    <string name="log_upload_error">Senden fehlgeschlagen (%1$s): neuer Versuch später</string>
-    <string name="log_upload_off" formatted="false">Log-Upload ausgeschaltet</string>
-    <string name="log_upload_nokey" formatted="false">Log-Upload in dieser Version nicht verfügbar</string>
     <string name="sec_car" formatted="false">Fahrzeug</string>
     <string name="sec_car_sub" formatted="false">Farbe, Felgen, Dach, Lenkradseite</string>
     <string name="sec_home" formatted="false">Startseite</string>
@@ -442,8 +436,6 @@
     <string name="check_skipped" formatted="false">Übersprungen</string>
     <string name="check_press_keys">Drücke Weiter oder Zurück am Lenkrad (%s s)</string>
     <string name="check_summary">%1$s ok · %2$s Fehler · %3$s fehlen</string>
-    <string name="check_send_log" formatted="false">Protokoll senden</string>
-    <string name="check_log_sent" formatted="false">Protokoll wird gesendet</string>
     <string name="chk_vehicle" formatted="false">Fahrzeugdienst</string>
     <string name="chk_climate" formatted="false">Klima</string>
     <string name="chk_radio" formatted="false">Radiodienst</string>
@@ -460,7 +452,6 @@
     <string name="chk_sys_button" formatted="false">Klimataste</string>
     <string name="chk_comfort" formatted="false">Sitz- und Lenkradheizung</string>
     <string name="chk_update" formatted="false">Updates erreichbar</string>
-    <string name="chk_logs" formatted="false">Protokoll-Upload</string>
     <string name="chk_notices" formatted="false">Hinweise aus der Ferne</string>
     <string name="set_top_order" formatted="false">Reihenfolge oben</string>
     <string name="set_top_order_sub" formatted="false">Reihenfolge der Bedienelemente oben im rechten Feld</string>

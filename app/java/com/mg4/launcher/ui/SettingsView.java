@@ -21,7 +21,6 @@ import com.mg4.launcher.L;
 import com.mg4.launcher.R;
 import com.mg4.launcher.svc.CarFeatures;
 import com.mg4.launcher.svc.Diag;
-import com.mg4.launcher.svc.LogUploader;
 import com.mg4.launcher.svc.Updater;
 
 /**
@@ -40,7 +39,6 @@ public final class SettingsView extends FrameLayout {
 
         Updater updater();
 
-        LogUploader logs();
 
         /** La lingua è cambiata: ricostruire tutta l'interfaccia. */
         void languageChanged();
@@ -89,7 +87,7 @@ public final class SettingsView extends FrameLayout {
     private boolean diagOpen;
 
     // viste aggiornate di continuo
-    private TextView diagText, logUploadSub, logSaveSub, updSub;
+    private TextView diagText, logSaveSub, updSub;
     private View logSaveBtn, updCheckBtn, updInstallBtn;
 
     public SettingsView(Context c, Theme t, Prefs prefs, Host host) {
@@ -314,7 +312,6 @@ public final class SettingsView extends FrameLayout {
         curKey = key;
         content.removeAllViews();
         diagText = null;
-        logUploadSub = null;
         logSaveSub = null;
         updSub = null;
 
@@ -1276,13 +1273,6 @@ public final class SettingsView extends FrameLayout {
 
         col.addView(label(c, L.s(R.string.set_diag_section)), top(30));
         card = card(c);
-        // fork: o envio de registos está desligado de forma permanente, por isso a opção não aparece
-        if (!LogUploader.DISABLED_IN_FORK) {
-            LinearLayout lr = row(c, L.s(R.string.log_upload_on), "", toggle(c, host.logs().enabled(), on -> host.logs().setEnabled(on)), false);
-            if (!LogUploader.configured()) lr.getChildAt(1).setEnabled(false);
-            logUploadSub = (TextView) ((ViewGroup) lr.getChildAt(0)).getChildAt(1);
-            card.addView(lr);
-        }
         logSaveBtn = button(c, L.s(R.string.btn_save), v -> saveLog());
         LinearLayout sr = row(c, L.s(R.string.save_log), L.s(R.string.save_log_sub), logSaveBtn, false);
         logSaveSub = (TextView) ((ViewGroup) sr.getChildAt(0)).getChildAt(1);
@@ -1655,28 +1645,14 @@ public final class SettingsView extends FrameLayout {
     // Aggiornamento continuo (stato log e diagnostica)
     // =========================================================================================
 
-    private String logUploadText() {
-        Context c = getContext();
-        if (!LogUploader.configured()) return L.s(R.string.log_upload_nokey);
-        if (!host.logs().enabled()) return L.s(R.string.log_upload_off);
-        String st = LogUploader.status();
-        if (st.startsWith("ok ")) return L.f(R.string.log_upload_last, st.substring(3));
-        if (st.startsWith("errore ")) return L.f(R.string.log_upload_error, st.substring(7));
-        return L.s(R.string.log_upload_never);
-    }
-
     private final Runnable refreshTick = new Runnable() {
         @Override
         public void run() {
             main.removeCallbacks(this);
-            if (diagText == null && logUploadSub == null) return;
+            if (diagText == null) return;
             if (diagText != null) {
                 String d = Diag.dump();
                 diagText.setText(d.isEmpty() ? L.s(R.string.diag_waiting) : d);
-            }
-            if (logUploadSub != null) {
-                logUploadSub.setVisibility(VISIBLE);
-                logUploadSub.setText(logUploadText());
             }
             if (isAttachedToWindow()) main.postDelayed(this, 1000);
         }

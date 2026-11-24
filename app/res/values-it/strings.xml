@@ -21,12 +21,6 @@
     <string name="seat_left" formatted="false">Sedile sinistro riscaldato</string>
     <string name="seat_right" formatted="false">Sedile destro riscaldato</string>
     <string name="wheel_heat" formatted="false">Volante riscaldato</string>
-    <string name="log_upload_on" formatted="false">Invio automatico dei log</string>
-    <string name="log_upload_last">Ultimo invio alle %1$s</string>
-    <string name="log_upload_never" formatted="false">Nessun log inviato ancora (il primo parte 90 s dopo l\'avvio)</string>
-    <string name="log_upload_error">Invio non riuscito (%1$s): riprovo più tardi</string>
-    <string name="log_upload_off" formatted="false">Invio dei log disattivato</string>
-    <string name="log_upload_nokey" formatted="false">Invio dei log non disponibile in questa versione</string>
     <string name="sec_car" formatted="false">Auto</string>
     <string name="sec_car_sub" formatted="false">Colore, cerchi, tetto, lato guida</string>
     <string name="sec_home" formatted="false">Home</string>
@@ -442,8 +436,6 @@
     <string name="check_skipped" formatted="false">Saltata</string>
     <string name="check_press_keys">Premi avanti o indietro sul volante (%s s)</string>
     <string name="check_summary">%1$s ok · %2$s errori · %3$s assenti</string>
-    <string name="check_send_log" formatted="false">Invia log</string>
-    <string name="check_log_sent" formatted="false">Log in invio</string>
     <string name="chk_vehicle" formatted="false">Servizio veicolo</string>
     <string name="chk_climate" formatted="false">Clima</string>
     <string name="chk_radio" formatted="false">Servizio radio</string>
@@ -460,7 +452,6 @@
     <string name="chk_sys_button" formatted="false">Tasto del clima</string>
     <string name="chk_comfort" formatted="false">Sedili e volante riscaldati</string>
     <string name="chk_update" formatted="false">Aggiornamenti raggiungibili</string>
-    <string name="chk_logs" formatted="false">Invio dei log</string>
     <string name="chk_notices" formatted="false">Avvisi da remoto</string>
     <string name="set_top_order" formatted="false">Ordine in alto</string>
     <string name="set_top_order_sub" formatted="false">Ordine dei comandi in alto nel riquadro a destra</string>

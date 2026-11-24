@@ -21,12 +21,6 @@
     <string name="seat_left" formatted="false">Siège gauche chauffant</string>
     <string name="seat_right" formatted="false">Siège droit chauffant</string>
     <string name="wheel_heat" formatted="false">Volant chauffant</string>
-    <string name="log_upload_on" formatted="false">Envoyer les journaux automatiquement</string>
-    <string name="log_upload_last">Dernier envoi à %1$s</string>
-    <string name="log_upload_never" formatted="false">Aucun journal envoyé (le premier part 90 s après le démarrage)</string>
-    <string name="log_upload_error">Échec de l\'envoi (%1$s) : nouvel essai plus tard</string>
-    <string name="log_upload_off" formatted="false">Envoi des journaux désactivé</string>
-    <string name="log_upload_nokey" formatted="false">Envoi des journaux indisponible dans cette version</string>
     <string name="sec_car" formatted="false">Voiture</string>
     <string name="sec_car_sub" formatted="false">Couleur, jantes, toit, côté de conduite</string>
     <string name="sec_home" formatted="false">Accueil</string>
@@ -442,8 +436,6 @@
     <string name="check_skipped" formatted="false">Ignoré</string>
     <string name="check_press_keys">Appuie sur suivant ou précédent au volant (%s s)</string>
     <string name="check_summary">%1$s ok · %2$s erreurs · %3$s absents</string>
-    <string name="check_send_log" formatted="false">Envoyer le journal</string>
-    <string name="check_log_sent" formatted="false">Envoi du journal</string>
     <string name="chk_vehicle" formatted="false">Service véhicule</string>
     <string name="chk_climate" formatted="false">Climatisation</string>
     <string name="chk_radio" formatted="false">Service radio</string>
@@ -460,7 +452,6 @@
     <string name="chk_sys_button" formatted="false">Bouton clim</string>
     <string name="chk_comfort" formatted="false">Sièges et volant chauffants</string>
     <string name="chk_update" formatted="false">Mises à jour joignables</string>
-    <string name="chk_logs" formatted="false">Envoi des journaux</string>
     <string name="chk_notices" formatted="false">Avis à distance</string>
     <string name="set_top_order" formatted="false">Ordre en haut</string>
     <string name="set_top_order_sub" formatted="false">Ordre des commandes en haut du panneau de droite</string>

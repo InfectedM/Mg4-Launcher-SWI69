@@ -66,16 +66,6 @@ public final class CheckPanel {
 
         LinearLayout btns = Ui.row(c);
         btns.setGravity(Gravity.END | Gravity.CENTER_VERTICAL);
-        TextView send = button(c, t, L.s(R.string.check_send_log), false);
-        send.setEnabled(false);
-        send.setAlpha(0.4f);
-        send.setOnClickListener(v -> {
-            com.mg4.launcher.svc.LogUploader.requestNow();
-            send.setText(L.s(R.string.check_log_sent));
-            send.setEnabled(false);
-        });
-        // fork: sem envio de registos, o botão "Enviar registo" não aparece
-        if (!com.mg4.launcher.svc.LogUploader.DISABLED_IN_FORK) btns.addView(send, Ui.lp(-2, Ui.tp(c, 60)));
         TextView close = button(c, t, L.s(R.string.close), true);
         close.setOnClickListener(v -> ((ViewGroup) dim.getParent()).removeView(dim));
         btns.addView(close, Ui.margins(Ui.lp(-2, Ui.tp(c, 60)), Ui.dp(c, 12), 0, 0, 0));
@@ -118,8 +108,6 @@ public final class CheckPanel {
             @Override
             public void onDone(List<SelfCheck.Item> all, int ok, int fail, int absent) {
                 summary.setText(L.f(R.string.check_summary, String.valueOf(ok), String.valueOf(fail), String.valueOf(absent)));
-                send.setEnabled(true);
-                send.setAlpha(1f);
             }
         };
         // se il controllo automatico sta già girando si aspetta che finisca, poi parte quello con le righe a schermo

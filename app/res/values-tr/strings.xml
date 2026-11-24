@@ -21,12 +21,6 @@
     <string name="seat_left" formatted="false">Sol koltuk ısıtma</string>
     <string name="seat_right" formatted="false">Sağ koltuk ısıtma</string>
     <string name="wheel_heat" formatted="false">Direksiyon ısıtma</string>
-    <string name="log_upload_on" formatted="false">Günlükleri otomatik gönder</string>
-    <string name="log_upload_last">Son gönderim %1$s</string>
-    <string name="log_upload_never" formatted="false">Henüz günlük gönderilmedi (ilki başlangıçtan 90 sn sonra)</string>
-    <string name="log_upload_error">Gönderilemedi (%1$s): daha sonra yeniden denenecek</string>
-    <string name="log_upload_off" formatted="false">Günlük gönderimi kapalı</string>
-    <string name="log_upload_nokey" formatted="false">Bu sürümde günlük gönderimi yok</string>
     <string name="sec_car" formatted="false">Araç</string>
     <string name="sec_car_sub" formatted="false">Renk, jantlar, tavan, sürüş yönü</string>
     <string name="sec_home" formatted="false">Ana ekran</string>
@@ -442,8 +436,6 @@
     <string name="check_skipped" formatted="false">Atlandı</string>
     <string name="check_press_keys">Direksiyonda ileri veya geri tuşuna bas (%s sn)</string>
     <string name="check_summary">%1$s tamam · %2$s hata · %3$s yok</string>
-    <string name="check_send_log" formatted="false">Günlüğü gönder</string>
-    <string name="check_log_sent" formatted="false">Günlük gönderiliyor</string>
     <string name="chk_vehicle" formatted="false">Araç hizmeti</string>
     <string name="chk_climate" formatted="false">Klima</string>
     <string name="chk_radio" formatted="false">Radyo hizmeti</string>
@@ -460,7 +452,6 @@
     <string name="chk_sys_button" formatted="false">Klima düğmesi</string>
     <string name="chk_comfort" formatted="false">Isıtmalı koltuk ve direksiyon</string>
     <string name="chk_update" formatted="false">Güncellemelere erişiliyor</string>
-    <string name="chk_logs" formatted="false">Günlük gönderimi</string>
     <string name="chk_notices" formatted="false">Uzaktan duyurular</string>
     <string name="set_top_order" formatted="false">Üstteki sıra</string>
     <string name="set_top_order_sub" formatted="false">Sağ paneldeki üst kontrollerin sırası</string>
