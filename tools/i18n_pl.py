@@ -590,4 +590,6 @@ PL = {
     'news_v048_2': 'Szersze i bardziej oddalone skróty (mniej przypadkowych dotknięć sąsiedniego przycisku) i lepiej widoczne separatory sekcji',
     'news_v049_1': 'Szyby: w oprogramowaniu SWI69 bez starej funkcji carapi szyby są sterowane przez CarService (jak w MG4Control)',
     'news_v049_2': 'Czytelniejszy stan szyb: „nieobsługiwane przez to oprogramowanie” zamiast „czekam na auto”',
+    'news_v0410_1': '„Zapisz log” zawiera teraz systemowe wiersze Android Auto, CarPlay i USB (aby zrozumieć, dlaczego projekcja się przerywa)',
+    'news_v0410_2': 'Log naprawdę pokazuje ostatnie awarie aplikacji (wcześniej sekcja była pusta)',
 }

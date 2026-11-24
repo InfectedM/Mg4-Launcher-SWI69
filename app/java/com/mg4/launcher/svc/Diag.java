@@ -230,6 +230,52 @@ public final class Diag {
         return sb.length() == 0 ? "nessuna riga RadioFix nel logcat\n" : sb.toString();
     }
 
+    /**
+     * Fork 0.4.10: linhas de sistema do Android Auto / CarPlay (AllGo), USB e processos mortos, para perceber as quedas
+     * da projeção (o launcher só via as suas). Pids atuais das apps com.allgo.* + palavras-chave; últimas 800 linhas.
+     */
+    static String projectionLog(Context c) {
+        java.util.Set<String> pids = new java.util.HashSet<>();
+        try {
+            android.app.ActivityManager am = (android.app.ActivityManager) c.getSystemService(Context.ACTIVITY_SERVICE);
+            List<android.app.ActivityManager.RunningAppProcessInfo> ps = am.getRunningAppProcesses();
+            if (ps != null) for (android.app.ActivityManager.RunningAppProcessInfo pi : ps)
+                if (pi.processName != null && pi.processName.startsWith("com.allgo")) pids.add(String.valueOf(pi.pid));
+        } catch (Exception ignored) {
+        }
+        String[] keys = {"allgo", "AllGo", "Allgo", "AAP", "Aap", "AndroidAuto", "androidauto", "CarPlay", "carplay",
+                "Projection", "projection", "UsbDeviceManager", "UsbHostManager", "usb_", "USB disconnect", "accessory",
+                "has died", "Process ", "lowmemorykiller", "am_kill", "am_proc_died", "am_crash", "am_anr", "ANR in",
+                "Killing ", "FATAL", "audio_hw", "AudioFocus", "AudioPolicy"};
+        java.util.ArrayDeque<String> last = new java.util.ArrayDeque<>();
+        int total = 0;
+        try {
+            Process p = Runtime.getRuntime().exec(new String[]{"logcat", "-d", "-b", "main,system,events", "-v", "time", "-t", "20000"});
+            try (BufferedReader r = new BufferedReader(new InputStreamReader(p.getInputStream(), "UTF-8"))) {
+                String l;
+                while ((l = r.readLine()) != null) {
+                    if (l.contains("MG4L") || noise(l)) continue;
+                    boolean hit = false;
+                    int a = l.indexOf('('), b = l.indexOf(')');
+                    if (a > 0 && b > a) hit = pids.contains(l.substring(a + 1, b).trim());
+                    if (!hit) for (String k : keys) if (l.contains(k)) { hit = true; break; }
+                    if (!hit) continue;
+                    total++;
+                    last.addLast(l);
+                    if (last.size() > 800) last.removeFirst();
+                }
+            }
+            p.waitFor();
+        } catch (Exception e) {
+            return "logcat non disponibile: " + e + "\n";
+        }
+        StringBuilder sb = new StringBuilder();
+        sb.append("pid AllGo: ").append(pids.isEmpty() ? "nenhum" : pids.toString()).append(" · linhas ").append(total)
+                .append(total > 800 ? " (últimas 800)" : "").append('\n');
+        for (String l : last) sb.append(l).append('\n');
+        return sb.toString();
+    }
+
     /** Testo completo del log: versione, valori attuali, eventi recenti, logcat del launcher (stesso formato della SWI69). */
     public static String buildLog(Context c) {
         StringBuilder sb = new StringBuilder();
@@ -246,6 +292,7 @@ public final class Diag {
         sb.append("===== VALORI ATTUALI =====\n").append(dump()).append('\n');
         sb.append("===== EVENTI RECENTI =====\n").append(events()).append('\n');
         sb.append("===== CRASH RECENTI (tutte le app) =====\n").append(crashes()).append('\n');
+        sb.append("===== ANDROID AUTO / CARPLAY / USB (sistema) =====\n").append(projectionLog(c)).append('\n');
         sb.append("===== RadioFix =====\n").append(radioFix(c)).append('\n');
         sb.append("===== LOGCAT DEL LAUNCHER =====\n").append(logcat());
         return sb.toString();

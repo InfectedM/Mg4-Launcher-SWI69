@@ -567,4 +567,6 @@
     <string name="news_v048_2" formatted="false">Breitere, weiter auseinander liegende Verknüpfungen (weniger Fehltipps auf die Nachbartaste) und besser sichtbare Trennlinien</string>
     <string name="news_v049_1" formatted="false">Fenster: auf SWI69-Firmwares ohne die alte carapi-Funktion werden die Fenster über den CarService gesteuert (wie MG4Control)</string>
     <string name="news_v049_2" formatted="false">Klarerer Fensterstatus: „von dieser Firmware nicht unterstützt“ statt „warte auf das Auto“</string>
+    <string name="news_v0410_1" formatted="false">„Log speichern“ enthält jetzt Systemzeilen von Android Auto, CarPlay und USB (um Abbrüche der Projektion zu verstehen)</string>
+    <string name="news_v0410_2" formatted="false">Das Log zeigt jetzt wirklich die letzten App-Abstürze (vorher blieb der Abschnitt leer)</string>
 </resources>

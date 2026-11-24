@@ -1,6 +1,6 @@
 {
-  "version": "0.4.9",
-  "apk": "releases/MG4Launcher-SWI69-0.4.9.apk",
+  "version": "0.4.10",
+  "apk": "releases/MG4Launcher-SWI69-0.4.10.apk",
   "size": 1133421,
-  "notes": "Vidros: nos firmwares SWI69 sem a função antiga da carapi, comando pelas propriedades do CarService (como o MG4Control); estado dos vidros mais claro."
+  "notes": "Registo: secção Android Auto / CarPlay / USB com as linhas do sistema e crashes recentes visíveis (READ_LOGS), para diagnosticar as quedas do Android Auto."
 }

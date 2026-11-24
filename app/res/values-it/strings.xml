@@ -567,4 +567,6 @@
     <string name="news_v048_2" formatted="false">Scorciatoie più larghe e distanziate (meno tocchi sul tasto accanto) e divisori tra le sezioni più visibili</string>
     <string name="news_v049_1" formatted="false">Finestrini: sui firmware SWI69 senza la vecchia funzione carapi i finestrini si comandano tramite il CarService (come MG4Control)</string>
     <string name="news_v049_2" formatted="false">Stato dei finestrini più chiaro: «non supportato da questo firmware» invece di «in attesa dell’auto»</string>
+    <string name="news_v0410_1" formatted="false">«Salva log» ora include le righe di sistema di Android Auto, CarPlay e USB (per capire perché la proiezione si interrompe)</string>
+    <string name="news_v0410_2" formatted="false">Il log mostra davvero i crash recenti delle app (prima la sezione restava vuota)</string>
 </resources>

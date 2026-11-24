@@ -567,4 +567,6 @@
     <string name="news_v048_2" formatted="false">Accesos directos más anchos y separados (menos toques en el botón de al lado) y divisores entre secciones más visibles</string>
     <string name="news_v049_1" formatted="false">Ventanillas: en firmwares SWI69 sin la antigua función carapi, las ventanillas se controlan a través del CarService (como MG4Control)</string>
     <string name="news_v049_2" formatted="false">Estado de las ventanillas más claro: «no compatible con este firmware» en lugar de «esperando al coche»</string>
+    <string name="news_v0410_1" formatted="false">«Guardar registro» ahora incluye las líneas del sistema de Android Auto, CarPlay y USB (para saber por qué se corta la proyección)</string>
+    <string name="news_v0410_2" formatted="false">El registro muestra de verdad los fallos recientes de las apps (antes la sección quedaba vacía)</string>
 </resources>

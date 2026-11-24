@@ -567,4 +567,6 @@
     <string name="news_v048_2" formatted="false">Wider, more spaced-out shortcuts (fewer taps on the next button) and more visible dividers between sections</string>
     <string name="news_v049_1" formatted="false">Windows: on SWI69 firmwares without the old carapi function, windows are controlled through the CarService (like MG4Control)</string>
     <string name="news_v049_2" formatted="false">Clearer window status: “not supported by this firmware” instead of “waiting for the car”</string>
+    <string name="news_v0410_1" formatted="false">“Save log” now includes Android Auto, CarPlay and USB system lines (to find out why projection drops)</string>
+    <string name="news_v0410_2" formatted="false">The log now really shows recent app crashes (the section used to stay empty)</string>
 </resources>

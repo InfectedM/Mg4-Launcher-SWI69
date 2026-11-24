@@ -567,4 +567,6 @@
     <string name="news_v048_2" formatted="false">Atalhos mais largos e espaçados (menos toques no botão do lado) e divisórias entre secções mais visíveis</string>
     <string name="news_v049_1" formatted="false">Vidros: nos firmwares SWI69 sem a função antiga da carapi, os vidros passam a ser comandados pelo CarService (como o MG4Control)</string>
     <string name="news_v049_2" formatted="false">Estado dos vidros mais claro: «não suportado por este firmware» em vez de «à espera do carro»</string>
+    <string name="news_v0410_1" formatted="false">«Guardar registo» passa a incluir as linhas do sistema do Android Auto, CarPlay e USB (para perceber porque é que a projeção cai)</string>
+    <string name="news_v0410_2" formatted="false">O registo passa a mostrar mesmo os crashes recentes das apps (antes a secção ficava sempre vazia)</string>
 </resources>
