@@ -485,8 +485,8 @@
     <string name="set_charge_anim" formatted="false">Lade-Animation</string>
     <string name="set_charge_anim_sub" formatted="false">Beim Einstecken des Kabels wird das Auto animiert; das Paket der gewählten Farbe lädt sich selbst</string>
     <string name="anim_test" formatted="false">Lade-Animation testen</string>
-    <string name="anim_test_sub" formatted="false">Zeigt die Phasen nacheinander; ohne Paket wird animazione-&lt;Farbe&gt;.zip vom USB-Stick verwendet</string>
-    <string name="anim_test_missing" formatted="false">Kein Paket: animazione-&lt;Farbe&gt;.zip auf den USB-Stick kopieren</string>
+    <string name="anim_test_sub" formatted="false">Zeigt die Phasen nacheinander; ohne Paket wird animation-&lt;Farbe&gt;.zip vom USB-Stick verwendet</string>
+    <string name="anim_test_missing" formatted="false">Kein Paket: animation-&lt;Farbe&gt;.zip auf den USB-Stick kopieren</string>
     <string name="chk_theme_system" formatted="false">Systemmodus</string>
     <string name="chk_lights" formatted="false">Scheinwerfer</string>
     <string name="chk_charge_anim" formatted="false">Lade-Animation</string>
@@ -560,4 +560,6 @@
     <string name="news_v049_2" formatted="false">Klarerer Fensterstatus: „von dieser Firmware nicht unterstützt“ statt „warte auf das Auto“</string>
     <string name="news_v0410_1" formatted="false">„Log speichern“ enthält jetzt Systemzeilen von Android Auto, CarPlay und USB (um Abbrüche der Projektion zu verstehen)</string>
     <string name="news_v0410_2" formatted="false">Das Log zeigt jetzt wirklich die letzten App-Abstürze (vorher blieb der Abschnitt leer)</string>
+    <string name="news_v0411_1" formatted="false">Code bereinigt und ins Englische übersetzt, Diagnoseprotokoll auf Englisch; Log-Upload vollständig entfernt</string>
+    <string name="news_v0411_2" formatted="false">Einstellungen werden automatisch auf die neuen internen Namen übertragen: nichts geht verloren</string>
 </resources>

@@ -19,19 +19,21 @@ import java.util.zip.ZipInputStream;
 
 /**
  * 1.0.4 (point F): charging animation packs. The clips are NOT in the APK: only the zip of the color chosen in the
- * settings is downloaded, from releases/animazioni.json of this repository (packs in the repository's animazioni/ folder).
+ * settings is downloaded, from releases/animations.json of this repository (packs in the repository's animations/ folder).
  * <ul>
  *   <li>in the background, resuming if the download is interrupted (Range), with sha256 and size check;</li>
  *   <li>if the color changes, the new one is downloaded and the old one deleted;</li>
- *   <li>if animazioni.json or the pack is missing: no animation, no error on screen.</li>
+ *   <li>if animations.json or the pack is missing: no animation, no error on screen.</li>
  * </ul>
- * The 8 clips are extracted into files/animazione/&lt;color&gt;/ (carica-&lt;color&gt;-&lt;giorno|notte&gt;-&lt;phase&gt;.mp4).
+ * The 8 clips are extracted into files/animation/&lt;color&gt;/ (charge-&lt;color&gt;-&lt;day|night&gt;-&lt;phase&gt;.mp4).
  */
 public final class ChargePack {
-    public static final String[] PHASES = {"aggancio", "loop", "finita", "sgancio"};
-    private static final String JSON_URL = Updater.OWN_RAW + "releases/animazioni.json";
+    public static final String[] PHASES = {"plugin", "loop", "done", "unplug"};
+    private static final String JSON_URL = Updater.OWN_RAW + "releases/animations.json";
     private static final long CHECK_EVERY_MS = 12 * 60 * 60_000L, RETRY_MISSING_MS = 15 * 60_000L;
 
+    /** Test folder (USB stick clips) inside root(): kept when the other colors are removed. */
+    private static final String TEST_DIR = "test";
     private static volatile String state = "not checked";
     private static volatile boolean busy;
     private static volatile boolean failed;
@@ -44,7 +46,25 @@ public final class ChargePack {
     }
 
     public static File root(Context c) {
-        return new File(c.getFilesDir(), "animazione");
+        return new File(c.getFilesDir(), "animation");
+    }
+
+    /** Clip file name inside a pack: charge-&lt;slug&gt;-&lt;day|night&gt;-&lt;phase&gt;.mp4. */
+    static String clipName(String slug, boolean day, String phase) {
+        return CLIP_PREFIX + slug + "-" + (day ? "day" : "night") + "-" + phase + ".mp4";
+    }
+
+    private static final String CLIP_PREFIX = "charge-", ZIP_PREFIX = "animation-";
+
+    /**
+     * 0.4.11: up to 0.4.10 the cache folder was files/animazione (Italian clip and frame names). The new names
+     * are downloaded and built again, so the old folder is only deleted, once, best effort, to free the space.
+     */
+    private static void removeLegacy(Context c) {
+        File old = new File(c.getFilesDir(), "animazione");
+        if (!old.exists()) return;
+        deleteTree(old);
+        Diag.put("charge.legacy", old.exists() ? "old folder animazione not fully deleted" : "old folder animazione deleted");
     }
 
     public static File dir(Context c, String color) {
@@ -53,7 +73,7 @@ public final class ChargePack {
 
     /** Clip of a phase, null if the color pack is not complete. */
     public static File clip(Context c, String color, boolean day, String phase) {
-        File f = new File(dir(c, color), "carica-" + slug(color) + "-" + (day ? "giorno" : "notte") + "-" + phase + ".mp4");
+        File f = new File(dir(c, color), clipName(slug(color), day, phase));
         return f.isFile() && f.length() > 0 ? f : null;
     }
 
@@ -83,15 +103,16 @@ public final class ChargePack {
      */
     public static synchronized void ensure(Context ctx, String color, boolean force) {
         Context c = ctx.getApplicationContext();
-        SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        SharedPreferences sp = com.mg4.launcher.ui.Prefs.sp(c);
         if (busy) return;
         busy = true;
         // everything (folders, check, download) off the main thread
         new Thread(() -> {
             try {
+                removeLegacy(c);
                 removeOthers(c, color);
                 // 0.4.4 (fix B): every 12 hours (or when forced) check whether the pack changed on GitHub
-                String key = "animControllo." + slug(color);
+                String key = "animCheck." + slug(color);
                 long last = sp.getLong(key, 0);
                 boolean due = force || last <= 0 || System.currentTimeMillis() - last >= CHECK_EVERY_MS;
                 if (complete(c, color)) {
@@ -107,9 +128,9 @@ public final class ChargePack {
                     }
                 } else {
                     // pack missing: after a failed attempt, retry after 15 minutes, not after 12 hours
-                    long lastTry = sp.getLong(key + ".tentativo", 0);
+                    long lastTry = sp.getLong(key + ".attempt", 0);
                     if (!force && lastTry > 0 && System.currentTimeMillis() - lastTry < RETRY_MISSING_MS) return;
-                    sp.edit().putLong(key + ".tentativo", System.currentTimeMillis()).apply();
+                    sp.edit().putLong(key + ".attempt", System.currentTimeMillis()).apply();
                 }
                 download(c, color);
                 if (complete(c, color)) sp.edit().putLong(key, System.currentTimeMillis()).apply();
@@ -151,7 +172,7 @@ public final class ChargePack {
         String keep = slug(color);
         for (File f : list) {
             String n = f.getName();
-            if (n.equals(keep) || n.equals(keep + ".zip.part") || n.equals("prova")) continue;
+            if (n.equals(keep) || n.equals(keep + ".zip.part") || n.equals(TEST_DIR)) continue;
             deleteTree(f);
         }
     }
@@ -167,17 +188,17 @@ public final class ChargePack {
     private static final String SHA_FILE = "sha256";
 
     /**
-     * 0.4.4 (fix B): the color's entry in animazioni.json; null if the json cannot be read or the color is missing.
+     * 0.4.4 (fix B): the color's entry in animations.json; null if the json cannot be read or the color is missing.
      * Call only from the worker thread (network).
      */
     private static JSONObject entry(String color) throws Exception {
         JSONObject j = new JSONObject(Updater.getText(JSON_URL));
-        JSONObject colors = j.optJSONObject("colori");
+        JSONObject colors = j.optJSONObject("colors");
         return colors == null ? null : colors.optJSONObject(color);
     }
 
     /**
-     * 0.4.4 (fix B): true if the installed pack differs from the one in animazioni.json (must be downloaded again).
+     * 0.4.4 (fix B): true if the installed pack differs from the one in animations.json (must be downloaded again).
      * Unreadable json or entry without sha256 → false. Folder without the "sha256" file (packs downloaded by 0.4.4 and
      * earlier do not have it): the current one is written and false is returned, without downloading again.
      */
@@ -210,12 +231,12 @@ public final class ChargePack {
         try {
             entry = entry(color);
         } catch (Exception e) {
-            state = "pack " + color + " absent (animazioni.json unavailable)";
+            state = "pack " + color + " absent (animations.json unavailable)";
             Diag.put("charge.pack", state);
             return;
         }
         if (entry == null) {
-            state = "pack " + color + " absent (not in animazioni.json)";
+            state = "pack " + color + " absent (not in animations.json)";
             Diag.put("charge.pack", state);
             return;
         }
@@ -237,7 +258,7 @@ public final class ChargePack {
             }
             File tmp = new File(root, slug(color) + ".tmp");
             deleteTree(tmp);
-            int clips = extract(part, tmp, "carica-" + slug(color) + "-");
+            int clips = extract(part, tmp, CLIP_PREFIX + slug(color) + "-");
             // 0.4.4: the content is checked before touching the pack in use (8 clips: 4 phases × day/night)
             if (clips < PHASES.length * 2) {
                 deleteTree(tmp);
@@ -356,8 +377,8 @@ public final class ChargePack {
     // ---- test from USB stick -----------------------------------------------------------------
 
     /**
-     * Test from technical mode: looks on the USB stick for an animazione-&lt;color&gt;.zip (in the root
-     * folder), extracts it into files/animazione/prova/ and returns {folder, color}. Null if there is none.
+     * Test from technical mode: looks on the USB stick for an animation-&lt;color&gt;.zip (in the root
+     * folder), extracts it into files/animation/test/ and returns {folder, color}. Null if there is none.
      */
     public static Object[] loadFromUsb(Context c) {
         java.util.List<File> roots = new java.util.ArrayList<>();
@@ -366,14 +387,14 @@ public final class ChargePack {
         File[] mr = new File("/mnt/media_rw").listFiles();
         if (mr != null) for (File f : mr) roots.add(f);
         for (File r : roots) {
-            File[] zips = r.listFiles((d, n) -> n.startsWith("animazione-") && n.endsWith(".zip"));
+            File[] zips = r.listFiles((d, n) -> n.startsWith(ZIP_PREFIX) && n.endsWith(".zip"));
             if (zips == null || zips.length == 0) continue;
             File zip = zips[0];
-            String sl = zip.getName().substring("animazione-".length(), zip.getName().length() - 4);
-            File to = new File(root(c), "prova");
+            String sl = zip.getName().substring(ZIP_PREFIX.length(), zip.getName().length() - 4);
+            File to = new File(root(c), TEST_DIR);
             deleteTree(to);
             try {
-                int n = extract(zip, to, "carica-" + sl + "-");
+                int n = extract(zip, to, CLIP_PREFIX + sl + "-");
                 Diag.put("charge.test", "zip " + zip.getName() + " from USB stick (" + r.getName() + ") · " + n + " clip");
                 if (n > 0) return new Object[]{to, sl};
             } catch (Exception e) {
@@ -385,7 +406,7 @@ public final class ChargePack {
 
     /** Clip of a phase in the test folder (color slug already prepared). */
     public static File clipIn(File dir, String slug, boolean day, String phase) {
-        File f = new File(dir, "carica-" + slug + "-" + (day ? "giorno" : "notte") + "-" + phase + ".mp4");
+        File f = new File(dir, clipName(slug, day, phase));
         return f.isFile() && f.length() > 0 ? f : null;
     }
 }

@@ -30,7 +30,7 @@ public final class DayNight {
 
     private static final long CONFIRM_MS = 60_000, TICK_MS = 20_000, CANDIDATES_EVERY_MS = 10 * 60_000L;
     private static final long RELIABLE_WINDOW_MS = 72L * 60 * 60 * 1000;
-    private static final String K_SYS_NIGHT_AT = "temaNotteSistemaAlle", K_LAT = "temaUltimaLat", K_LON = "temaUltimaLon";
+    private static final String K_SYS_NIGHT_AT = "themeSysNightAt", K_LAT = "themeLastLat", K_LON = "themeLastLon";
     /** Central Italy: reference if there is no position at all. */
     private static final double ITALY_LAT = 42.5, ITALY_LON = 12.5;
 
@@ -51,7 +51,7 @@ public final class DayNight {
 
     private DayNight(Context c) {
         ctx = c.getApplicationContext();
-        sp = ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        sp = com.mg4.launcher.ui.Prefs.sp(ctx);
         android.os.HandlerThread t = new android.os.HandlerThread("mg4-theme");
         t.start();
         work = new Handler(t.getLooper());
@@ -176,7 +176,7 @@ public final class DayNight {
     public void syncSystem(String why) {
         work.post(() -> {
             String mode = sp.getString("theme", "auto");
-            Boolean day = "giorno".equals(mode) ? Boolean.TRUE : "notte".equals(mode) ? Boolean.FALSE : applied;
+            Boolean day = com.mg4.launcher.ui.Prefs.THEME_DAY.equals(mode) ? Boolean.TRUE : com.mg4.launcher.ui.Prefs.THEME_NIGHT.equals(mode) ? Boolean.FALSE : applied;
             if (day == null) return;
             String at = new SimpleDateFormat("HH:mm:ss", Locale.ITALY).format(new Date());
             int want = day ? 1 : 0;
@@ -238,7 +238,7 @@ public final class DayNight {
     /** For the Function check: [wanted theme (true day), system theme read back], null if not decided or unreadable. */
     public Boolean[] systemCheck() {
         String mode = sp.getString("theme", "auto");
-        Boolean day = "giorno".equals(mode) ? Boolean.TRUE : "notte".equals(mode) ? Boolean.FALSE : applied;
+        Boolean day = com.mg4.launcher.ui.Prefs.THEME_DAY.equals(mode) ? Boolean.TRUE : com.mg4.launcher.ui.Prefs.THEME_NIGHT.equals(mode) ? Boolean.FALSE : applied;
         // 0.4.4 (SWI69): the system theme is SKIN_THEME_CONFIG (0 dark, 1 light)
         return new Boolean[]{day, systemDay()};
     }
@@ -310,8 +310,8 @@ public final class DayNight {
 
     /** Power-on time without uiMode changes beyond which, if it contradicts the sun, uiMode is considered stuck. */
     private static final long UI_STUCK_ON_MS = 12L * 60 * 60 * 1000;
-    private static final String K_UI_LAST = "temaUiUltimo", K_UI_CHANGED_AT = "temaUiCambiatoAlle", K_UI_ON_MS = "temaUiAccesoMs",
-            K_UI_STUCK = "temaUiBloccato", K_UI_STUCK_WHY = "temaUiBloccatoPerche";
+    private static final String K_UI_LAST = "themeUiLast", K_UI_CHANGED_AT = "themeUiChangedAt", K_UI_ON_MS = "themeUiOnMs",
+            K_UI_STUCK = "themeUiStuck", K_UI_STUCK_WHY = "themeUiStuckWhy";
     private long onTickAt, onPending, onSavedAt;
     private String uiStuckTxt = "";
 
@@ -357,7 +357,7 @@ public final class DayNight {
 
     private void writeDiag() {
         String mode = sp.getString("theme", "auto");
-        String manual = "giorno".equals(mode) ? "manual choice Day (takes precedence) · automatic: " : "notte".equals(mode)
+        String manual = com.mg4.launcher.ui.Prefs.THEME_DAY.equals(mode) ? "manual choice Day (takes precedence) · automatic: " : com.mg4.launcher.ui.Prefs.THEME_NIGHT.equals(mode)
                 ? "manual choice Night (takes precedence) · automatic: " : "";
         Diag.put("theme.state", manual + "source " + source + (uiStuckTxt.isEmpty() ? "" : " · " + uiStuckTxt) + " · " + uiHistoryTxt()
                 + " · uiMode " + uiTxt + " · UiModeManager " + mgrTxt + " · NIGHT_MODE " + nightPropTxt

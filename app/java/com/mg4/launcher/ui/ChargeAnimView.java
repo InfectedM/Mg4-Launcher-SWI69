@@ -35,7 +35,7 @@ import java.io.File;
  */
 public final class ChargeAnimView extends View {
     public static final int IDLE = 0, PLUG_IN = 1, LOOP = 2, DONE = 3, UNPLUG = 4;
-    private static final String[] NAMES = {"ferma", "aggancio", "loop", "finita", "sgancio"};
+    private static final String[] NAMES = {"idle", "plugin", "loop", "done", "unplug"};
     private static final float CLIP_W = 1312, CLIP_H = 400, CLIP_WHEEL_X1 = 358, CLIP_WHEEL_X2 = 973, CLIP_WHEEL_Y = 288;
     private static final long FRAME_MS = 1000 / 30;
 

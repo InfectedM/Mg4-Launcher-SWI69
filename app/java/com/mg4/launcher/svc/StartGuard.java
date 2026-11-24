@@ -51,8 +51,8 @@ public final class StartGuard {
     public static void userOpenedOriginal(Context c) {
         // 0.9.6: time since power-on + power-on number (the car clock at start can be hours behind and
         // the permission stayed valid at the next power-on too)
-        sp(c).edit().putLong("homeOriginaleFinoA", SystemClock.elapsedRealtime() + ORIGINAL_GRACE_MS)
-                .putInt("homeOriginaleAvvio", bootCount(c)).apply();
+        sp(c).edit().putLong("originalHomeUntil", SystemClock.elapsedRealtime() + ORIGINAL_GRACE_MS)
+                .putInt("originalHomeBoot", bootCount(c)).apply();
     }
 
     private static int bootCount(Context c) {
@@ -66,8 +66,8 @@ public final class StartGuard {
     /** MG home opened on purpose recently, in this same power-on? */
     private static boolean originalGrace(Context c) {
         SharedPreferences s = sp(c);
-        return s.getInt("homeOriginaleAvvio", -2) == bootCount(c)
-                && SystemClock.elapsedRealtime() < s.getLong("homeOriginaleFinoA", 0);
+        return s.getInt("originalHomeBoot", -2) == bootCount(c)
+                && SystemClock.elapsedRealtime() < s.getLong("originalHomeUntil", 0);
     }
 
     // --- 0.9.6: other homes (another launcher, e.g. MG4Dash) treated like the MG home at power-on ---
@@ -115,7 +115,7 @@ public final class StartGuard {
     }
 
     private static SharedPreferences sp(Context c) {
-        return c.getApplicationContext().getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        return com.mg4.launcher.ui.Prefs.sp(c);
     }
 
     public static synchronized void markProcess() {
@@ -274,7 +274,7 @@ public final class StartGuard {
         Diag.put("home.button", "MG home replaced (origin: " + origin + ")");
     }
 
-    /** Package of the default home for ACTION_MAIN + CATEGORY_HOME (written in the logs as home.predefinita). */
+    /** Package of the default home for ACTION_MAIN + CATEGORY_HOME (written in the logs as home.default). */
     public static String resolvedHome(Context c) {
         String pkg;
         try {

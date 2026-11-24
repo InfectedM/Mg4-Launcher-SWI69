@@ -3,8 +3,9 @@
 Images of the drawn car (CarView, 1.0.4) from the frames of the 3D render of the charging animation.
 
 Input: the render3/ folder of the Blender scene (PNGs with transparency, 1312x400), with
-  carica-<color>-giorno-aggancio/f_0001.png for each of the 8 colors and
-  carica-arctic-white-notte-aggancio/f_0001.png (headlights on).
+  charge-<color>-day-plugin/f_0001.png for each of the 8 colors and
+  charge-arctic-white-night-plugin/f_0001.png (headlights on), the same names as the clips in the animation packs.
+  Renders made before 0.4.11 used the Italian names (carica-<color>-giorno-aggancio, ...-notte-...): still accepted.
 Output (in app/res/drawable-nodpi/):
   car_<color>.webp   958x368: box (177,12)-(1135,372) of the frame + 8 rows below for the shadow
   car_roof.webp      roof: grey of the white render + mask (optional black roof)
@@ -12,6 +13,7 @@ Output (in app/res/drawable-nodpi/):
 
 Usage: python3 tools/car_from_render.py <render3 folder> [<output folder>]
 """
+import os
 import sys
 import numpy as np
 from PIL import Image
@@ -23,8 +25,10 @@ X0, Y0, X1, Y1 = 177, 12, 1135, 380
 LIGHTS = [(185, 150, 320, 215), (1000, 90, 1130, 175), (1080, 225, 1130, 300)]   # frame coordinates
 
 
-def frame(r3, color, theme='giorno'):
-    p = f'{r3}/carica-{color}-{theme}-aggancio/f_0001.png'
+def frame(r3, color, theme='day'):
+    p = f'{r3}/charge-{color}-{theme}-plugin/f_0001.png'
+    if not os.path.exists(p):   # older render folders
+        p = f"{r3}/carica-{color}-{'giorno' if theme == 'day' else 'notte'}-aggancio/f_0001.png"
     return np.asarray(Image.open(p)).astype(float)[Y0:Y1, X0:X1]
 
 
@@ -62,7 +66,7 @@ def main():
     save(np.dstack([lum, lum, lum, rm * 255]), f'{out}/car_roof.webp')
     # lights: night - day, only on the bodywork and inside the headlight/tail light boxes
     d = frame(r3, 'arctic-white')
-    n = frame(r3, 'arctic-white', 'notte')
+    n = frame(r3, 'arctic-white', 'night')
     diff = np.clip((n[..., :3] - d[..., :3]).max(-1), 0, None)
     car = ndimage.binary_erosion(n[..., 3] > 220, iterations=1)
     box = np.zeros((H, W), bool)

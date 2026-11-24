@@ -96,11 +96,11 @@ public final class CarFeatures {
     //     it and comes back on top) and would stay above other apps if the launcher closes badly: not safe.
     //  c) applied solution: the home leaves the corner free, measured from the real window when possible.
 
-    private static final String PREF_INSET = "spiaLarghezza";
+    private static final String PREF_INSET = "indicatorInset";
 
     /** Width (dp) to leave free in the top left: saved measurement or estimate from the configuration. */
     public static int systemLightInset(Context c) {
-        int saved = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getInt(PREF_INSET, -1);
+        int saved = com.mg4.launcher.ui.Prefs.sp(c).getInt(PREF_INSET, -1);
         if (saved > 0) return saved;
         boolean front = "1".equals(feature(c, "systemui_state_frontfog__"));
         return front ? 150 : 88;   // 20 margin + 56 icon (+ 5 + 56 front) + breathing room
@@ -144,7 +144,7 @@ public final class CarFeatures {
         if (need > 0) {
             int dp = Math.round(need / Math.max(0.5f, c.getResources().getDisplayMetrics().density));
             dp = Math.max(64, Math.min(260, dp));
-            android.content.SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+            android.content.SharedPreferences sp = com.mg4.launcher.ui.Prefs.sp(c);
             if (sp.getInt(PREF_INSET, -1) != dp) {
                 sp.edit().putInt(PREF_INSET, dp).apply();
                 changed = true;
@@ -157,7 +157,7 @@ public final class CarFeatures {
 
     /** dumpsys window windows, read with the window service binder (read only). null if not available. */
     private static String dumpWindows(Context c) {
-        java.io.File f = new java.io.File(c.getCacheDir(), "finestre.txt");
+        java.io.File f = new java.io.File(c.getCacheDir(), "windows.txt");
         try {
             Class<?> sm = Class.forName("android.os.ServiceManager");
             android.os.IBinder b = (android.os.IBinder) sm.getMethod("getService", String.class).invoke(null, "window");

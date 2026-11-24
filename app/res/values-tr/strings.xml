@@ -485,8 +485,8 @@
     <string name="set_charge_anim" formatted="false">Şarj animasyonu</string>
     <string name="set_charge_anim_sub" formatted="false">Kabloyu taktığınızda araç canlanır; seçilen rengin paketi kendiliğinden iner</string>
     <string name="anim_test" formatted="false">Şarj animasyonunu dene</string>
-    <string name="anim_test_sub" formatted="false">Aşamaları sırayla gösterir; paket yoksa USB bellekteki animazione-&lt;renk&gt;.zip kullanılır</string>
-    <string name="anim_test_missing" formatted="false">Paket yok: animazione-&lt;renk&gt;.zip dosyasını USB belleğe kopyalayın</string>
+    <string name="anim_test_sub" formatted="false">Aşamaları sırayla gösterir; paket yoksa USB bellekteki animation-&lt;renk&gt;.zip kullanılır</string>
+    <string name="anim_test_missing" formatted="false">Paket yok: animation-&lt;renk&gt;.zip dosyasını USB belleğe kopyalayın</string>
     <string name="chk_theme_system" formatted="false">Sistem teması</string>
     <string name="chk_lights" formatted="false">Farlar</string>
     <string name="chk_charge_anim" formatted="false">Şarj animasyonu</string>
@@ -560,4 +560,6 @@
     <string name="news_v049_2" formatted="false">Daha net cam durumu: “aracı bekliyor” yerine “bu yazılım tarafından desteklenmiyor”</string>
     <string name="news_v0410_1" formatted="false">“Günlüğü kaydet” artık Android Auto, CarPlay ve USB sistem satırlarını içerir (projeksiyonun neden koptuğunu anlamak için)</string>
     <string name="news_v0410_2" formatted="false">Günlük artık son uygulama çökmelerini gerçekten gösteriyor (önceden bölüm boş kalıyordu)</string>
+    <string name="news_v0411_1" formatted="false">Kod temizlendi ve İngilizceye çevrildi, tanılama günlüğü İngilizce; günlük gönderimi tamamen kaldırıldı</string>
+    <string name="news_v0411_2" formatted="false">Ayarlar yeni dahili adlara otomatik olarak aktarılır: hiçbir şey kaybolmaz</string>
 </resources>

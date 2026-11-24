@@ -485,8 +485,8 @@
     <string name="set_charge_anim" formatted="false">Animacja ładowania</string>
     <string name="set_charge_anim_sub" formatted="false">Po podłączeniu kabla auto się animuje; pakiet wybranego koloru pobiera się sam</string>
     <string name="anim_test" formatted="false">Test animacji ładowania</string>
-    <string name="anim_test_sub" formatted="false">Pokazuje fazy jedna po drugiej; bez pakietu używa animazione-&lt;kolor&gt;.zip z pendrive\'a</string>
-    <string name="anim_test_missing" formatted="false">Brak pakietu: skopiuj animazione-&lt;kolor&gt;.zip na pendrive</string>
+    <string name="anim_test_sub" formatted="false">Pokazuje fazy jedna po drugiej; bez pakietu używa animation-&lt;kolor&gt;.zip z pendrive\'a</string>
+    <string name="anim_test_missing" formatted="false">Brak pakietu: skopiuj animation-&lt;kolor&gt;.zip na pendrive</string>
     <string name="chk_theme_system" formatted="false">Motyw systemu</string>
     <string name="chk_lights" formatted="false">Światła</string>
     <string name="chk_charge_anim" formatted="false">Animacja ładowania</string>
@@ -560,4 +560,6 @@
     <string name="news_v049_2" formatted="false">Czytelniejszy stan szyb: „nieobsługiwane przez to oprogramowanie” zamiast „czekam na auto”</string>
     <string name="news_v0410_1" formatted="false">„Zapisz log” zawiera teraz systemowe wiersze Android Auto, CarPlay i USB (aby zrozumieć, dlaczego projekcja się przerywa)</string>
     <string name="news_v0410_2" formatted="false">Log naprawdę pokazuje ostatnie awarie aplikacji (wcześniej sekcja była pusta)</string>
+    <string name="news_v0411_1" formatted="false">Kod uporządkowany i przetłumaczony na angielski, dziennik diagnostyczny po angielsku; wysyłanie logów całkowicie usunięte</string>
+    <string name="news_v0411_2" formatted="false">Ustawienia są automatycznie przenoszone na nowe nazwy wewnętrzne: nic nie ginie</string>
 </resources>

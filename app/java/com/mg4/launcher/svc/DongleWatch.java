@@ -39,7 +39,7 @@ import java.util.Set;
  * Every step goes into the diagnostics (dongle.* keys).
  */
 public final class DongleWatch {
-    private static final String PREFS = "dongle";
+    private static final String PREFS = PrefsMigration.DONGLE;
     /** USB vendors of dongles (not of phones): Carlinkit / "Magic Communication Tec.". */
     private static final int[] DONGLE_VIDS = {0x1314};
     private static final int APPLE_VID = 0x05AC, GOOGLE_AOAP_VID = 0x18D1;
@@ -75,7 +75,7 @@ public final class DongleWatch {
     private DongleWatch(Context c, MediaClient media) {
         ctx = c;
         this.media = media;
-        sp = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        sp = PrefsMigration.open(c, PREFS);
         HandlerThread th = new HandlerThread("mg4-dongle");
         th.start();
         bg = new Handler(th.getLooper());
@@ -84,21 +84,21 @@ public final class DongleWatch {
     // ---- settings --------------------------------------------------------------------------
 
     public boolean enabled() {
-        return sp.getBoolean("attivo", true);
+        return sp.getBoolean("enabled", true);
     }
 
     public void setEnabled(boolean on) {
-        sp.edit().putBoolean("attivo", on).apply();
+        sp.edit().putBoolean("enabled", on).apply();
         Diag.put("dongle.auto", on ? "on" : "off");
     }
 
     /** Seconds after power-on before acting. */
     public int delaySeconds() {
-        return sp.getInt("secondi", 20);
+        return sp.getInt("seconds", 20);
     }
 
     public void setDelaySeconds(int s) {
-        sp.edit().putInt("secondi", s).apply();
+        sp.edit().putInt("seconds", s).apply();
     }
 
     // ---- start -----------------------------------------------------------------------------
@@ -122,11 +122,11 @@ public final class DongleWatch {
 
     /** Attempts already made in this power-on (stays correct even if the launcher restarts). */
     private int attempts() {
-        return sp.getInt("boot", -1) == bootCount() ? sp.getInt("tentativi", 0) : 0;
+        return sp.getInt("boot", -1) == bootCount() ? sp.getInt("attempts", 0) : 0;
     }
 
     private void setAttempts(int n) {
-        sp.edit().putInt("boot", bootCount()).putInt("tentativi", n).apply();
+        sp.edit().putInt("boot", bootCount()).putInt("attempts", n).apply();
     }
 
     private boolean sessionActive() {
@@ -218,11 +218,11 @@ public final class DongleWatch {
     }
 
     private Set<String> learned() {
-        return new HashSet<>(sp.getStringSet("seriali", new HashSet<>()));
+        return new HashSet<>(sp.getStringSet("serials", new HashSet<>()));
     }
 
     private Set<String> phones() {
-        return new HashSet<>(sp.getStringSet("telefoni", new HashSet<>()));
+        return new HashSet<>(sp.getStringSet("phones", new HashSet<>()));
     }
 
     /**
@@ -248,7 +248,7 @@ public final class DongleWatch {
             else changed |= ph.add(serial) | s.remove(serial);
         }
         if (changed) {
-            sp.edit().putStringSet("seriali", s).putStringSet("telefoni", ph).apply();
+            sp.edit().putStringSet("serials", s).putStringSet("phones", ph).apply();
             if (dongle) Diag.put("dongle.detected", m.deviceName + " (" + s.size() + " serial numbers stored)");
             // 1.0.4: no phone name in the log (personal data)
             else Diag.put("dongle.phoneDetected", "session with a phone: the USB device is a phone, it will never be reset");

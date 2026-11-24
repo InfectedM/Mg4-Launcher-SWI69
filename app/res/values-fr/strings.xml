@@ -485,8 +485,8 @@
     <string name="set_charge_anim" formatted="false">Animation de recharge</string>
     <string name="set_charge_anim_sub" formatted="false">Quand tu branches le câble la voiture s\'anime ; le pack de la couleur choisie se télécharge tout seul</string>
     <string name="anim_test" formatted="false">Tester l\'animation de recharge</string>
-    <string name="anim_test_sub" formatted="false">Montre les phases l\'une après l\'autre ; sans pack, utilise animazione-&lt;couleur&gt;.zip de la clé USB</string>
-    <string name="anim_test_missing" formatted="false">Pas de pack : copie animazione-&lt;couleur&gt;.zip sur la clé USB</string>
+    <string name="anim_test_sub" formatted="false">Montre les phases l\'une après l\'autre ; sans pack, utilise animation-&lt;couleur&gt;.zip de la clé USB</string>
+    <string name="anim_test_missing" formatted="false">Pas de pack : copie animation-&lt;couleur&gt;.zip sur la clé USB</string>
     <string name="chk_theme_system" formatted="false">Thème du système</string>
     <string name="chk_lights" formatted="false">Phares</string>
     <string name="chk_charge_anim" formatted="false">Animation de recharge</string>
@@ -560,4 +560,6 @@
     <string name="news_v049_2" formatted="false">État des vitres plus clair : « non pris en charge par ce firmware » au lieu de « en attente de la voiture »</string>
     <string name="news_v0410_1" formatted="false">« Enregistrer le journal » inclut désormais les lignes système d’Android Auto, CarPlay et USB (pour comprendre les coupures de projection)</string>
     <string name="news_v0410_2" formatted="false">Le journal affiche vraiment les plantages récents des apps (avant, la section restait vide)</string>
+    <string name="news_v0411_1" formatted="false">Code nettoyé et traduit en anglais, journal de diagnostic en anglais ; envoi des journaux supprimé</string>
+    <string name="news_v0411_2" formatted="false">Les réglages sont transférés automatiquement vers les nouveaux noms internes : rien n’est perdu</string>
 </resources>

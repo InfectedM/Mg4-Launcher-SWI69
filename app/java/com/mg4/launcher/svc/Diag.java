@@ -97,15 +97,19 @@ public final class Diag {
         return sb.toString();
     }
 
-    /** Saves the diagnostics to Android/data/com.mg4.launcher/files/diagnostica.txt (retrieve with adb pull). */
+    /** Saves the diagnostics to Android/data/com.mg4.launcher/files/diagnostics.txt (retrieve with adb pull). */
     public static void save(Context c) {
         try {
             File dir = c.getExternalFilesDir(null);
             if (dir == null) return;
             String text = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss", Locale.ITALY).format(new Date()) + "\n\n" + dump();
-            try (FileOutputStream o = new FileOutputStream(new File(dir, "diagnostica.txt"))) {
+            try (FileOutputStream o = new FileOutputStream(new File(dir, "diagnostics.txt"))) {
                 o.write(text.getBytes("UTF-8"));
             }
+            // 0.4.11: the file used to be called diagnostica.txt; the stale copy is removed
+            File old = new File(dir, "diagnostica.txt");
+            //noinspection ResultOfMethodCallIgnored
+            if (old.exists()) old.delete();
         } catch (Exception e) {
             Log.w(TAG, "saving diagnostics", e);
         }
@@ -322,7 +326,7 @@ public final class Diag {
         }
 
         // fork: first into folders VISIBLE in the car's file manager and on a computer:
-        //   USB stick → <root>/MG4Launcher/registos/   ·   car storage → Download/MG4Launcher/
+        //   USB stick → <root>/MG4Launcher/logs/   ·   car storage → Download/MG4Launcher/
         // (the app's Android/data/... is only a fallback: many file managers do not show it)
         grantWriteStorage(c);
         List<File> visible = new ArrayList<>();
@@ -330,7 +334,7 @@ public final class Diag {
         if (vols != null) for (File v : vols) {
             String n = v.getName();
             if (n.equals("emulated") || n.equals("self") || !v.isDirectory() || !v.canRead()) continue;
-            visible.add(new File(v, "MG4Launcher/registos"));   // USB stick
+            visible.add(new File(v, "MG4Launcher/logs"));   // USB stick
         }
         try {
             visible.add(new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), "MG4Launcher"));

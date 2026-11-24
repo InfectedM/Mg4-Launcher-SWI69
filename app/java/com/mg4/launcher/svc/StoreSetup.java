@@ -24,7 +24,7 @@ import java.io.OutputStream;
  */
 public final class StoreSetup {
     public static final String PKG = "com.mg4.store", ASSET = "MG4Store.apk";
-    private static final String K_DONE = "storeGestito", ACTION = "com.mg4.launcher.STORE_INSTALL.";
+    private static final String K_DONE = "storeManaged", ACTION = "com.mg4.launcher.STORE_INSTALL.";
 
     public interface Done {
         void done(boolean ok, String message);
@@ -76,7 +76,7 @@ public final class StoreSetup {
     /** Launcher start: automatic installation only once, then only the log. Must be called off the main thread. */
     public static void onStart(Context ctx) {
         Context c = ctx.getApplicationContext();
-        SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        SharedPreferences sp = com.mg4.launcher.ui.Prefs.sp(c);
         long have = installedCode(c);
         if (sp.getBoolean(K_DONE, false)) {
             Diag.put("store", have >= 0 ? "installed v" + installedName(c) + " (updates itself)" : "removed by the user (reinstall from Settings → Install MG4 Store)");

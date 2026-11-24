@@ -14,7 +14,7 @@ import java.util.List;
  * <p>
  * Everything is READ ONLY: it looks at the connected services and the values already read, no command is sent to the car
  * (no climate, radio, play, calls). Each test gives ✓ (works), ✗ (does not work) or — (not present on this car,
- * or skipped). In the log: controllo.&lt;name&gt; = ✓/✗/— detail, plus controllo.riepilogo.
+ * or skipped). In the log: selfcheck.&lt;name&gt; = ✓/✗/— detail, plus selfcheck.summary.
  * <p>
  * After every update the check starts by itself, silently, 60 s after startup: log only, without the steering wheel
  * keys test (which asks to press a key).
@@ -202,7 +202,7 @@ public final class SelfCheck {
                 if (cp != null && cp.ready() && !cp.has(CarProps.HVAC_TEMPERATURE_CURRENT)) {
                     set(it, ABSENT, "property absent (the option hides itself)", "");
                     // the "Automatico" option hides itself, as the normal reading also does
-                    c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).edit().putBoolean("tempInternaAssente", true).apply();
+                    com.mg4.launcher.ui.Prefs.sp(c).edit().putBoolean("insideTempMissing", true).apply();
                     break;
                 }
                 boolean ok = s != null && !Float.isNaN(s.insideTemp) && !s.insideSource.isEmpty();
@@ -214,7 +214,7 @@ public final class SelfCheck {
                 DayNight dn = DayNight.get(c);
                 Boolean day = dn.applied();
                 double sun = dn.sunElevation();
-                String mode = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getString("theme", "auto");
+                String mode = com.mg4.launcher.ui.Prefs.sp(c).getString("theme", "auto");
                 String base = "source " + dn.source() + " · applied " + (day == null ? "—" : day ? "day" : "night")
                         + (Double.isNaN(sun) ? "" : " · sun at " + Math.round(sun) + "°") + (dn.uiStuck() ? " · uiMode stuck: ignored" : "");
                 if (!"auto".equals(mode)) {
@@ -262,8 +262,8 @@ public final class SelfCheck {
             }
             case "chargeAnim": {
                 String color = com.mg4.launcher.ui.Prefs.CAR_COLORS[Math.max(0, Math.min(7,
-                        c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getInt("carColor", 5)))];
-                boolean on = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getBoolean("animazioneRicarica", true);
+                        com.mg4.launcher.ui.Prefs.sp(c).getInt("carColor", 5)))];
+                boolean on = com.mg4.launcher.ui.Prefs.sp(c).getBoolean("chargeAnim", true);
                 if (com.mg4.launcher.ui.ChargeAnimView.errors > 0) set(it, FAIL, "playback errors: " + com.mg4.launcher.ui.ChargeAnimView.errors
                         + " · " + ChargePack.state(), "");
                 else if (ChargePack.complete(c, color)) set(it, OK, "pack " + color + " present" + (on ? "" : " (animation off)"), "");
@@ -388,8 +388,8 @@ public final class SelfCheck {
                     if (r[0] != null) set(it, OK, "latest.json read: version " + r[0], r[0]);
                     else set(it, FAIL, "latest.json unreachable (no internet?)", "");
                 } else {
-                    if (r[1] != null) set(it, OK, "avvisi.json read: " + r[1] + " notices", r[1]);
-                    else set(it, FAIL, "avvisi.json not read (no internet?)", "");
+                    if (r[1] != null) set(it, OK, "notices.json read: " + r[1] + " notices", r[1]);
+                    else set(it, FAIL, "notices.json not read (no internet?)", "");
                 }
                 break;
             }
@@ -401,7 +401,7 @@ public final class SelfCheck {
     private static String[] remoteCache;
     private static long remoteAt;
 
-    /** latest.json and avvisi.json read once per check (read only). */
+    /** latest.json and notices.json read once per check (read only). */
     private static synchronized String[] remote() {
         long now = android.os.SystemClock.uptimeMillis();
         if (remoteCache == null || now - remoteAt > 30_000) {
@@ -422,12 +422,12 @@ public final class SelfCheck {
 
     // ---- automatic check after an update ------------------------------------------------------
 
-    private static final String K_DONE_FOR = "controlloFattoPer";
+    private static final String K_DONE_FOR = "checkDoneFor";
 
     /** If this version has not been checked yet, the silent check starts 60 s later. */
     public static void scheduleAfterUpdate(Context ctx, String version) {
         Context c = ctx.getApplicationContext();
-        android.content.SharedPreferences sp = c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        android.content.SharedPreferences sp = com.mg4.launcher.ui.Prefs.sp(c);
         if (version.equals(sp.getString(K_DONE_FOR, ""))) return;
         main.postDelayed(() -> {
             if (version.equals(sp.getString(K_DONE_FOR, "")) || running) return;

@@ -19,12 +19,12 @@ import java.util.Locale;
  * </ul>
  */
 public final class HomeMode {
-    private static final String K_ENABLED = "homePredefinita", K_UNTIL = "officinaFinoA", K_PREV = "officinaHomePrima";
+    private static final String K_ENABLED = "defaultHome", K_UNTIL = "workshopUntil", K_PREV = "workshopHomeBefore";
 
     private HomeMode() {}
 
     private static SharedPreferences sp(Context c) {
-        return c.getApplicationContext().getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        return com.mg4.launcher.ui.Prefs.sp(c);
     }
 
     /** Switch value (off also during workshop mode). */

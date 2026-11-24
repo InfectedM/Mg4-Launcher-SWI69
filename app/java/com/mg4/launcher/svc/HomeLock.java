@@ -21,16 +21,16 @@ import java.util.List;
  * Platform signature: the CHANGE_COMPONENT_ENABLED_STATE permission is granted by the signature.
  */
 public final class HomeLock {
-    public static final String K_ON = "avvioSicuro";
+    public static final String K_ON = "safeStart";
     /** 1.0.4 (issue #29): uninstall in progress (start time). While it holds, the MG home is never disabled. */
-    private static final String K_UNINSTALL = "disinstallazioneInCorso";
+    private static final String K_UNINSTALL = "uninstallInProgress";
     /** After 10 minutes without outcome (e.g. system confirmation left halfway) the mark expires by itself. */
     private static final long UNINSTALL_MAX_MS = 10 * 60_000L;
 
     private HomeLock() {}
 
     private static SharedPreferences sp(Context c) {
-        return c.getApplicationContext().getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        return com.mg4.launcher.ui.Prefs.sp(c);
     }
 
     /** "Avvio sicuro" option (on by default). */

@@ -1,6 +1,6 @@
 {
-  "version": "0.4.10",
-  "apk": "releases/MG4Launcher-SWI69-0.4.10.apk",
-  "size": 1133421,
-  "notes": "Registo: secção Android Auto / CarPlay / USB com as linhas do sistema e crashes recentes visíveis (READ_LOGS), para diagnosticar as quedas do Android Auto."
+  "version": "0.4.11",
+  "apk": "releases/MG4Launcher-SWI69-0.4.11.apk",
+  "size": 1129299,
+  "notes": "Fork independente: código, ficheiros publicados e registo de diagnóstico em inglês; envio de registos removido; definições migradas automaticamente."
 }

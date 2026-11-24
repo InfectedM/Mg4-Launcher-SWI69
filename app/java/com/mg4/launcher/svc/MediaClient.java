@@ -357,7 +357,7 @@ public final class MediaClient {
 
     public MediaClient(Context c) {
         ctx = c.getApplicationContext();
-        sp = ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        sp = com.mg4.launcher.ui.Prefs.sp(ctx);
         radio = new ServiceLink(ctx, "radio", ServiceLink.byAction(RADIO_PKG, RADIO_ACTION));
         radio.setOnConnected(() -> post(this::registerRadioCallbacks));
         rui = new ServiceLink(ctx, "carplay", ServiceLink.byComponent("com.allgo.rui", "com.allgo.rui.RemoteUIService", null));
@@ -371,8 +371,8 @@ public final class MediaClient {
         logos = new StationLogos(ctx);
         logos.setOnUpdate(this::refreshLogosSoon);
         loadFavorites();
-        fmList = loadList("radio_fm_elenco");
-        dabList = loadList("radio_dab_elenco");
+        fmList = loadList("radioFmList");
+        dabList = loadList("radioDabList");
     }
 
     public void setListener(Listener l) {
@@ -728,8 +728,8 @@ public final class MediaClient {
         }
         // list of the stations of the band on air. 0.4.3 (point 6): if it is empty the band's favorites are shown
         List<Station> list = band == BAND_DAB ? dabList : fmList;
-        String listSrc = band == BAND_DAB ? sp.getString("radio_dab_fonte", "DAB stations listened to")
-                : sp.getString("radio_fm_fonte", "stations listened to");
+        String listSrc = band == BAND_DAB ? sp.getString("radioDabSource", "DAB stations listened to")
+                : sp.getString("radioFmSource", "stations listened to");
         if (list.isEmpty()) {
             List<Station> favBand = new ArrayList<>();
             for (Station st : favorites) if ((st.band == BAND_DAB) == (band == BAND_DAB)) favBand.add(st);
@@ -838,7 +838,7 @@ public final class MediaClient {
                     Diag.put("radio.search", "finished, band " + band + ": " + found.size() + " stations");
                     if (!found.isEmpty() && band != BAND_DAB) {
                         mergeFm(found, true);
-                        sp.edit().putString("radio_fm_fonte", "radio service (search)").apply();
+                        sp.edit().putString("radioFmSource", "radio service (search)").apply();
                     }
                     radioListWhy = "radio service: search finished";
                     if (band != BAND_DAB) LogoPacks.noteStations(BAND_FM, found);
@@ -871,8 +871,8 @@ public final class MediaClient {
                     if (!out.isEmpty()) {
                         java.util.Collections.sort(out, (x, y) -> x.name.compareToIgnoreCase(y.name));
                         dabList = out;
-                        saveList("radio_dab_elenco", out);
-                        sp.edit().putString("radio_dab_fonte", "radio service (DAB list)").apply();
+                        saveList("radioDabList", out);
+                        sp.edit().putString("radioDabSource", "radio service (DAB list)").apply();
                     }
                     Diag.put("radio.dab.list", out.size() + " stations");
                     radioListWhy = "radio service: DAB list";
@@ -1229,8 +1229,8 @@ public final class MediaClient {
 
     private void rememberSource(int active, int deviceType) {
         if (active == 0) return;
-        int saved = sp.getInt("media.ultimaSorgente", 0);
-        if (saved != active) sp.edit().putInt("media.ultimaSorgente", active).apply();
+        int saved = sp.getInt("mediaLastSource", 0);
+        if (saved != active) sp.edit().putInt("mediaLastSource", active).apply();
         if (savedSrcLogged != active) {
             savedSrcLogged = active;
             Diag.putQuiet("media.savedSource", sourceName(active));
@@ -1244,7 +1244,7 @@ public final class MediaClient {
     public void resumeLastSource(String why) {
         if (bg == null) return;
         bg.postDelayed(() -> {
-            int saved = sp.getInt("media.ultimaSorgente", SRC_RADIO);
+            int saved = sp.getInt("mediaLastSource", SRC_RADIO);
             State st = last;
             boolean anyPlaying = radioMbs.isPlaying() || bt.isPlaying() || usb.isPlaying() || usb2.isPlaying() || online.isPlaying()
                     || (remote.isPlaying() && st.deviceType != 0);
@@ -1689,7 +1689,7 @@ public final class MediaClient {
         }
         List<Station> out = new ArrayList<>(byKhz.values());
         fmList = out;
-        saveList("radio_fm_elenco", out);
+        saveList("radioFmList", out);
         Diag.put("radio.fm.list", out.size() + " stations");
     }
 
@@ -1700,7 +1700,7 @@ public final class MediaClient {
                 if (st.name.isEmpty() && !name.isEmpty()) {
                     st.name = name;
                     st.key = StationLogos.key(BAND_FM, 0, khz, name);
-                    saveList("radio_fm_elenco", fmList);
+                    saveList("radioFmList", fmList);
                 }
                 return;
             }
@@ -1731,8 +1731,8 @@ public final class MediaClient {
         java.util.Collections.sort(out, (x, y) -> x.name.compareToIgnoreCase(y.name));
         if (out.size() > 300) return;
         dabList = out;
-        saveList("radio_dab_elenco", out);
-        if (!sp.contains("radio_dab_fonte")) sp.edit().putString("radio_dab_fonte", "DAB stations listened to").apply();
+        saveList("radioDabList", out);
+        if (!sp.contains("radioDabSource")) sp.edit().putString("radioDabSource", "DAB stations listened to").apply();
         radioListWhy = "new DAB station listened to";
     }
 
@@ -1834,7 +1834,7 @@ public final class MediaClient {
     private void loadFavorites() {
         List<Station> out = new ArrayList<>();
         try {
-            JSONArray a = new JSONArray(sp.getString("radio_preferiti", "[]"));
+            JSONArray a = new JSONArray(sp.getString("radioFavorites", "[]"));
             for (int i = 0; i < a.length(); i++) {
                 Station st = Station.fromJson(a.getJSONObject(i));
                 st.key = StationLogos.key(st.band, st.sid, st.khz, st.name);
@@ -1853,7 +1853,7 @@ public final class MediaClient {
         } catch (Exception e) {
             Diag.error("radio.favourites.save", e.toString());
         }
-        sp.edit().putString("radio_preferiti", a.toString()).apply();
+        sp.edit().putString("radioFavorites", a.toString()).apply();
         favorites = list;
         Diag.put("radio.favourites", list.size() + " stations");
     }

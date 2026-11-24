@@ -87,7 +87,7 @@ mkdir -p "$OUT/res" "$OUT/gen" "$OUT/classes" "$OUT/dex" "$OUT/tools"
 SRC="$APP/java"
 MANIFEST="$APP/AndroidManifest.xml"
 RENAME=()
-# built-in radio logo pack (app/assets/loghi)
+# optional assets folder (app/assets)
 ASSETS=()
 if [ -d "$APP/assets" ]; then ASSETS=(-A "$APP/assets"); fi
 

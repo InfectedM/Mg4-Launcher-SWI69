@@ -279,8 +279,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
 
     private void showNotices(java.util.List<Updater.Notice> list, boolean startup) {
         android.content.SharedPreferences sp = prefs.raw();
-        java.util.Set<String> seen = new java.util.HashSet<>(sp.getStringSet("avvisi.visti", new java.util.HashSet<>()));
-        java.util.Set<String> ok = sp.getStringSet("avvisi.confermati", new java.util.HashSet<>());
+        java.util.Set<String> seen = new java.util.HashSet<>(sp.getStringSet("noticesSeen", new java.util.HashSet<>()));
+        java.util.Set<String> ok = sp.getStringSet("noticesConfirmed", new java.util.HashSet<>());
         for (Updater.Notice n : list) {
             boolean show = n.important ? !ok.contains(n.id) && (startup || !seen.contains(n.id)) : !seen.contains(n.id);
             if (show) noticeQueue.add(n);
@@ -294,13 +294,13 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         if (n == null) return;
         noticeOpen = true;
         android.content.SharedPreferences sp = prefs.raw();
-        java.util.Set<String> seen = new java.util.HashSet<>(sp.getStringSet("avvisi.visti", new java.util.HashSet<>()));
+        java.util.Set<String> seen = new java.util.HashSet<>(sp.getStringSet("noticesSeen", new java.util.HashSet<>()));
         seen.add(n.id);
-        sp.edit().putStringSet("avvisi.visti", seen).apply();
+        sp.edit().putStringSet("noticesSeen", seen).apply();
         Runnable confirm = () -> {
-            java.util.Set<String> ok = new java.util.HashSet<>(prefs.raw().getStringSet("avvisi.confermati", new java.util.HashSet<>()));
+            java.util.Set<String> ok = new java.util.HashSet<>(prefs.raw().getStringSet("noticesConfirmed", new java.util.HashSet<>()));
             ok.add(n.id);
-            prefs.raw().edit().putStringSet("avvisi.confermati", ok).apply();
+            prefs.raw().edit().putStringSet("noticesConfirmed", ok).apply();
             noticeDiag();
             noticeOpen = false;
             root.post(this::nextNotice);
@@ -319,8 +319,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
 
     private void noticeDiag() {
         android.content.SharedPreferences sp = prefs.raw();
-        updater.noticeShown = "shown " + sp.getStringSet("avvisi.visti", new java.util.HashSet<>())
-                + " · confirmed " + sp.getStringSet("avvisi.confermati", new java.util.HashSet<>());
+        updater.noticeShown = "shown " + sp.getStringSet("noticesSeen", new java.util.HashSet<>())
+                + " · confirmed " + sp.getStringSet("noticesConfirmed", new java.util.HashSet<>());
         Diag.put("notices.state", "read " + updater.noticeIds + " · " + updater.noticeShown);
     }
 
@@ -495,6 +495,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     /** What's new in each version (texts in all languages in strings.xml). */
     private static int[] newsFor(String ver) {
         switch (ver) {
+            case "0.4.11":  // fork InfectedM
+                return new int[]{R.string.news_v0411_1, R.string.news_v0411_2};
             case "0.4.10":  // fork InfectedM
                 return new int[]{R.string.news_v0410_1, R.string.news_v0410_2};
             case "0.4.9":   // fork InfectedM
@@ -543,7 +545,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 L.s(R.string.btn_ok), null);
     }
 
-    /** Every 15 s saves the diagnostics to a file: adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostica.txt */
+    /** Every 15 s saves the diagnostics to a file: adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostics.txt */
     private final Runnable saveDiag = new Runnable() {
         @Override
         public void run() {
@@ -928,7 +930,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
 
     /**
      * 1.0.4 (point F5): charging animation test. Uses the chosen color's pack if present, otherwise a zip
-     * animazione-<color>.zip in the root folder of the USB stick. The settings close and the test
+     * animation-<color>.zip in the root folder of the USB stick. The settings close and the test
      * runs on the home's car: plug in → loop (3 rounds) → finished → unplug.
      */
     @Override
@@ -945,7 +947,7 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
                 Object[] usb = com.mg4.launcher.svc.ChargePack.loadFromUsb(this);
                 if (usb == null) {
                     runOnUiThread(() -> android.widget.Toast.makeText(this, L.s(R.string.anim_test_missing), android.widget.Toast.LENGTH_LONG).show());
-                    Diag.put("charge.test", "no package: neither downloaded nor animazione-<color>.zip on the USB stick");
+                    Diag.put("charge.test", "no package: neither downloaded nor animation-<color>.zip on the USB stick");
                     return;
                 }
                 dir = (java.io.File) usb[0];

@@ -517,7 +517,7 @@ public final class Updater {
     // fork: updates come from the InfectedM repository (Ernesto's original version does not replace this one)
     public static final String OWN_REPO = "InfectedM/Mg4-Launcher-SWI69";
     private static final String RAW = "https://raw.githubusercontent.com/" + OWN_REPO + "/main/";
-    /** 0.4.4: address of the files in our own repository (animazioni.json, animation packs). */
+    /** 0.4.4: address of the files in our own repository (animations.json, animation packs). */
     public static final String OWN_RAW = RAW;
     private static final int MAX_FORCED_TRIES = 3;
 
@@ -530,7 +530,7 @@ public final class Updater {
         void onNotices(java.util.List<Notice> list);
     }
 
-    /** A notice from releases/avvisi.json. */
+    /** A notice from releases/notices.json. */
     public static final class Notice {
         public String id = "";
         public boolean important, updateButton;
@@ -573,6 +573,7 @@ public final class Updater {
                 notices(lang, cb);
                 return;
             }
+            // latest.json is the update channel: its field names (including "minima") never change
             String ver = o.optString("version", ""), min = o.optString("minima", ""), apk = o.optString("apk", "");
             long size = o.optLong("size", 0);
             String cur = currentVersion();
@@ -603,7 +604,7 @@ public final class Updater {
 
     /** Forced update attempts already made for a version. */
     private int forcedTries(String ver) {
-        return ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getInt("aggiornamento.tentativi." + ver, 0);
+        return com.mg4.launcher.ui.Prefs.sp(ctx).getInt("updateAttempts." + ver, 0);
     }
 
     private int forcedWaits;
@@ -644,7 +645,7 @@ public final class Updater {
             autoDiag(base + " · forced: invalid APK path (" + r.path + ")");
             return;
         }
-        ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).edit().putInt("aggiornamento.tentativi." + r.tag, tries + 1).apply();
+        com.mg4.launcher.ui.Prefs.sp(ctx).edit().putInt("updateAttempts." + r.tag, tries + 1).apply();
         String t = "attempt " + (tries + 1) + "/" + MAX_FORCED_TRIES;
         busy = true;
         try {
@@ -666,7 +667,7 @@ public final class Updater {
     /** null if the APK has the same package and key as the installed launcher, otherwise the reason. */
     @SuppressWarnings("deprecation")
     private String sameSignature(byte[] apk) {
-        File f = new File(ctx.getCacheDir(), "update-firma.apk");
+        File f = new File(ctx.getCacheDir(), "update-signed.apk");
         try {
             try (OutputStream os = new FileOutputStream(f)) {
                 os.write(apk);
@@ -685,27 +686,27 @@ public final class Updater {
         }
     }
 
-    /** releases/avvisi.json: notices for this version (empty or missing = none, with no visible errors). */
+    /** releases/notices.json: notices for this version (empty or missing = none, with no visible errors). */
     private void notices(String lang, Auto cb) {
         java.util.List<Notice> out = new java.util.ArrayList<>();
         String cur = currentVersion();
         StringBuilder ids = new StringBuilder();
         try {
-            org.json.JSONObject o = new org.json.JSONObject(fetch(RAW + "releases/avvisi.json"));
-            JSONArray a = o.optJSONArray("avvisi");
+            org.json.JSONObject o = new org.json.JSONObject(fetch(RAW + "releases/notices.json"));
+            JSONArray a = o.optJSONArray("notices");
             for (int i = 0; a != null && i < a.length(); i++) {
                 JSONObject n = a.optJSONObject(i);
                 if (n == null || n.optString("id", "").isEmpty()) continue;
-                JSONArray vs = n.optJSONArray("versioni");
+                JSONArray vs = n.optJSONArray("versions");
                 boolean match = vs == null || vs.length() == 0;
                 for (int k = 0; vs != null && k < vs.length(); k++) if (cur.equals(vs.optString(k))) match = true;
                 ids.append(ids.length() == 0 ? "" : ",").append(n.optString("id")).append(match ? "" : "(other version)");
                 if (!match) continue;
                 Notice x = new Notice();
                 x.id = n.optString("id");
-                x.important = n.optBoolean("importante", false);
-                x.updateButton = "aggiorna".equals(n.optString("pulsante", ""));
-                x.text = n.optJSONObject("testo");
+                x.important = n.optBoolean("important", false);
+                x.updateButton = "update".equals(n.optString("button", ""));
+                x.text = n.optJSONObject("text");
                 if (!x.text(lang).isEmpty()) out.add(x);
             }
             noticeIds = ids.length() == 0 ? "none" : ids.toString();
@@ -716,7 +717,7 @@ public final class Updater {
         if (!out.isEmpty()) main.post(() -> cb.onNotices(out));
     }
 
-    /** 0.4.4: GET of a small text file from our own repository (animazioni.json). */
+    /** 0.4.4: GET of a small text file from our own repository (animations.json). */
     public static String getText(String url) throws IOException {
         return fetch(url);
     }
@@ -742,7 +743,7 @@ public final class Updater {
         return ctx.checkSelfPermission("android.permission.INSTALL_PACKAGES") == PackageManager.PERMISSION_GRANTED;
     }
 
-    /** 0.4.3 (Feature check): reads latest.json and avvisi.json without touching the update status. */
+    /** 0.4.3 (Feature check): reads latest.json and notices.json without touching the update status. */
     public static String[] probeRemote() {
         String[] out = new String[2];
         try {
@@ -751,7 +752,7 @@ public final class Updater {
             out[0] = null;
         }
         try {
-            JSONArray a = new JSONObject(fetch(RAW + "releases/avvisi.json")).optJSONArray("avvisi");
+            JSONArray a = new JSONObject(fetch(RAW + "releases/notices.json")).optJSONArray("notices");
             out[1] = String.valueOf(a == null ? 0 : a.length());
         } catch (Exception e) {
             out[1] = null;

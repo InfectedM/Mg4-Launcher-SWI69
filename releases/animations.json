@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "colors": {
+    "Arctic White": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-arctic-white.zip",
+      "size": 938682,
+      "sha256": "1c010aeb292a27cf6a8ae9e6da65424e465cd539c030ecfd0b2bd56fb36c8b31"
+    },
+    "Black Pearl": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-black-pearl.zip",
+      "size": 892025,
+      "sha256": "f63bb52a10d1c38e0e97ef0d6d3010f81002f8e932cca4fef238422363092f3a"
+    },
+    "Camden Grey": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-camden-grey.zip",
+      "size": 900622,
+      "sha256": "32745e267874a6fc91ee0f8f2d0532dd0b26d721c55e5e32038f7c8ba4b32cd5"
+    },
+    "Cosmic Silver": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-cosmic-silver.zip",
+      "size": 925742,
+      "sha256": "31b9807d995e407547fd008a921ef7717bd5fc7c1792577f30e3b295f1bf131a"
+    },
+    "Ealing Green": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-ealing-green.zip",
+      "size": 926276,
+      "sha256": "6405495368480803a4c9325d2e4313e299d245654dffffa68080358778248a6e"
+    },
+    "Piccadilly Blue": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-piccadilly-blue.zip",
+      "size": 963410,
+      "sha256": "f1ebe8604d24b64e74c7c4dcdd3de9739a365a54a8a514ff214d3b26131c2955"
+    },
+    "Dynamic Red": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-dynamic-red.zip",
+      "size": 988509,
+      "sha256": "6636c4f404e859335040f091aab239962a71467d64e7b4cfd7311f8aa34a95f2"
+    },
+    "Volcano Orange": {
+      "url": "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/animations/animation-volcano-orange.zip",
+      "size": 1021297,
+      "sha256": "bacc0f10b2bd013a00146c682493d78392796e32a73788c15d0caa518ca5c97e"
+    }
+  }
+}

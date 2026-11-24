@@ -485,8 +485,8 @@
     <string name="set_charge_anim" formatted="false">Animación de carga</string>
     <string name="set_charge_anim_sub" formatted="false">Al conectar el cable el coche se anima; el paquete del color elegido se descarga solo</string>
     <string name="anim_test" formatted="false">Probar animación de carga</string>
-    <string name="anim_test_sub" formatted="false">Muestra las fases una tras otra; sin paquete usa animazione-&lt;color&gt;.zip del USB</string>
-    <string name="anim_test_missing" formatted="false">Sin paquete: copia animazione-&lt;color&gt;.zip en el USB</string>
+    <string name="anim_test_sub" formatted="false">Muestra las fases una tras otra; sin paquete usa animation-&lt;color&gt;.zip del USB</string>
+    <string name="anim_test_missing" formatted="false">Sin paquete: copia animation-&lt;color&gt;.zip en el USB</string>
     <string name="chk_theme_system" formatted="false">Tema del sistema</string>
     <string name="chk_lights" formatted="false">Faros</string>
     <string name="chk_charge_anim" formatted="false">Animación de carga</string>
@@ -560,4 +560,6 @@
     <string name="news_v049_2" formatted="false">Estado de las ventanillas más claro: «no compatible con este firmware» en lugar de «esperando al coche»</string>
     <string name="news_v0410_1" formatted="false">«Guardar registro» ahora incluye las líneas del sistema de Android Auto, CarPlay y USB (para saber por qué se corta la proyección)</string>
     <string name="news_v0410_2" formatted="false">El registro muestra de verdad los fallos recientes de las apps (antes la sección quedaba vacía)</string>
+    <string name="news_v0411_1" formatted="false">Código limpiado y traducido al inglés, registro de diagnóstico en inglés; envío de registros eliminado por completo</string>
+    <string name="news_v0411_2" formatted="false">Los ajustes se trasladan automáticamente a los nuevos nombres internos: no se pierde nada</string>
 </resources>

@@ -426,7 +426,7 @@ public final class VehicleClient {
         }
         // 0.4.2 (point 7d): limit shown only if the car supports the command (valid reading), or by user choice
         if (code >= 1 && code <= 7) limitSupported = true;
-        String lm = ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getString("limiteRicaricaModo", "auto");
+        String lm = com.mg4.launcher.ui.Prefs.sp(ctx).getString("chargeLimitMode", "auto");
         s.chargeLimitShown = "show".equals(lm) || (!"hide".equals(lm) && limitSupported);
         Diag.putQuiet("charge.limit", "supported " + (limitSupported ? "yes" : "no") + " · value read " + code
                 + (code >= 1 && code <= 7 ? " (" + limitPercent(code) + "%)" : "") + " · choice " + lm + " · shown " + (s.chargeLimitShown ? "yes" : "no"));
@@ -507,7 +507,7 @@ public final class VehicleClient {
     private String insideSrc = "";
 
     private void readInside(State s) {
-        android.content.SharedPreferences sp = ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE);
+        android.content.SharedPreferences sp = com.mg4.launcher.ui.Prefs.sp(ctx);
         long now = android.os.SystemClock.uptimeMillis();
         if (props == null || !props.ready()) {
             Diag.putQuiet("climate.tempInside", "CarService not ready → \"--\"");
@@ -515,8 +515,8 @@ public final class VehicleClient {
         }
         // 0.4.3 (point 3): property missing on this car (list already read) → the "Automatic" option hides itself
         boolean missing = !props.has(CarProps.HVAC_TEMPERATURE_CURRENT);
-        if (sp.getBoolean("tempInternaAssente", false) != missing) sp.edit().putBoolean("tempInternaAssente", missing).apply();
-        String mode = sp.getString("tempInternaModo", null);
+        if (sp.getBoolean("insideTempMissing", false) != missing) sp.edit().putBoolean("insideTempMissing", missing).apply();
+        String mode = sp.getString("insideTempMode", null);
         if (mode == null) mode = sp.getBoolean("showInsideTemp", false) ? "auto" : "hide";
         if ("hide".equals(mode)) {
             Diag.putQuiet("climate.tempInside", "not read (Hide option)" + (missing ? " · property absent on this car" : ""));
@@ -1101,7 +1101,7 @@ public final class VehicleClient {
     private String heatCmd = "none";
 
     private String heatMode() {
-        String v = ctx.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE).getString("riscaldamentoModo", "auto");
+        String v = com.mg4.launcher.ui.Prefs.sp(ctx).getString("heatMode", "auto");
         return "show".equals(v) || "hide".equals(v) ? v : "auto";
     }
 

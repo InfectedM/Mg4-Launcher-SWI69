@@ -503,8 +503,8 @@ PL = {
     'set_charge_anim': 'Animacja ładowania',
     'set_charge_anim_sub': 'Po podłączeniu kabla auto się animuje; pakiet wybranego koloru pobiera się sam',
     'anim_test': 'Test animacji ładowania',
-    'anim_test_sub': "Pokazuje fazy jedna po drugiej; bez pakietu używa animazione-<kolor>.zip z pendrive'a",
-    'anim_test_missing': 'Brak pakietu: skopiuj animazione-<kolor>.zip na pendrive',
+    'anim_test_sub': "Pokazuje fazy jedna po drugiej; bez pakietu używa animation-<kolor>.zip z pendrive'a",
+    'anim_test_missing': 'Brak pakietu: skopiuj animation-<kolor>.zip na pendrive',
     'chk_theme_system': 'Motyw systemu',
     'chk_lights': 'Światła',
     'chk_charge_anim': 'Animacja ładowania',
@@ -583,4 +583,6 @@ PL = {
     'news_v049_2': 'Czytelniejszy stan szyb: „nieobsługiwane przez to oprogramowanie” zamiast „czekam na auto”',
     'news_v0410_1': '„Zapisz log” zawiera teraz systemowe wiersze Android Auto, CarPlay i USB (aby zrozumieć, dlaczego projekcja się przerywa)',
     'news_v0410_2': 'Log naprawdę pokazuje ostatnie awarie aplikacji (wcześniej sekcja była pusta)',
+    'news_v0411_1': 'Kod uporządkowany i przetłumaczony na angielski, dziennik diagnostyczny po angielsku; wysyłanie logów całkowicie usunięte',
+    'news_v0411_2': 'Ustawienia są automatycznie przenoszone na nowe nazwy wewnętrzne: nic nie ginie',
 }

@@ -1,9 +1,9 @@
 {
- "versione": 1,
- "paesi": [
+ "version": 1,
+ "countries": [
   {
-   "codice": "AD",
-   "nomi": {
+   "code": "AD",
+   "names": {
     "it": "Andorra",
     "en": "Andorra",
     "es": "Andorra",
@@ -14,15 +14,15 @@
     "pl": "Andora"
    },
    "file": "AD.zip",
-   "versione": 1,
-   "dimensione": 42063,
+   "version": 1,
+   "size": 42063,
    "sha256": "61a0ad171ae116a226155b9b472d57384bca1e7feffb29c8542dab543f0b0220",
-   "loghi": 7,
-   "alias": 0
+   "logos": 7,
+   "aliases": 0
   },
   {
-   "codice": "AL",
-   "nomi": {
+   "code": "AL",
+   "names": {
     "it": "Albania",
     "en": "Albania",
     "es": "Albania",
@@ -33,15 +33,15 @@
     "pl": "Albania"
    },
    "file": "AL.zip",
-   "versione": 1,
-   "dimensione": 112768,
+   "version": 1,
+   "size": 112768,
    "sha256": "9ea212afaa46a1cfd922aa95ac8cffad01f1aaea3ea21a12307b45cb96c7ef2a",
-   "loghi": 18,
-   "alias": 0
+   "logos": 18,
+   "aliases": 0
   },
   {
-   "codice": "AR",
-   "nomi": {
+   "code": "AR",
+   "names": {
     "it": "Argentina",
     "en": "Argentina",
     "es": "Argentina",
@@ -52,15 +52,15 @@
     "pl": "Argentyna"
    },
    "file": "AR.zip",
-   "versione": 1,
-   "dimensione": 2690634,
+   "version": 1,
+   "size": 2690634,
    "sha256": "c11d5c383c5beaf5a6be7c8a8e3db434ea906b2ba548b0d4992072650ea27fc2",
-   "loghi": 541,
-   "alias": 16
+   "logos": 541,
+   "aliases": 16
   },
   {
-   "codice": "AT",
-   "nomi": {
+   "code": "AT",
+   "names": {
     "it": "Austria",
     "en": "Austria",
     "es": "Austria",
@@ -71,15 +71,15 @@
     "pl": "Austria"
    },
    "file": "AT.zip",
-   "versione": 1,
-   "dimensione": 454309,
+   "version": 1,
+   "size": 454309,
    "sha256": "0f1db15fadc5e33a4f3f71d2a1d68512b94046c80c934ec6e56599aa5b234071",
-   "loghi": 71,
-   "alias": 27
+   "logos": 71,
+   "aliases": 27
   },
   {
-   "codice": "AU",
-   "nomi": {
+   "code": "AU",
+   "names": {
     "it": "Australia",
     "en": "Australia",
     "es": "Australia",
@@ -90,15 +90,15 @@
     "pl": "Australia"
    },
    "file": "AU.zip",
-   "versione": 1,
-   "dimensione": 4050757,
+   "version": 1,
+   "size": 4050757,
    "sha256": "b824874b24ecbcbed4660c303c354bdacd8c5136408aabced0ea80e9892178cb",
-   "loghi": 534,
-   "alias": 122
+   "logos": 534,
+   "aliases": 122
   },
   {
-   "codice": "AX",
-   "nomi": {
+   "code": "AX",
+   "names": {
     "it": "Isole Åland",
     "en": "Åland Islands",
     "es": "Islas Aland",
@@ -109,15 +109,15 @@
     "pl": "Wyspy Alandzkie"
    },
    "file": "AX.zip",
-   "versione": 1,
-   "dimensione": 5911,
+   "version": 1,
+   "size": 5911,
    "sha256": "fc228b3f659dbfa6828fc3bf282b3f8dbabd0fe1deb3d308224c813d4335ac27",
-   "loghi": 1,
-   "alias": 0
+   "logos": 1,
+   "aliases": 0
   },
   {
-   "codice": "BA",
-   "nomi": {
+   "code": "BA",
+   "names": {
     "it": "Bosnia ed Erzegovina",
     "en": "Bosnia & Herzegovina",
     "es": "Bosnia y Herzegovina",
@@ -128,15 +128,15 @@
     "pl": "Bośnia i Hercegowina"
    },
    "file": "BA.zip",
-   "versione": 1,
-   "dimensione": 248547,
+   "version": 1,
+   "size": 248547,
    "sha256": "7e092d348f6ad11675d099f5d301a31c2ef094311d075e8fb0147dff425de1b1",
-   "loghi": 41,
-   "alias": 5
+   "logos": 41,
+   "aliases": 5
   },
   {
-   "codice": "BE",
-   "nomi": {
+   "code": "BE",
+   "names": {
     "it": "Belgio",
     "en": "Belgium",
     "es": "Bélgica",
@@ -147,15 +147,15 @@
     "pl": "Belgia"
    },
    "file": "BE.zip",
-   "versione": 1,
-   "dimensione": 590740,
+   "version": 1,
+   "size": 590740,
    "sha256": "adad07fb59a16e09b3e879cd3203dd995f667cc979731b6770035f778ccd5f96",
-   "loghi": 113,
-   "alias": 34
+   "logos": 113,
+   "aliases": 34
   },
   {
-   "codice": "BG",
-   "nomi": {
+   "code": "BG",
+   "names": {
     "it": "Bulgaria",
     "en": "Bulgaria",
     "es": "Bulgaria",
@@ -166,15 +166,15 @@
     "pl": "Bułgaria"
    },
    "file": "BG.zip",
-   "versione": 1,
-   "dimensione": 442844,
+   "version": 1,
+   "size": 442844,
    "sha256": "db9d446bb09a2c79ec70a9f795f5b8d2d09ecbc5386662b50a7f0b8d55db5deb",
-   "loghi": 85,
-   "alias": 8
+   "logos": 85,
+   "aliases": 8
   },
   {
-   "codice": "BO",
-   "nomi": {
+   "code": "BO",
+   "names": {
     "it": "Bolivia",
     "en": "Bolivia",
     "es": "Bolivia",
@@ -185,15 +185,15 @@
     "pl": "Boliwia"
    },
    "file": "BO.zip",
-   "versione": 1,
-   "dimensione": 204081,
+   "version": 1,
+   "size": 204081,
    "sha256": "ab9e305d2d12638513b99f17bee75cb4f4f0fc04b39c915d798361ff972568a3",
-   "loghi": 30,
-   "alias": 0
+   "logos": 30,
+   "aliases": 0
   },
   {
-   "codice": "BR",
-   "nomi": {
+   "code": "BR",
+   "names": {
     "it": "Brasile",
     "en": "Brazil",
     "es": "Brasil",
@@ -204,15 +204,15 @@
     "pl": "Brazylia"
    },
    "file": "BR.zip",
-   "versione": 1,
-   "dimensione": 1801286,
+   "version": 1,
+   "size": 1801286,
    "sha256": "7f233c82d275502e751ef5340d20a62d88f6a36acb1067a39acea8f58bf69ea4",
-   "loghi": 263,
-   "alias": 22
+   "logos": 263,
+   "aliases": 22
   },
   {
-   "codice": "BY",
-   "nomi": {
+   "code": "BY",
+   "names": {
     "it": "Bielorussia",
     "en": "Belarus",
     "es": "Bielorrusia",
@@ -223,15 +223,15 @@
     "pl": "Białoruś"
    },
    "file": "BY.zip",
-   "versione": 1,
-   "dimensione": 55312,
+   "version": 1,
+   "size": 55312,
    "sha256": "47a5b5102f2de54107c9e40a1e671f93c8d27d0fdba2d36470c4f0cec7460d36",
-   "loghi": 12,
-   "alias": 0
+   "logos": 12,
+   "aliases": 0
   },
   {
-   "codice": "CH",
-   "nomi": {
+   "code": "CH",
+   "names": {
     "it": "Svizzera",
     "en": "Switzerland",
     "es": "Suiza",
@@ -242,15 +242,15 @@
     "pl": "Szwajcaria"
    },
    "file": "CH.zip",
-   "versione": 1,
-   "dimensione": 465576,
+   "version": 1,
+   "size": 465576,
    "sha256": "4bdb57bb90f4cdac0596d880da3fb65832c9504461a08d4900ef598e64845391",
-   "loghi": 98,
-   "alias": 29
+   "logos": 98,
+   "aliases": 29
   },
   {
-   "codice": "CL",
-   "nomi": {
+   "code": "CL",
+   "names": {
     "it": "Cile",
     "en": "Chile",
     "es": "Chile",
@@ -261,15 +261,15 @@
     "pl": "Chile"
    },
    "file": "CL.zip",
-   "versione": 1,
-   "dimensione": 823095,
+   "version": 1,
+   "size": 823095,
    "sha256": "6bae10d24a66592eed34621ce1121c934f89c261b6deb958fa0b658d48a143fd",
-   "loghi": 126,
-   "alias": 13
+   "logos": 126,
+   "aliases": 13
   },
   {
-   "codice": "CO",
-   "nomi": {
+   "code": "CO",
+   "names": {
     "it": "Colombia",
     "en": "Colombia",
     "es": "Colombia",
@@ -280,15 +280,15 @@
     "pl": "Kolumbia"
    },
    "file": "CO.zip",
-   "versione": 1,
-   "dimensione": 1490399,
+   "version": 1,
+   "size": 1490399,
    "sha256": "a51824d44b6a914135eb9f118cf782e0efe925ba23c2caa5a315fe12ff9dfb15",
-   "loghi": 212,
-   "alias": 13
+   "logos": 212,
+   "aliases": 13
   },
   {
-   "codice": "CY",
-   "nomi": {
+   "code": "CY",
+   "names": {
     "it": "Cipro",
     "en": "Cyprus",
     "es": "Chipre",
@@ -299,15 +299,15 @@
     "pl": "Cypr"
    },
    "file": "CY.zip",
-   "versione": 1,
-   "dimensione": 93453,
+   "version": 1,
+   "size": 93453,
    "sha256": "6b643cbda1d362629a46ab4e361f1371d37c441885c011fcc5cf65c95cf54bb6",
-   "loghi": 18,
-   "alias": 3
+   "logos": 18,
+   "aliases": 3
   },
   {
-   "codice": "CZ",
-   "nomi": {
+   "code": "CZ",
+   "names": {
     "it": "Cechia",
     "en": "Czechia",
     "es": "Chequia",
@@ -318,15 +318,15 @@
     "pl": "Czechy"
    },
    "file": "CZ.zip",
-   "versione": 1,
-   "dimensione": 333540,
+   "version": 1,
+   "size": 333540,
    "sha256": "762536100be52444041f750122ffb3b422dc19de2b4c4f86aa796dd341ce62e2",
-   "loghi": 72,
-   "alias": 12
+   "logos": 72,
+   "aliases": 12
   },
   {
-   "codice": "DE",
-   "nomi": {
+   "code": "DE",
+   "names": {
     "it": "Germania",
     "en": "Germany",
     "es": "Alemania",
@@ -337,15 +337,15 @@
     "pl": "Niemcy"
    },
    "file": "DE.zip",
-   "versione": 1,
-   "dimensione": 4393470,
+   "version": 1,
+   "size": 4393470,
    "sha256": "3a7553f6833d1560ed4cf9275d6b0443b94a4381a5ed39295ce4c624211481be",
-   "loghi": 864,
-   "alias": 293
+   "logos": 864,
+   "aliases": 293
   },
   {
-   "codice": "DK",
-   "nomi": {
+   "code": "DK",
+   "names": {
     "it": "Danimarca",
     "en": "Denmark",
     "es": "Dinamarca",
@@ -356,15 +356,15 @@
     "pl": "Dania"
    },
    "file": "DK.zip",
-   "versione": 1,
-   "dimensione": 194536,
+   "version": 1,
+   "size": 194536,
    "sha256": "3fafc52ef094b0e30ea3994ba22c996fa8093f291cb073dd6a86770bab4264d1",
-   "loghi": 37,
-   "alias": 23
+   "logos": 37,
+   "aliases": 23
   },
   {
-   "codice": "EC",
-   "nomi": {
+   "code": "EC",
+   "names": {
     "it": "Ecuador",
     "en": "Ecuador",
     "es": "Ecuador",
@@ -375,15 +375,15 @@
     "pl": "Ekwador"
    },
    "file": "EC.zip",
-   "versione": 1,
-   "dimensione": 208734,
+   "version": 1,
+   "size": 208734,
    "sha256": "f26d89cf82fe11393f7090788f03e57b564620baec634e553212ccd46be79fdf",
-   "loghi": 31,
-   "alias": 8
+   "logos": 31,
+   "aliases": 8
   },
   {
-   "codice": "EE",
-   "nomi": {
+   "code": "EE",
+   "names": {
     "it": "Estonia",
     "en": "Estonia",
     "es": "Estonia",
@@ -394,15 +394,15 @@
     "pl": "Estonia"
    },
    "file": "EE.zip",
-   "versione": 1,
-   "dimensione": 130651,
+   "version": 1,
+   "size": 130651,
    "sha256": "5719f0351d9a662fa4aa89c2d713da900da679be81961120f3791687a9e104e1",
-   "loghi": 30,
-   "alias": 5
+   "logos": 30,
+   "aliases": 5
   },
   {
-   "codice": "ES",
-   "nomi": {
+   "code": "ES",
+   "names": {
     "it": "Spagna",
     "en": "Spain",
     "es": "España",
@@ -413,15 +413,15 @@
     "pl": "Hiszpania"
    },
    "file": "ES.zip",
-   "versione": 1,
-   "dimensione": 1954864,
+   "version": 1,
+   "size": 1954864,
    "sha256": "87095805180a1da3b0432e5717fd0c51bd5faad6f8f580762530b5c900180a75",
-   "loghi": 380,
-   "alias": 57
+   "logos": 380,
+   "aliases": 57
   },
   {
-   "codice": "FI",
-   "nomi": {
+   "code": "FI",
+   "names": {
     "it": "Finlandia",
     "en": "Finland",
     "es": "Finlandia",
@@ -432,15 +432,15 @@
     "pl": "Finlandia"
    },
    "file": "FI.zip",
-   "versione": 1,
-   "dimensione": 245649,
+   "version": 1,
+   "size": 245649,
    "sha256": "e5d8b04eeba8664c98f97aaf0299f7bc71e20291195bfe119c5b8132747826e0",
-   "loghi": 62,
-   "alias": 5
+   "logos": 62,
+   "aliases": 5
   },
   {
-   "codice": "FO",
-   "nomi": {
+   "code": "FO",
+   "names": {
     "it": "Isole Fær Øer",
     "en": "Faroe Islands",
     "es": "Islas Feroe",
@@ -451,15 +451,15 @@
     "pl": "Wyspy Owcze"
    },
    "file": "FO.zip",
-   "versione": 1,
-   "dimensione": 23033,
+   "version": 1,
+   "size": 23033,
    "sha256": "8ed7b81294810184c39fd0e43a6cf39e529526add7c28388064210f3746e733e",
-   "loghi": 7,
-   "alias": 0
+   "logos": 7,
+   "aliases": 0
   },
   {
-   "codice": "FR",
-   "nomi": {
+   "code": "FR",
+   "names": {
     "it": "Francia",
     "en": "France",
     "es": "Francia",
@@ -470,15 +470,15 @@
     "pl": "Francja"
    },
    "file": "FR.zip",
-   "versione": 1,
-   "dimensione": 3216650,
+   "version": 1,
+   "size": 3216650,
    "sha256": "40afbe5bcdffac30f41d0700a98d452f69fbb68bff1a0168ca2c97d23965c509",
-   "loghi": 562,
-   "alias": 115
+   "logos": 562,
+   "aliases": 115
   },
   {
-   "codice": "GB",
-   "nomi": {
+   "code": "GB",
+   "names": {
     "it": "Regno Unito",
     "en": "United Kingdom",
     "es": "Reino Unido",
@@ -489,15 +489,15 @@
     "pl": "Wielka Brytania"
    },
    "file": "GB.zip",
-   "versione": 2,
-   "dimensione": 3655242,
+   "version": 2,
+   "size": 3655242,
    "sha256": "4c54c3563a599039f793b1f9cdc867f8992bc48cd4927548d6d540f61b40b930",
-   "loghi": 635,
-   "alias": 139
+   "logos": 635,
+   "aliases": 139
   },
   {
-   "codice": "GI",
-   "nomi": {
+   "code": "GI",
+   "names": {
     "it": "Gibilterra",
     "en": "Gibraltar",
     "es": "Gibraltar",
@@ -508,15 +508,15 @@
     "pl": "Gibraltar"
    },
    "file": "GI.zip",
-   "versione": 1,
-   "dimensione": 9548,
+   "version": 1,
+   "size": 9548,
    "sha256": "d3198a3709b655ccfaaa5ae205d33fbcd1fee2c96ec3781431ff6f32c7f38ed0",
-   "loghi": 2,
-   "alias": 0
+   "logos": 2,
+   "aliases": 0
   },
   {
-   "codice": "GR",
-   "nomi": {
+   "code": "GR",
+   "names": {
     "it": "Grecia",
     "en": "Greece",
     "es": "Grecia",
@@ -527,15 +527,15 @@
     "pl": "Grecja"
    },
    "file": "GR.zip",
-   "versione": 1,
-   "dimensione": 3859932,
+   "version": 1,
+   "size": 3859932,
    "sha256": "8b49af45ce21379dc86a2c5c4e903eb1fb00e3ba140eb01716d9d7803c042000",
-   "loghi": 708,
-   "alias": 154
+   "logos": 708,
+   "aliases": 154
   },
   {
-   "codice": "GY",
-   "nomi": {
+   "code": "GY",
+   "names": {
     "it": "Guyana",
     "en": "Guyana",
     "es": "Guyana",
@@ -546,15 +546,15 @@
     "pl": "Gujana"
    },
    "file": "GY.zip",
-   "versione": 1,
-   "dimensione": 23047,
+   "version": 1,
+   "size": 23047,
    "sha256": "513e700a2635f7a45ad5b8e9c36ae4f7937e7753d6ed356fa666c81493d12f23",
-   "loghi": 2,
-   "alias": 0
+   "logos": 2,
+   "aliases": 0
   },
   {
-   "codice": "HR",
-   "nomi": {
+   "code": "HR",
+   "names": {
     "it": "Croazia",
     "en": "Croatia",
     "es": "Croacia",
@@ -565,15 +565,15 @@
     "pl": "Chorwacja"
    },
    "file": "HR.zip",
-   "versione": 1,
-   "dimensione": 279599,
+   "version": 1,
+   "size": 279599,
    "sha256": "c9463461dcf6d9aa607fc77a04329a60efa15d3005f6b4b668e64ff9046f1fb3",
-   "loghi": 55,
-   "alias": 15
+   "logos": 55,
+   "aliases": 15
   },
   {
-   "codice": "HU",
-   "nomi": {
+   "code": "HU",
+   "names": {
     "it": "Ungheria",
     "en": "Hungary",
     "es": "Hungría",
@@ -584,15 +584,15 @@
     "pl": "Węgry"
    },
    "file": "HU.zip",
-   "versione": 1,
-   "dimensione": 371602,
+   "version": 1,
+   "size": 371602,
    "sha256": "442be3e354f76ad470ed5acde1ba403cedb2bddb0ec9c653938d34b2f69547a1",
-   "loghi": 71,
-   "alias": 21
+   "logos": 71,
+   "aliases": 21
   },
   {
-   "codice": "IE",
-   "nomi": {
+   "code": "IE",
+   "names": {
     "it": "Irlanda",
     "en": "Ireland",
     "es": "Irlanda",
@@ -603,15 +603,15 @@
     "pl": "Irlandia"
    },
    "file": "IE.zip",
-   "versione": 1,
-   "dimensione": 424484,
+   "version": 1,
+   "size": 424484,
    "sha256": "be6f0809ef83b83014411559cc298aed892ef0de863d6be2738bedd59af8c29f",
-   "loghi": 75,
-   "alias": 7
+   "logos": 75,
+   "aliases": 7
   },
   {
-   "codice": "IM",
-   "nomi": {
+   "code": "IM",
+   "names": {
     "it": "Isola di Man",
     "en": "Isle of Man",
     "es": "Isla de Man",
@@ -622,15 +622,15 @@
     "pl": "Wyspa Man"
    },
    "file": "IM.zip",
-   "versione": 1,
-   "dimensione": 18819,
+   "version": 1,
+   "size": 18819,
    "sha256": "7c725d3d02c80be75808bd8d8f47b8d3b6afc51e5bbf074aa834e9a8b730e7d0",
-   "loghi": 2,
-   "alias": 0
+   "logos": 2,
+   "aliases": 0
   },
   {
-   "codice": "IS",
-   "nomi": {
+   "code": "IS",
+   "names": {
     "it": "Islanda",
     "en": "Iceland",
     "es": "Islandia",
@@ -641,15 +641,15 @@
     "pl": "Islandia"
    },
    "file": "IS.zip",
-   "versione": 1,
-   "dimensione": 38747,
+   "version": 1,
+   "size": 38747,
    "sha256": "f7109724ecf9a9586207bb14c043f9bcbf913309fa8fb726e881f346b661a6d3",
-   "loghi": 9,
-   "alias": 4
+   "logos": 9,
+   "aliases": 4
   },
   {
-   "codice": "IT",
-   "nomi": {
+   "code": "IT",
+   "names": {
     "it": "Italia",
     "en": "Italy",
     "es": "Italia",
@@ -660,15 +660,15 @@
     "pl": "Włochy"
    },
    "file": "IT.zip",
-   "versione": 2,
-   "dimensione": 2639050,
+   "version": 2,
+   "size": 2639050,
    "sha256": "819371feef66bebf9a28d7b4e49ce871e2b2af20e532855aa22688ff60c0a6e3",
-   "loghi": 426,
-   "alias": 104
+   "logos": 426,
+   "aliases": 104
   },
   {
-   "codice": "LI",
-   "nomi": {
+   "code": "LI",
+   "names": {
     "it": "Liechtenstein",
     "en": "Liechtenstein",
     "es": "Liechtenstein",
@@ -679,15 +679,15 @@
     "pl": "Liechtenstein"
    },
    "file": "LI.zip",
-   "versione": 1,
-   "dimensione": 3490,
+   "version": 1,
+   "size": 3490,
    "sha256": "9e4125129bf6011f0c889e4d48bc88b449b82b8dd22604a9f02dae3e81773d98",
-   "loghi": 1,
-   "alias": 0
+   "logos": 1,
+   "aliases": 0
   },
   {
-   "codice": "LT",
-   "nomi": {
+   "code": "LT",
+   "names": {
     "it": "Lituania",
     "en": "Lithuania",
     "es": "Lituania",
@@ -698,15 +698,15 @@
     "pl": "Litwa"
    },
    "file": "LT.zip",
-   "versione": 1,
-   "dimensione": 82921,
+   "version": 1,
+   "size": 82921,
    "sha256": "1aa46c94d5ac93e6b697cbfbea6a2e924d26667b3314a0604deab922546299e6",
-   "loghi": 15,
-   "alias": 0
+   "logos": 15,
+   "aliases": 0
   },
   {
-   "codice": "LU",
-   "nomi": {
+   "code": "LU",
+   "names": {
     "it": "Lussemburgo",
     "en": "Luxembourg",
     "es": "Luxemburgo",
@@ -717,15 +717,15 @@
     "pl": "Luksemburg"
    },
    "file": "LU.zip",
-   "versione": 1,
-   "dimensione": 28354,
+   "version": 1,
+   "size": 28354,
    "sha256": "b32bb7048f0eceec8492fece4b56576dc1460b22cfd4fa99eb22af79dc5ff2c4",
-   "loghi": 5,
-   "alias": 1
+   "logos": 5,
+   "aliases": 1
   },
   {
-   "codice": "LV",
-   "nomi": {
+   "code": "LV",
+   "names": {
     "it": "Lettonia",
     "en": "Latvia",
     "es": "Letonia",
@@ -736,15 +736,15 @@
     "pl": "Łotwa"
    },
    "file": "LV.zip",
-   "versione": 1,
-   "dimensione": 94207,
+   "version": 1,
+   "size": 94207,
    "sha256": "f5fc83c914c8ad0ef403fd7881e6044e17bec2378bca0f0df24676b136168e3b",
-   "loghi": 21,
-   "alias": 3
+   "logos": 21,
+   "aliases": 3
   },
   {
-   "codice": "MC",
-   "nomi": {
+   "code": "MC",
+   "names": {
     "it": "Monaco",
     "en": "Monaco",
     "es": "Mónaco",
@@ -755,15 +755,15 @@
     "pl": "Monako"
    },
    "file": "MC.zip",
-   "versione": 1,
-   "dimensione": 5938,
+   "version": 1,
+   "size": 5938,
    "sha256": "2337279ea6ace9339e82445871dd50b7f84f75f4c1a87b46783fca32ad87ff2c",
-   "loghi": 2,
-   "alias": 0
+   "logos": 2,
+   "aliases": 0
   },
   {
-   "codice": "MD",
-   "nomi": {
+   "code": "MD",
+   "names": {
     "it": "Moldavia",
     "en": "Moldova",
     "es": "Moldavia",
@@ -774,15 +774,15 @@
     "pl": "Mołdawia"
    },
    "file": "MD.zip",
-   "versione": 1,
-   "dimensione": 146878,
+   "version": 1,
+   "size": 146878,
    "sha256": "56aaa487bd1693d9fbc89b308c7017a4e82e0f343798ce816b3666a1a8189db6",
-   "loghi": 29,
-   "alias": 12
+   "logos": 29,
+   "aliases": 12
   },
   {
-   "codice": "ME",
-   "nomi": {
+   "code": "ME",
+   "names": {
     "it": "Montenegro",
     "en": "Montenegro",
     "es": "Montenegro",
@@ -793,15 +793,15 @@
     "pl": "Czarnogóra"
    },
    "file": "ME.zip",
-   "versione": 1,
-   "dimensione": 41452,
+   "version": 1,
+   "size": 41452,
    "sha256": "e3a2909f900253563ab505b1dd010ea6e3d5c5e87e3d01e0a8da58b2a45be64d",
-   "loghi": 6,
-   "alias": 3
+   "logos": 6,
+   "aliases": 3
   },
   {
-   "codice": "MK",
-   "nomi": {
+   "code": "MK",
+   "names": {
     "it": "Macedonia del Nord",
     "en": "North Macedonia",
     "es": "Macedonia del Norte",
@@ -812,15 +812,15 @@
     "pl": "Macedonia Północna"
    },
    "file": "MK.zip",
-   "versione": 1,
-   "dimensione": 43836,
+   "version": 1,
+   "size": 43836,
    "sha256": "5f33cecb682f7b44843b5920f291e9c558d04df66294a12f8b657fd61bdb53a8",
-   "loghi": 6,
-   "alias": 4
+   "logos": 6,
+   "aliases": 4
   },
   {
-   "codice": "MT",
-   "nomi": {
+   "code": "MT",
+   "names": {
     "it": "Malta",
     "en": "Malta",
     "es": "Malta",
@@ -831,15 +831,15 @@
     "pl": "Malta"
    },
    "file": "MT.zip",
-   "versione": 1,
-   "dimensione": 24946,
+   "version": 1,
+   "size": 24946,
    "sha256": "7afc253462a84653ac52bc37c277d92ade9cfd498fb2e45aeab3a7fb9b972ec1",
-   "loghi": 6,
-   "alias": 1
+   "logos": 6,
+   "aliases": 1
   },
   {
-   "codice": "NL",
-   "nomi": {
+   "code": "NL",
+   "names": {
     "it": "Paesi Bassi",
     "en": "Netherlands",
     "es": "Países Bajos",
@@ -850,15 +850,15 @@
     "pl": "Holandia"
    },
    "file": "NL.zip",
-   "versione": 1,
-   "dimensione": 1655453,
+   "version": 1,
+   "size": 1655453,
    "sha256": "c8fba26d865fcddee60b77412696c840ae4f7610a99e850bfe3fb80407eda0c0",
-   "loghi": 288,
-   "alias": 56
+   "logos": 288,
+   "aliases": 56
   },
   {
-   "codice": "NO",
-   "nomi": {
+   "code": "NO",
+   "names": {
     "it": "Norvegia",
     "en": "Norway",
     "es": "Noruega",
@@ -869,15 +869,15 @@
     "pl": "Norwegia"
    },
    "file": "NO.zip",
-   "versione": 1,
-   "dimensione": 169101,
+   "version": 1,
+   "size": 169101,
    "sha256": "909947958ed6d72e22bf4c54640b15e5d49a3962cf94a9653f64ead689a09360",
-   "loghi": 42,
-   "alias": 3
+   "logos": 42,
+   "aliases": 3
   },
   {
-   "codice": "PE",
-   "nomi": {
+   "code": "PE",
+   "names": {
     "it": "Perù",
     "en": "Peru",
     "es": "Perú",
@@ -888,15 +888,15 @@
     "pl": "Peru"
    },
    "file": "PE.zip",
-   "versione": 1,
-   "dimensione": 838741,
+   "version": 1,
+   "size": 838741,
    "sha256": "445d797266e729732386decb4a40ac4d0f61c2205018f223e1c4b22fe79f8df2",
-   "loghi": 121,
-   "alias": 6
+   "logos": 121,
+   "aliases": 6
   },
   {
-   "codice": "PL",
-   "nomi": {
+   "code": "PL",
+   "names": {
     "it": "Polonia",
     "en": "Poland",
     "es": "Polonia",
@@ -907,15 +907,15 @@
     "pl": "Polska"
    },
    "file": "PL.zip",
-   "versione": 1,
-   "dimensione": 987173,
+   "version": 1,
+   "size": 987173,
    "sha256": "5b53614e117f4950ee6b15bb7fbe42ad713e61b50f66b05638edd6449d341d8c",
-   "loghi": 178,
-   "alias": 97
+   "logos": 178,
+   "aliases": 97
   },
   {
-   "codice": "PT",
-   "nomi": {
+   "code": "PT",
+   "names": {
     "it": "Portogallo",
     "en": "Portugal",
     "es": "Portugal",
@@ -926,15 +926,15 @@
     "pl": "Portugalia"
    },
    "file": "PT.zip",
-   "versione": 1,
-   "dimensione": 618888,
+   "version": 1,
+   "size": 618888,
    "sha256": "e6fe7f596fc3af42a0994ac9b7dcfaa7142a46472ff6273bfcc61224726ff3c1",
-   "loghi": 128,
-   "alias": 20
+   "logos": 128,
+   "aliases": 20
   },
   {
-   "codice": "PY",
-   "nomi": {
+   "code": "PY",
+   "names": {
     "it": "Paraguay",
     "en": "Paraguay",
     "es": "Paraguay",
@@ -945,15 +945,15 @@
     "pl": "Paragwaj"
    },
    "file": "PY.zip",
-   "versione": 1,
-   "dimensione": 145537,
+   "version": 1,
+   "size": 145537,
    "sha256": "3a8d165bf77961388b04bb87a1ee070be7928c561e34368f76f796668683a4f5",
-   "loghi": 18,
-   "alias": 1
+   "logos": 18,
+   "aliases": 1
   },
   {
-   "codice": "RO",
-   "nomi": {
+   "code": "RO",
+   "names": {
     "it": "Romania",
     "en": "Romania",
     "es": "Rumanía",
@@ -964,15 +964,15 @@
     "pl": "Rumunia"
    },
    "file": "RO.zip",
-   "versione": 1,
-   "dimensione": 2168856,
+   "version": 1,
+   "size": 2168856,
    "sha256": "b1e633da7b73a81e3c5bf22f1b2decf52d0b1b1b87aa3a45e9df0738005267f7",
-   "loghi": 355,
-   "alias": 106
+   "logos": 355,
+   "aliases": 106
   },
   {
-   "codice": "RS",
-   "nomi": {
+   "code": "RS",
+   "names": {
     "it": "Serbia",
     "en": "Serbia",
     "es": "Serbia",
@@ -983,15 +983,15 @@
     "pl": "Serbia"
    },
    "file": "RS.zip",
-   "versione": 1,
-   "dimensione": 512791,
+   "version": 1,
+   "size": 512791,
    "sha256": "cab998cf5e850bf75600659cbb12cc9755689de0f2043629e54d712f24f74d7c",
-   "loghi": 91,
-   "alias": 12
+   "logos": 91,
+   "aliases": 12
   },
   {
-   "codice": "RU",
-   "nomi": {
+   "code": "RU",
+   "names": {
     "it": "Russia",
     "en": "Russia",
     "es": "Rusia",
@@ -1002,15 +1002,15 @@
     "pl": "Rosja"
    },
    "file": "RU.zip",
-   "versione": 1,
-   "dimensione": 1329368,
+   "version": 1,
+   "size": 1329368,
    "sha256": "1188e33642c116b9c5fa933be41a07ed8249fa68b2aaff8499b5974c48f35c63",
-   "loghi": 262,
-   "alias": 88
+   "logos": 262,
+   "aliases": 88
   },
   {
-   "codice": "SE",
-   "nomi": {
+   "code": "SE",
+   "names": {
     "it": "Svezia",
     "en": "Sweden",
     "es": "Suecia",
@@ -1021,15 +1021,15 @@
     "pl": "Szwecja"
    },
    "file": "SE.zip",
-   "versione": 1,
-   "dimensione": 298454,
+   "version": 1,
+   "size": 298454,
    "sha256": "42306924fce104515d77251d169e25f991533a21b312ebf2cd007b3ab03d4c8e",
-   "loghi": 60,
-   "alias": 48
+   "logos": 60,
+   "aliases": 48
   },
   {
-   "codice": "SI",
-   "nomi": {
+   "code": "SI",
+   "names": {
     "it": "Slovenia",
     "en": "Slovenia",
     "es": "Eslovenia",
@@ -1040,15 +1040,15 @@
     "pl": "Słowenia"
    },
    "file": "SI.zip",
-   "versione": 1,
-   "dimensione": 131562,
+   "version": 1,
+   "size": 131562,
    "sha256": "ffd6b8f98a593e394cd8ebe8bcbdabe689bd7d6708ad8cff5001256727e4838e",
-   "loghi": 31,
-   "alias": 4
+   "logos": 31,
+   "aliases": 4
   },
   {
-   "codice": "SK",
-   "nomi": {
+   "code": "SK",
+   "names": {
     "it": "Slovacchia",
     "en": "Slovakia",
     "es": "Eslovaquia",
@@ -1059,15 +1059,15 @@
     "pl": "Słowacja"
    },
    "file": "SK.zip",
-   "versione": 1,
-   "dimensione": 143600,
+   "version": 1,
+   "size": 143600,
    "sha256": "db52875bfc92672a3d5f49d8b1a4d1dd04fdd5fb8039b50d7bb5e915556ae2cb",
-   "loghi": 33,
-   "alias": 2
+   "logos": 33,
+   "aliases": 2
   },
   {
-   "codice": "SM",
-   "nomi": {
+   "code": "SM",
+   "names": {
     "it": "San Marino",
     "en": "San Marino",
     "es": "San Marino",
@@ -1078,15 +1078,15 @@
     "pl": "San Marino"
    },
    "file": "SM.zip",
-   "versione": 1,
-   "dimensione": 13261,
+   "version": 1,
+   "size": 13261,
    "sha256": "fb938b50e17f88e1b6781935ab15e4881f69c840108a1358b256f83085846c5a",
-   "loghi": 2,
-   "alias": 0
+   "logos": 2,
+   "aliases": 0
   },
   {
-   "codice": "SR",
-   "nomi": {
+   "code": "SR",
+   "names": {
     "it": "Suriname",
     "en": "Suriname",
     "es": "Surinam",
@@ -1097,15 +1097,15 @@
     "pl": "Surinam"
    },
    "file": "SR.zip",
-   "versione": 1,
-   "dimensione": 13865,
+   "version": 1,
+   "size": 13865,
    "sha256": "13900bdac14fbdce3af0c373e34a0381944cd44a5a46b9ad7502f24939c7fd5a",
-   "loghi": 2,
-   "alias": 0
+   "logos": 2,
+   "aliases": 0
   },
   {
-   "codice": "TR",
-   "nomi": {
+   "code": "TR",
+   "names": {
     "it": "Turchia",
     "en": "Türkiye",
     "es": "Turquía",
@@ -1116,15 +1116,15 @@
     "pl": "Turcja"
    },
    "file": "TR.zip",
-   "versione": 1,
-   "dimensione": 786791,
+   "version": 1,
+   "size": 786791,
    "sha256": "071c68c2e2f9a87f8f5ea910e28a7aef6ad9fa6ff5c925b2974baebf5dd77c79",
-   "loghi": 136,
-   "alias": 15
+   "logos": 136,
+   "aliases": 15
   },
   {
-   "codice": "UA",
-   "nomi": {
+   "code": "UA",
+   "names": {
     "it": "Ucraina",
     "en": "Ukraine",
     "es": "Ucrania",
@@ -1135,15 +1135,15 @@
     "pl": "Ukraina"
    },
    "file": "UA.zip",
-   "versione": 1,
-   "dimensione": 296222,
+   "version": 1,
+   "size": 296222,
    "sha256": "0987a979a583eb0e854661a08ea24384b7c3cd9acd31ddcadca0376bb71fb7d3",
-   "loghi": 55,
-   "alias": 1
+   "logos": 55,
+   "aliases": 1
   },
   {
-   "codice": "UY",
-   "nomi": {
+   "code": "UY",
+   "names": {
     "it": "Uruguay",
     "en": "Uruguay",
     "es": "Uruguay",
@@ -1154,15 +1154,15 @@
     "pl": "Urugwaj"
    },
    "file": "UY.zip",
-   "versione": 1,
-   "dimensione": 283269,
+   "version": 1,
+   "size": 283269,
    "sha256": "7af6726d9ae1c385235ff2ff1bd77b86967bb317fa9a65ebed2de9f5617aaca0",
-   "loghi": 48,
-   "alias": 1
+   "logos": 48,
+   "aliases": 1
   },
   {
-   "codice": "VA",
-   "nomi": {
+   "code": "VA",
+   "names": {
     "it": "Città del Vaticano",
     "en": "Vatican City",
     "es": "Ciudad del Vaticano",
@@ -1173,15 +1173,15 @@
     "pl": "Watykan"
    },
    "file": "VA.zip",
-   "versione": 1,
-   "dimensione": 17211,
+   "version": 1,
+   "size": 17211,
    "sha256": "5c6a3740c0f31f969d9eb5474790b33f9007221f29d98c444a967a15e0689ede",
-   "loghi": 4,
-   "alias": 8
+   "logos": 4,
+   "aliases": 8
   },
   {
-   "codice": "VE",
-   "nomi": {
+   "code": "VE",
+   "names": {
     "it": "Venezuela",
     "en": "Venezuela",
     "es": "Venezuela",
@@ -1192,15 +1192,15 @@
     "pl": "Wenezuela"
    },
    "file": "VE.zip",
-   "versione": 1,
-   "dimensione": 754395,
+   "version": 1,
+   "size": 754395,
    "sha256": "5887781a1edb9da18d9b726c3232bd3d1c04f6794bb7fbf01bc876f39e47fd92",
-   "loghi": 85,
-   "alias": 1
+   "logos": 85,
+   "aliases": 1
   },
   {
-   "codice": "XK",
-   "nomi": {
+   "code": "XK",
+   "names": {
     "it": "Kosovo",
     "en": "Kosovo",
     "es": "Kosovo",
@@ -1211,11 +1211,11 @@
     "pl": "Kosowo"
    },
    "file": "XK.zip",
-   "versione": 1,
-   "dimensione": 30994,
+   "version": 1,
+   "size": 30994,
    "sha256": "c42c13b8e3dee050d0af9fb1dca7e274f2407604ec05b09cf0d504b8484e4b27",
-   "loghi": 5,
-   "alias": 3
+   "logos": 5,
+   "aliases": 3
   }
  ]
 }

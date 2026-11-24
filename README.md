@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.10.apk"><img alt="Transferir 0.4.10" src="https://img.shields.io/badge/Transferir-0.4.10-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.11.apk"><img alt="Transferir 0.4.11" src="https://img.shields.io/badge/Transferir-0.4.11-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -187,8 +187,8 @@ Se o experimentares noutra versão, os relatos são bem-vindos: abre um *issue* 
     Rádio: o **logótipo** da estação na capa (o nome só quando não há logótipo), **favoritos** e, à direita,
     **FM / DAB** com a **lista de estações** (DAB a partir do serviço de rádio, FM a partir de uma pesquisa e das estações
     que ouviste). Toca numa estação para a sintonizar, toque longo para a adicionar/remover dos favoritos.
-    **Logótipos de rádio**: os teus na pasta **MG4Launcher/loghi** (ex. `MG4Launcher/loghi/NOME.png`, na memória ou
-    numa pen USB: têm prioridade), os enviados pelas estações DAB e os transferidos quando há ligação, guardados para
+    **Logótipos de rádio**: os teus na pasta **MG4Launcher/logos** (ex. `MG4Launcher/logos/NOME.png`, na memória ou
+    numa pen USB: têm prioridade; a pasta antiga `MG4Launcher/loghi` continua a ser lida), os enviados pelas estações DAB e os transferidos quando há ligação, guardados para
     sempre e reutilizados sem ligação.
   - **CarPlay / Android Auto**: o separador aparece sozinho quando ligas um telemóvel.
   - Em cima à direita, antes dos separadores, uma pastilha com **Bluetooth** (cheio = telemóvel ligado, esbatido = ligado
@@ -222,7 +222,7 @@ Se o experimentares noutra versão, os relatos são bem-vindos: abre um *issue* 
   o rádio, o launcher retoma a tua música após alguns segundos. Não faz nada se foste tu a escolher o rádio.
 - **Sem envio de registos**: o código de envio de registos foi removido; "Guardar registo" grava só no carro.
   O launcher não envia diagnósticos para nenhum servidor; **Guardar registo** grava o registo apenas no carro, em
-  `Download/MG4Launcher/`, e na pen USB, em `MG4Launcher/registos/`, para o anexares tu a um *issue* se quiseres.
+  `Download/MG4Launcher/`, e na pen USB, em `MG4Launcher/logs/`, para o anexares tu a um *issue* se quiseres.
 - **Arranque ao ligar**: o launcher volta sozinho para a frente se o sistema abrir o ecrã inicial MG; além disso, a opção
   **Premir Início sozinho após ligar** (desligada, 5, 10, 15, 20 ou 30 segundos), apenas uma vez e só por cima do ecrã
   inicial MG.
@@ -242,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.10.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.11.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -258,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.10.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.11.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -310,14 +310,14 @@ adb shell am start -n com.mg4.launcher/.MainActivity
 adb logcat -s MG4L MG4L.Link
 
 # transferir o diagnóstico guardado pelo launcher (atualizado a cada 15 s)
-adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostica.txt
+adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostics.txt
 ```
 
 ### Reportar um problema
 
 Definições → **Diagnóstico dos serviços do carro** mostra os valores em bruto lidos de cada serviço do carro e os erros
 recentes; **Guardar registo** escreve um registo completo em **`Download/MG4Launcher/`** (memória do carro, visível no
-gestor de ficheiros) e, com uma pen USB ligada, em **`MG4Launcher/registos/`** na raiz da pen: é a forma mais
+gestor de ficheiros) e, com uma pen USB ligada, em **`MG4Launcher/logs/`** na raiz da pen: é a forma mais
 rápida de corrigir aquilo que não funciona.
 
 ### Apoiar o projeto
@@ -331,6 +331,20 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 [![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versões
+
+#### 0.4.11 (fork InfectedM)
+- **Fork independente**: deixa de haver ligação ao repositório original (os créditos mantêm-se em "Sobre este fork").
+  O código de envio de registos foi removido por completo.
+- **Código em inglês**: comentários, nomes, recursos, scripts em `tools/` (`logos_*.py`, `car_from_render.py`) e o
+  registo de diagnóstico (chaves como `startup.homeResumed`, `carplay.device`, `windows.control`).
+- **Definições migradas automaticamente** para os novos nomes internos no primeiro arranque (nada se perde).
+- **Ficheiros e pastas com nomes em inglês**: no repositório `logos/` (com `index.json` e `summary.md`), `animations/`
+  (`animation-<cor>.zip`, clips `charge-<cor>-day|night-plugin|loop|done|unplug.mp4`), `releases/animations.json` e
+  `releases/notices.json`; no carro/pen `MG4Launcher/logos` (a pasta antiga `MG4Launcher/loghi` continua a ser lida),
+  `MG4Launcher/logs` para os registos guardados e `diagnostics.txt`. A animação de carregamento é transferida e
+  preparada de novo uma vez (a pasta antiga é apagada); os pacotes de logótipos instalados mantêm-se.
+  `releases/latest.json` não muda.
+- Janela **Novidades** da 0.4.11.
 
 #### 0.4.10 (fork InfectedM)
 - **Registo para as quedas do Android Auto**: "Guardar registo" ganha a secção *ANDROID AUTO / CARPLAY / USB

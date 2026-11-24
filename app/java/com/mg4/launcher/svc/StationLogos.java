@@ -31,7 +31,8 @@ import java.util.Set;
 /**
  * Radio station logos. Looked up in this order:
  * <ol>
- *   <li>user folder {@code MG4Launcher/loghi/NAME.png} (internal storage or USB stick): takes priority;</li>
+ *   <li>user folder {@code MG4Launcher/logos/NAME.png} (internal storage or USB stick; the older
+ *   {@code MG4Launcher/loghi} is still read): takes priority;</li>
  *   <li>downloaded country packs (LogoPacks, with the alternative RDS/DAB names): work without internet;</li>
  *   <li>logos already saved in the app's storage (broadcast by the DAB station or downloaded in the past);</li>
  *   <li>only with network: search by name on radio-browser.info, then saved permanently.</li>
@@ -44,7 +45,9 @@ public final class StationLogos {
     private static final long USER_SCAN_MS = 60_000;               // the user folder is re-read every minute
     private static final long OFFLINE_MIN_MS = 2 * 60_000L, OFFLINE_MAX_MS = 30 * 60_000L;
     private static final String API = "https://de1.api.radio-browser.info/json/stations/search";
-    public static final String USER_FOLDER = "MG4Launcher/loghi";
+    public static final String USER_FOLDER = "MG4Launcher/logos";
+    /** 0.4.11: USER_FOLDER first, then the folder name used up to 0.4.10 (custom logos already on USB sticks). */
+    public static final String[] USER_FOLDERS = {USER_FOLDER, "MG4Launcher/loghi"};
 
     private final Context ctx;
     private final File dir;
@@ -82,7 +85,11 @@ public final class StationLogos {
 
     public StationLogos(Context c) {
         ctx = c.getApplicationContext();
-        dir = new File(ctx.getFilesDir(), "loghi");
+        dir = new File(ctx.getFilesDir(), "logos");
+        // 0.4.11: the folder used to be called "loghi"; moved once so the logos already saved are kept
+        File old = new File(ctx.getFilesDir(), "loghi");
+        //noinspection ResultOfMethodCallIgnored
+        if (old.isDirectory() && !dir.exists()) old.renameTo(dir);
         //noinspection ResultOfMethodCallIgnored
         dir.mkdirs();
         thread.start();
@@ -125,7 +132,7 @@ public final class StationLogos {
     // ---- user folder -----------------------------------------------------------------------
 
     /**
-     * Reading internal storage and USB sticks (MG4Launcher/loghi folder): the permission is self-granted thanks to the
+     * Reading internal storage and USB sticks (MG4Launcher/logos folder): the permission is self-granted thanks to the
      * platform signature (GRANT_RUNTIME_PERMISSIONS). If that fails, the app's own folder remains, which does not need it.
      */
     private void grantStorage() {
@@ -145,17 +152,25 @@ public final class StationLogos {
         }
     }
 
-    /** MG4Launcher/loghi folders: internal storage, USB sticks and the app's folder (the latter needs no permissions). */
+    /**
+     * MG4Launcher/logos folders (and the older MG4Launcher/loghi): internal storage, USB sticks and the app's folder
+     * (the latter needs no permissions). The first folder that has a name wins.
+     */
     private List<File> userDirs() {
         List<File> out = new ArrayList<>();
-        out.add(new File(Environment.getExternalStorageDirectory(), USER_FOLDER));
         File[] vols = new File("/storage").listFiles();
-        if (vols != null) for (File v : vols) {
-            if (v.getName().equals("emulated") || v.getName().equals("self")) continue;
-            out.add(new File(v, USER_FOLDER));
-        }
         File[] app = ctx.getExternalFilesDirs(null);
-        if (app != null) for (File a : app) if (a != null) out.add(new File(a, "loghi"));
+        for (String uf : USER_FOLDERS) {
+            out.add(new File(Environment.getExternalStorageDirectory(), uf));
+            if (vols != null) for (File v : vols) {
+                if (v.getName().equals("emulated") || v.getName().equals("self")) continue;
+                out.add(new File(v, uf));
+            }
+        }
+        if (app != null) for (File a : app) if (a != null) {
+            out.add(new File(a, "logos"));
+            out.add(new File(a, "loghi"));
+        }
         return out;
     }
 

@@ -1,14 +1,13 @@
 #!/usr/bin/env python3
-"""Refines logo packs that are already built (loghi/<CC>.zip), without needing the original logos:
+"""Refines logo packs that are already built (logos/<CC>.zip), without needing the original logos:
 
   - names ending with the country ("Virgin Radio Italy"): adds the alias without the country (virginradio) and removes
     that station's sub-channels ("Virgin Radio Hard Rock", "Virgin Radio Rock 80"...);
   - aliases of major stations and RDS names whose logo has a longer name ("Radio 24" -> radio24ilsole24ore): the
     logo starting with that name (the shortest one) is used, only for names of at least 6 characters;
-  - updates indice.json (size and SHA-256) and the "Stazioni FM nazionali che mancano" (missing national FM
-    stations) section of riepilogo.md.
+  - updates index.json (size and SHA-256) and the "Missing national FM stations" section of summary.md.
 
-Usage: python3 tools/logos_refine.py loghi
+Usage: python3 tools/logos_refine.py logos
 """
 import hashlib
 import io
@@ -19,7 +18,8 @@ import sys
 import zipfile
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
-from logos_packs import norm, find_key, read_extra_alias, read_major, GENERIC  # noqa: E402
+from logos_packs import (norm, find_key, read_extra_alias, read_major, GENERIC,  # noqa: E402
+                         SUMMARY_MISSING, SUMMARY_DETAILS, SUMMARY_LATER)
 
 # words for the pack's country at the end of a name (only the country itself: "Hotmix Spain" in France is a sub-channel)
 COUNTRY_WORDS = {"IT": ["italy", "italia"], "GB": ["uk", "england"], "DE": ["deutschland", "germany"], "FR": ["france"],
@@ -28,6 +28,16 @@ COUNTRY_WORDS = {"IT": ["italy", "italia"], "GB": ["uk", "england"], "DE": ["deu
                  "AT": ["osterreich", "austria"], "PT": ["portugal"], "TR": ["turkiye", "turkey"], "IE": ["ireland"],
                  "SE": ["sverige"], "NO": ["norge"], "DK": ["danmark"], "FI": ["suomi"], "RO": ["romania"],
                  "GR": ["hellas", "greece"], "CZ": ["ceska"], "SK": ["slovensko"], "HR": ["hrvatska"], "HU": ["magyarorszag"]}
+
+
+def english_head(line):
+    """alias.txt comment lines written before 0.4.11 were in Italian: rewritten in English when the pack is rebuilt."""
+    m = re.match(r"^# Loghi radio (\S+) \((.*)\), pacchetto (\d+)$", line)
+    if m:
+        return "# Radio logos %s (%s), pack %s" % m.groups()
+    if line == "# nome trasmesso = file (senza estensione)":
+        return "# broadcast name = file (without extension)"
+    return line
 
 
 def prefix_key(name, present):
@@ -42,7 +52,7 @@ def refine(path, extra, major):
     z = zipfile.ZipFile(path)
     files = {n: z.read(n) for n in z.namelist() if n != "alias.txt"}
     alias_lines = z.read("alias.txt").decode("utf-8").splitlines()
-    head = [l for l in alias_lines if l.startswith("#")]
+    head = [english_head(l) for l in alias_lines if l.startswith("#")]
     alias = {}
     for l in alias_lines:
         if "=" in l and not l.startswith("#"):
@@ -103,37 +113,37 @@ def main():
     here = os.path.dirname(os.path.abspath(__file__))
     extra = read_extra_alias(os.path.join(here, "logos_alias_extra.txt"))
     major = read_major(os.path.join(here, "logos_major.txt"))
-    idx_path = os.path.join(d, "indice.json")
+    idx_path = os.path.join(d, "index.json")
     idx = json.load(open(idx_path))
     miss_lines, rem_lines = [], []
-    for p in idx["paesi"]:
+    for p in idx["countries"]:
         n, na, size, sha, removed, missing = refine(os.path.join(d, p["file"]), extra, major)
-        if n != p["loghi"]:
-            print(p["codice"], p["loghi"], "→", n, "logos")
-        p.update({"loghi": n, "alias": na, "dimensione": size, "sha256": sha})
+        if n != p["logos"]:
+            print(p["code"], p["logos"], "→", n, "logos")
+        p.update({"logos": n, "aliases": na, "size": size, "sha256": sha})
         if missing:
-            miss_lines.append("- **%s %s**: %s" % (p["codice"], p["nomi"].get("it", ""), ", ".join(missing)))
+            miss_lines.append("- **%s %s**: %s" % (p["code"], p["names"].get("en", ""), ", ".join(missing)))
         if removed:
-            rem_lines.append("- **%s**: %s" % (p["codice"], "; ".join(removed)))
+            rem_lines.append("- **%s**: %s" % (p["code"], "; ".join(removed)))
     json.dump(idx, open(idx_path, "w"), ensure_ascii=False, indent=1)
-    rp = os.path.join(d, "riepilogo.md")
+    rp = os.path.join(d, "summary.md")
     if os.path.exists(rp):
         s = open(rp, encoding="utf-8").read()
-        # section headings written by logos_packs.py (kept in Italian: existing riepilogo.md files use them)
-        a = s.index("## Stazioni FM nazionali che mancano")
-        b = s.index("## Dettaglio di cosa è stato tolto")
-        s = s[:a] + "## Stazioni FM nazionali che mancano\n\n" + "\n".join(miss_lines) + "\n\n" + s[b:]
+        # section headings written by logos_packs.py
+        a = s.index(SUMMARY_MISSING)
+        b = s.index(SUMMARY_DETAILS)
+        s = s[:a] + SUMMARY_MISSING + "\n\n" + "\n".join(miss_lines) + "\n\n" + s[b:]
         if rem_lines:
-            s += "\n## Sottocanali tolti dopo (stazione con il paese nel nome)\n\n" + "\n".join(rem_lines) + "\n"
+            s += "\n" + SUMMARY_LATER + "\n\n" + "\n".join(rem_lines) + "\n"
         # table: update the logo count and MB after
-        rows = {p["codice"]: p for p in idx["paesi"]}
+        rows = {p["code"]: p for p in idx["countries"]}
 
         def fix(m):
             cc = m.group(1)
             p = rows.get(cc)
             if not p:
                 return m.group(0)
-            return "| %s%s | %s | %s | %d | %.2f |" % (cc, m.group(2), m.group(3), m.group(4), p["loghi"], p["dimensione"] / 1e6)
+            return "| %s%s | %s | %s | %d | %.2f |" % (cc, m.group(2).rstrip(), m.group(3), m.group(4), p["logos"], p["size"] / 1e6)
         s = re.sub(r"^\| ([A-Z]{2})( [^|]*)\| (\d+) \| ([\d.]+) \| \d+ \| [\d.]+ \|", fix, s, flags=re.M)
         open(rp, "w", encoding="utf-8").write(s)
     print("done")

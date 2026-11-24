@@ -32,23 +32,24 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipInputStream;
 
 /**
- * Radio logo packs per country (loghi/&lt;CC&gt;.zip + loghi/indice.json of the repository).
+ * Radio logo packs per country (logos/&lt;CC&gt;.zip + logos/index.json of the repository).
  * <ul>
  *   <li>downloaded as soon as there is network for the chosen countries (automatic = system country), SHA-256 checked,
  *   extracted into the app storage and kept forever: then they work without network;</li>
  *   <li>updates are checked at most once a week, or with "Aggiorna";</li>
- *   <li>from USB stick: MG4Launcher/loghi/&lt;CC&gt;.zip installs without internet (after confirmation).</li>
+ *   <li>from USB stick: MG4Launcher/logos/&lt;CC&gt;.zip (or the older MG4Launcher/loghi/) installs without internet
+ *   (after confirmation).</li>
  * </ul>
  * Each pack holds one file per station (normalized name, .webp or .png) and alias.txt (broadcast name = file).
  */
 public final class LogoPacks {
     /** Address of the packs: the other launcher versions change only this line. */
     // fork: logo packs from the InfectedM repository (same files and hashes as the original)
-    public static final String BASE_URL = "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/loghi/";
+    public static final String BASE_URL = "https://raw.githubusercontent.com/InfectedM/Mg4-Launcher-SWI69/main/logos/";
     public static final String AUTO = "auto";
     private static final long WEEK_MS = 7L * 24 * 3600 * 1000;
     private static final long RETRY_MS = 30 * 60_000L;
-    private static final String PREFS = "loghi_pacchetti";
+    private static final String PREFS = PrefsMigration.LOGOS;
 
     /** Launcher language -> country, when the system does not report the region. */
     private static final Map<String, String> LANG_COUNTRY = new HashMap<>();
@@ -102,10 +103,14 @@ public final class LogoPacks {
 
     private LogoPacks(Context c) {
         ctx = c;
-        root = new File(c.getFilesDir(), "pacchetti-loghi");
+        root = new File(c.getFilesDir(), "logo-packs");
+        // 0.4.11: the folder used to be called "pacchetti-loghi"; moved once so the installed packs are kept
+        File old = new File(c.getFilesDir(), "pacchetti-loghi");
+        //noinspection ResultOfMethodCallIgnored
+        if (old.isDirectory() && !root.exists()) old.renameTo(root);
         //noinspection ResultOfMethodCallIgnored
         root.mkdirs();
-        sp = c.getSharedPreferences(PREFS, Context.MODE_PRIVATE);
+        sp = PrefsMigration.open(c, PREFS);
         HandlerThread th = new HandlerThread("mg4-logo-packs");
         th.start();
         bg = new Handler(th.getLooper());
@@ -138,11 +143,11 @@ public final class LogoPacks {
 
     /** "auto" or comma-separated codes (e.g. "IT,FR"). */
     public String choice() {
-        return sp.getString("paesi", AUTO);
+        return sp.getString("countries", AUTO);
     }
 
     public void setChoice(String v) {
-        sp.edit().putString("paesi", v == null || v.isEmpty() ? AUTO : v).apply();
+        sp.edit().putString("countries", v == null || v.isEmpty() ? AUTO : v).apply();
         Diag.put("logos.countries", v);
         refresh(true);
     }
@@ -283,11 +288,11 @@ public final class LogoPacks {
             services = rdsSeen.size();
             if (services == 0) {
                 // last reliable RDS data from previous power-ons
-                String saved = sp.getString("rds_dato", "");
+                String saved = sp.getString("rdsData", "");
                 if (saved.length() >= 1) {
                     digit = saved.charAt(0);
                     exact = saved.length() >= 4 ? saved.substring(2) : null;
-                    services = sp.getInt("rds_servizi", 0);
+                    services = sp.getInt("rdsServices", 0);
                 }
             } else {
                 Map<Character, Integer> count = new HashMap<>();
@@ -307,8 +312,8 @@ public final class LogoPacks {
                 exact = digit == 0 ? null : ex.get(digit);
                 if (digit != 0) {
                     String v = digit + (exact == null ? "" : ":" + exact);
-                    if (!v.equals(sp.getString("rds_dato", "")) || sp.getInt("rds_servizi", 0) != services)
-                        sp.edit().putString("rds_dato", v).putInt("rds_servizi", services).apply();
+                    if (!v.equals(sp.getString("rdsData", "")) || sp.getInt("rdsServices", 0) != services)
+                        sp.edit().putString("rdsData", v).putInt("rdsServices", services).apply();
                 }
             }
         }
@@ -583,7 +588,7 @@ public final class LogoPacks {
         bg.post(() -> {
             boolean missing = false;
             for (String cc : chosen()) if (!packs.containsKey(cc)) missing = true;
-            long last = sp.getLong("controllo", 0);
+            long last = sp.getLong("lastCheck", 0);
             if ((missing || System.currentTimeMillis() - last > WEEK_MS) && System.currentTimeMillis() >= nextTry) check(false);
         });
     }
@@ -597,12 +602,12 @@ public final class LogoPacks {
         busy = true;
         notifyChanged();
         try {
-            JSONObject idx = new JSONObject(new String(fetch(BASE_URL + "indice.json", 1_000_000), "UTF-8"));
-            JSONArray arr = idx.getJSONArray("paesi");
+            JSONObject idx = new JSONObject(new String(fetch(BASE_URL + "index.json", 1_000_000), "UTF-8"));
+            JSONArray arr = idx.getJSONArray("countries");
             Map<String, JSONObject> byCc = new HashMap<>();
             for (int i = 0; i < arr.length(); i++) {
                 JSONObject o = arr.getJSONObject(i);
-                byCc.put(o.getString("codice"), o);
+                byCc.put(o.getString("code"), o);
             }
             StringBuilder res = new StringBuilder();
             for (String cc : chosen()) {
@@ -629,10 +634,10 @@ public final class LogoPacks {
                     continue;
                 }
                 int n = install(cc, zip);
-                sp.edit().putString("sha_" + cc, sha).putInt("ver_" + cc, o.optInt("versione", 1)).putString("src_" + cc, "internet").apply();
+                sp.edit().putString("sha_" + cc, sha).putInt("ver_" + cc, o.optInt("version", 1)).putString("src_" + cc, "internet").apply();
                 res.append(cc).append(": downloaded (").append(n).append(" logos); ");
             }
-            sp.edit().putLong("controllo", System.currentTimeMillis()).apply();
+            sp.edit().putLong("lastCheck", System.currentTimeMillis()).apply();
             Diag.put("logos.download", res.toString().trim());
             migrate083();
             setStatus("ok");
@@ -660,9 +665,9 @@ public final class LogoPacks {
      * Those who chose countries by hand are not touched.
      */
     private void migrate083() {
-        if (sp.getBoolean("migrazione083", false)) return;
+        if (sp.getBoolean("migrated083", false)) return;
         if (!AUTO.equals(choice())) {
-            sp.edit().putBoolean("migrazione083", true).apply();
+            sp.edit().putBoolean("migrated083", true).apply();
             return;
         }
         List<String> ch = chosen();
@@ -674,7 +679,7 @@ public final class LogoPacks {
             sp.edit().remove("sha_" + cc).remove("ver_" + cc).remove("src_" + cc).apply();
             gone.append(gone.length() == 0 ? "" : ", ").append(cc);
         }
-        sp.edit().putBoolean("migrazione083", true).apply();
+        sp.edit().putBoolean("migrated083", true).apply();
         Diag.put("logos.migration", gone.length() == 0 ? "nothing to change (" + ch + ")" : "removed " + gone + ", now " + ch);
     }
 
@@ -732,15 +737,17 @@ public final class LogoPacks {
 
     // ---- USB stick -------------------------------------------------------------------------
 
-    /** Pack zips found on storage or USB stick (MG4Launcher/loghi/CC.zip), not yet offered. */
+    /** Pack zips found on storage or USB stick (MG4Launcher/logos/CC.zip or MG4Launcher/loghi/CC.zip), not yet offered. */
     public List<File> usbPacksToOffer() {
         List<File> out = new ArrayList<>();
         List<File> dirs = new ArrayList<>();
-        dirs.add(new File(Environment.getExternalStorageDirectory(), StationLogos.USER_FOLDER));
-        File[] vols = new File("/storage").listFiles();
-        if (vols != null) for (File v : vols) {
-            if (v.getName().equals("emulated") || v.getName().equals("self")) continue;
-            dirs.add(new File(v, StationLogos.USER_FOLDER));
+        for (String uf : StationLogos.USER_FOLDERS) {
+            dirs.add(new File(Environment.getExternalStorageDirectory(), uf));
+            File[] vols = new File("/storage").listFiles();
+            if (vols != null) for (File v : vols) {
+                if (v.getName().equals("emulated") || v.getName().equals("self")) continue;
+                dirs.add(new File(v, uf));
+            }
         }
         for (File d : dirs) {
             File[] fs = d.listFiles();
@@ -769,7 +776,7 @@ public final class LogoPacks {
             try (InputStream in = new FileInputStream(f)) {
                 byte[] zip = readAll(in);
                 int n = install(cc, zip);
-                sp.edit().putString("sha_" + cc, sha256(zip)).putString("src_" + cc, "chiavetta").apply();
+                sp.edit().putString("sha_" + cc, sha256(zip)).putString("src_" + cc, "usb").apply();
                 Diag.put("logos.usbStick", cc + ": installed (" + n + " logos) from " + f.getPath());
             } catch (Exception e) {
                 Diag.error("logos.usbStick", cc + ": " + e);

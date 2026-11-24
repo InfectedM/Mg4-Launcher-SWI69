@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
-"""Adds new logos to the loghi/<CC>.zip packs from zips named "CC - Name.zip" (PNGs named after the station).
+"""Adds new logos to the logos/<CC>.zip packs from zips named "CC - Name.zip" (PNGs named after the station).
 
 Each logo is shrunk like the others (WebP, max 256 px, transparency) and saved under its normalized name; if a logo
-with that name already exists it is replaced. Then run logos_refine.py for aliases, indice.json and riepilogo.md.
-Usage: python3 tools/logos_add.py new-logos loghi
+with that name already exists it is replaced. Then run logos_refine.py for aliases, index.json and summary.md.
+Usage: python3 tools/logos_add.py new-logos logos
 """
 import io
 import os

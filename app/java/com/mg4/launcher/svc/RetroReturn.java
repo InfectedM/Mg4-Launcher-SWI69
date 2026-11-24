@@ -226,7 +226,7 @@ public final class RetroReturn {
         saved = null;
         if (app == null) return false;
         String reason = null;
-        boolean on = com.mg4.launcher.ui.Prefs.retroReturn(c.getSharedPreferences("mg4launcher", Context.MODE_PRIVATE));
+        boolean on = com.mg4.launcher.ui.Prefs.retroReturn(com.mg4.launcher.ui.Prefs.sp(c));
         Opener o = opener;
         if (!on) reason = "setting off";
         else if (userChoice) reason = "the user chose another app or pressed Home";

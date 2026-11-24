@@ -17,18 +17,19 @@ public final class CrashGuard {
     private CrashGuard() {}
 
     private static SharedPreferences sp(Context c) {
+        PrefsMigration.ensure(c);
         Context d = c.getApplicationContext();
         try {
             d = d.createDeviceProtectedStorageContext();
         } catch (Throwable ignored) {
         }
-        return d.getSharedPreferences("mg4salvavita", Context.MODE_PRIVATE);
+        return d.getSharedPreferences(PrefsMigration.CRASH, Context.MODE_PRIVATE);
     }
 
     /** Safe start suspended after too many crashes? */
     public static boolean tripped(Context c) {
         try {
-            return sp(c).getBoolean("scattato", false);
+            return sp(c).getBoolean("tripped", false);
         } catch (Throwable e) {
             return false;
         }
@@ -38,8 +39,8 @@ public final class CrashGuard {
     public static void reset(Context c) {
         try {
             SharedPreferences s = sp(c);
-            if (s.getBoolean("scattato", false) || !s.getString("crash", "").isEmpty()) {
-                s.edit().putBoolean("scattato", false).putString("crash", "").apply();
+            if (s.getBoolean("tripped", false) || !s.getString("crash", "").isEmpty()) {
+                s.edit().putBoolean("tripped", false).putString("crash", "").apply();
             }
         } catch (Throwable ignored) {
         }
@@ -70,7 +71,7 @@ public final class CrashGuard {
                 keep.append(up);
                 SharedPreferences.Editor ed = s.edit().putString("crash", keep.toString());
                 if (n >= LIMIT) {
-                    ed.putBoolean("scattato", true).putLong("scattatoAlle", now);
+                    ed.putBoolean("tripped", true).putLong("trippedAt", now);
                     ed.commit();
                     HomeLock.release(app, "safeguard: " + n + " crashes in 3 minutes");
                 } else {

@@ -108,7 +108,7 @@ public final class BootAccessibility extends AccessibilityService {
     /** Only once after power-on or wake-up, after the seconds chosen in the settings. */
     private void scheduleAutoHome(String why) {
         h.removeCallbacks(autoHome);
-        int sec = com.mg4.launcher.ui.Prefs.autoHomeSeconds(getSharedPreferences("mg4launcher", MODE_PRIVATE));
+        int sec = com.mg4.launcher.ui.Prefs.autoHomeSeconds(com.mg4.launcher.ui.Prefs.sp(this));
         if (sec <= 0) {
             Diag.put("startup.pressHome", "off");
             return;

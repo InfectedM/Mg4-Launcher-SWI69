@@ -9,22 +9,22 @@ import java.util.List;
 
 /**
  * 1.0.4: frames of the charging clips, extracted only once from the MP4s and saved as JPEGs next to the clips
- * (folder "fotogrammi/&lt;clip name&gt;/0001.jpg…", plus the "pronto" file with the number of frames).
+ * (folder "frames/&lt;clip name&gt;/0001.jpg…", plus the "ready" file with the number of frames).
  * <p>
  * Why: in the car, playback with MediaPlayer on a TextureView stayed stuck on the first frame (black screen,
- * "aggancio" phase stuck, log of 15/11). With the frames ready in advance the animation is drawn by a normal
+ * plug-in phase stuck, log of 15/11). With the frames ready in advance the animation is drawn by a normal
  * view, with no video decoder on screen: no black surfaces, and errors show up in the log.
  * <p>
  * Extraction uses MediaMetadataRetriever (the same one as the gallery thumbnails) in chunks of 8 frames, on a
- * worker thread. About 290 frames per theme, ~18–20 MB in total for one color. Log "ricarica.fotogrammi".
+ * worker thread. About 290 frames per theme, ~18–20 MB in total for one color. Log "charge.frames".
  * <p>
  * Fork: frames are saved scaled down to {@link #SCALE} (1312×400 → 902×275). In the car the clip is drawn at most at
  * ~898×274 (720 dp panel, density 160), so the look does not change; during playback the 3 ARGB buffers go from
- * ~6 MB to ~2.8 MB and JPEG decoding at 30 fps is halved. New folder "fotogrammi2": the old one (full-size frames,
- * 25–30 MB) is deleted automatically on the first preparation.
+ * ~6 MB to ~2.8 MB and JPEG decoding at 30 fps is halved. (0.4.11: the old Italian-named cache folders are deleted by
+ * ChargePack together with the old files/animazione folder.)
  */
 public final class ChargeFrames {
-    private static final String DONE = "pronto", DIR = "fotogrammi2", OLD_DIR = "fotogrammi";
+    private static final String DONE = "ready", DIR = "frames";
     /** 1312×400 → 902×275: exact ratio (the height also stays an integer). */
     private static final float SCALE = 0.6875f;
     private static final int CHUNK = 8, JPEG_Q = 88;
@@ -77,8 +77,6 @@ public final class ChargeFrames {
             int total = 0, made = 0;
             for (File c : clips) {
                 if (c == null) continue;
-                File old = new File(c.getParentFile(), OLD_DIR);   // fork: old full-size frames
-                if (old.isDirectory()) ChargePack.deleteTree(old);
                 if (frames(c) != null) continue;
                 String err = buildOne(c);
                 if (err != null) {
