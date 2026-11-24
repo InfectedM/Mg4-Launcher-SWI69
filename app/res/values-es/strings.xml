@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Ventanillas: sin trabajo en segundo plano con el cierre automático apagado</string>
     <string name="news_v047_3" formatted="false">Tema de día más legible (neumáticos, antiniebla, calefacción) y zonas táctiles más grandes (Buscar, minirreproductor, Mapa/Media)</string>
     <string name="news_v047_4" formatted="false">Ajustes y ventanas más suaves: fila entera pulsable, interruptores con contorno, transiciones; animaciones y logos descargados de este fork</string>
+    <string name="news_v048_1" formatted="false">Barra inferior más cerca del conductor: antiniebla y accesos directos en el centro, minirreproductor a la derecha (con volante a la derecha la barra sigue reflejada)</string>
+    <string name="news_v048_2" formatted="false">Accesos directos más anchos y separados (menos toques en el botón de al lado) y divisores entre secciones más visibles</string>
 </resources>

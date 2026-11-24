@@ -585,4 +585,6 @@ PL = {
     'news_v047_2': 'Szyby: brak pracy w tle przy wyłączonym automatycznym zamykaniu',
     'news_v047_3': 'Czytelniejszy motyw dzienny (opony, światła przeciwmgłowe, ogrzewanie) i większe pola dotyku (Szukaj, mini odtwarzacz, Mapa/Media)',
     'news_v047_4': 'Płynniejsze ustawienia i okna: cały wiersz klikalny, przełączniki z obramowaniem, przejścia; animacje i loga pobierane z tego forka',
+    'news_v048_1': 'Dolny pasek bliżej kierowcy: światła przeciwmgłowe i skróty pośrodku, mini odtwarzacz po prawej (przy kierownicy po prawej pasek pozostaje odwrócony)',
+    'news_v048_2': 'Szersze i bardziej oddalone skróty (mniej przypadkowych dotknięć sąsiedniego przycisku) i lepiej widoczne separatory sekcji',
 }

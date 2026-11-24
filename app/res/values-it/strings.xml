@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Finestrini: nessun lavoro in background quando la chiusura automatica è spenta</string>
     <string name="news_v047_3" formatted="false">Tema giorno più leggibile (pneumatici, fendinebbia, riscaldamento) e zone di tocco più grandi (Cerca, mini-player, Mappa/Media)</string>
     <string name="news_v047_4" formatted="false">Impostazioni e finestre più morbide: riga intera toccabile, interruttori con contorno, transizioni; animazioni e loghi scaricati da questo fork</string>
+    <string name="news_v048_1" formatted="false">Barra in basso più vicina al guidatore: fendinebbia e scorciatoie al centro, mini-player a destra (con guida a destra la barra resta specchiata)</string>
+    <string name="news_v048_2" formatted="false">Scorciatoie più larghe e distanziate (meno tocchi sul tasto accanto) e divisori tra le sezioni più visibili</string>
 </resources>

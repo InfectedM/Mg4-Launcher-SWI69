@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Fenster: keine Hintergrundarbeit bei ausgeschaltetem automatischem Schließen</string>
     <string name="news_v047_3" formatted="false">Besser lesbares Tagesdesign (Reifen, Nebelleuchten, Heizung) und größere Tippflächen (Suchen, Mini-Player, Karte/Medien)</string>
     <string name="news_v047_4" formatted="false">Flüssigere Einstellungen und Dialoge: ganze Zeile antippbar, Schalter mit Umriss, Übergänge; Animationen und Logos aus diesem Fork</string>
+    <string name="news_v048_1" formatted="false">Untere Leiste näher am Fahrer: Nebelleuchten und Verknüpfungen in der Mitte, Mini-Player rechts (bei Rechtslenkern bleibt die Leiste gespiegelt)</string>
+    <string name="news_v048_2" formatted="false">Breitere, weiter auseinander liegende Verknüpfungen (weniger Fehltipps auf die Nachbartaste) und besser sichtbare Trennlinien</string>
 </resources>

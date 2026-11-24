@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Vidros: sem trabalho em segundo plano com o fecho automático desligado</string>
     <string name="news_v047_3" formatted="false">Tema de dia mais legível (pneus, nevoeiro, aquecimento) e zonas de toque maiores (Procurar, mini-leitor, Mapa/Media)</string>
     <string name="news_v047_4" formatted="false">Definições e janelas mais suaves: linha inteira tocável, interruptores com contorno, transições; animações e logótipos descarregados deste fork</string>
+    <string name="news_v048_1" formatted="false">Barra de baixo mais perto do condutor: nevoeiro e atalhos ao centro, mini-leitor à direita (com volante à direita a barra continua espelhada)</string>
+    <string name="news_v048_2" formatted="false">Atalhos mais largos e espaçados (menos toques no botão do lado) e divisórias entre secções mais visíveis</string>
 </resources>

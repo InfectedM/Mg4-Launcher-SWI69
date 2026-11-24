@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Vitres : aucun travail en arrière-plan quand la fermeture automatique est désactivée</string>
     <string name="news_v047_3" formatted="false">Thème jour plus lisible (pneus, antibrouillards, chauffage) et zones tactiles plus grandes (Rechercher, mini-lecteur, Carte/Média)</string>
     <string name="news_v047_4" formatted="false">Réglages et fenêtres plus fluides : ligne entière cliquable, interrupteurs avec contour, transitions ; animations et logos téléchargés depuis ce fork</string>
+    <string name="news_v048_1" formatted="false">Barre du bas plus proche du conducteur : antibrouillards et raccourcis au centre, mini-lecteur à droite (en conduite à droite la barre reste inversée)</string>
+    <string name="news_v048_2" formatted="false">Raccourcis plus larges et plus espacés (moins de pressions sur le bouton voisin) et séparateurs entre sections plus visibles</string>
 </resources>

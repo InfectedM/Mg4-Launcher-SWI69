@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.7.apk"><img alt="Transferir 0.4.7" src="https://img.shields.io/badge/Transferir-0.4.7-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.8.apk"><img alt="Transferir 0.4.8" src="https://img.shields.io/badge/Transferir-0.4.8-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -242,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.7.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.8.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -258,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.7.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.8.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -332,12 +332,15 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 
 ### Versões
 
-#### 0.4.7 (fork InfectedM)
+#### 0.4.8 (fork InfectedM)
 - **Barra de baixo mais perto do condutor**: nevoeiro e atalhos (telefone, rádio, 360°, definições, CarPlay/Android
   Auto) passam para o centro, logo a seguir ao clima; o mini-player (ou os favoritos/atalhos que o substituem) vai
   para a direita. Com guia à direita a barra continua espelhada.
 - **Atalhos mais espaçados** (tamanho Normal, botões agrupados): botões do meio mais largos e afastados (menos toques
   no botão do lado), mini-player mais estreito e divisórias entre secções mais visíveis.
+- Janela **Novidades** da 0.4.8.
+
+#### 0.4.7 (fork InfectedM)
 - **Vidros mais leves**: com o fecho automático desligado (por omissão) o launcher já não lê o estado do carro em
   segundo plano (antes: 8–10 chamadas por segundo, sempre); ligado, o ritmo adapta-se (0,5 s só durante a contagem,
   2 s em READY, 5 s parado) e a porta continua a chegar na hora.

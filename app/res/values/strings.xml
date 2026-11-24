@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Windows: no background work when automatic closing is off</string>
     <string name="news_v047_3" formatted="false">Easier-to-read day theme (tyres, fog lights, heating) and bigger touch areas (Search, mini player, Map/Media)</string>
     <string name="news_v047_4" formatted="false">Smoother settings and dialogs: whole row tappable, outlined switches, transitions; animations and logos downloaded from this fork</string>
+    <string name="news_v048_1" formatted="false">Bottom bar closer to the driver: fog lights and shortcuts in the middle, mini player on the right (right-hand drive keeps the bar mirrored)</string>
+    <string name="news_v048_2" formatted="false">Wider, more spaced-out shortcuts (fewer taps on the next button) and more visible dividers between sections</string>
 </resources>

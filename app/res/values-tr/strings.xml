@@ -562,4 +562,6 @@
     <string name="news_v047_2" formatted="false">Camlar: otomatik kapatma kapalıyken arka planda çalışma yok</string>
     <string name="news_v047_3" formatted="false">Daha okunaklı gündüz teması (lastikler, sis lambaları, ısıtma) ve daha büyük dokunma alanları (Ara, mini oynatıcı, Harita/Medya)</string>
     <string name="news_v047_4" formatted="false">Daha akıcı ayarlar ve pencereler: tüm satır dokunulabilir, çerçeveli anahtarlar, geçişler; animasyonlar ve logolar bu fork\'tan indirilir</string>
+    <string name="news_v048_1" formatted="false">Alt çubuk sürücüye daha yakın: sis lambaları ve kısayollar ortada, mini oynatıcı sağda (sağdan direksiyonda çubuk aynalı kalır)</string>
+    <string name="news_v048_2" formatted="false">Daha geniş ve aralıklı kısayollar (yandaki düğmeye daha az yanlış dokunma) ve bölümler arasında daha belirgin ayırıcılar</string>
 </resources>
