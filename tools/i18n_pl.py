@@ -541,6 +541,7 @@ PL = {
     'win_auto_sub': 'Po jeździe, z autem na P: zamyka szyby, gdy wysiadasz',
     'win_status_title': 'Stan',
     'win_status_off': 'Sterowanie szybami niedostępne (czekam na auto)',
+    'win_status_unsupported': 'Sterowanie szybami nieobsługiwane przez to oprogramowanie',
     'win_status_ok': 'Sterowanie szybami gotowe',
     'win_status_armed': 'Uzbrojone: szyby zamkną się po wyjściu',
     'win_status_not_armed': 'Jeszcze nieuzbrojone: jedź powyżej %1$d km/h lub przez %2$d min',
@@ -587,4 +588,6 @@ PL = {
     'news_v047_4': 'Płynniejsze ustawienia i okna: cały wiersz klikalny, przełączniki z obramowaniem, przejścia; animacje i loga pobierane z tego forka',
     'news_v048_1': 'Dolny pasek bliżej kierowcy: światła przeciwmgłowe i skróty pośrodku, mini odtwarzacz po prawej (przy kierownicy po prawej pasek pozostaje odwrócony)',
     'news_v048_2': 'Szersze i bardziej oddalone skróty (mniej przypadkowych dotknięć sąsiedniego przycisku) i lepiej widoczne separatory sekcji',
+    'news_v049_1': 'Szyby: w oprogramowaniu SWI69 bez starej funkcji carapi szyby są sterowane przez CarService (jak w MG4Control)',
+    'news_v049_2': 'Czytelniejszy stan szyb: „nieobsługiwane przez to oprogramowanie” zamiast „czekam na auto”',
 }

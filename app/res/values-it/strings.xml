@@ -521,6 +521,7 @@
     <string name="win_auto_sub" formatted="false">Dopo un viaggio, con l\'auto in P: chiude i finestrini quando scendi</string>
     <string name="win_status_title" formatted="false">Stato</string>
     <string name="win_status_off" formatted="false">Controllo finestrini non disponibile (in attesa dell\'auto)</string>
+    <string name="win_status_unsupported" formatted="false">Controllo finestrini non supportato da questo firmware</string>
     <string name="win_status_ok" formatted="false">Controllo finestrini pronto</string>
     <string name="win_status_armed" formatted="false">Armato: i finestrini si chiuderanno quando scendi</string>
     <string name="win_status_not_armed">Non ancora armato: guida sopra %1$d km/h o per %2$d min</string>
@@ -564,4 +565,6 @@
     <string name="news_v047_4" formatted="false">Impostazioni e finestre più morbide: riga intera toccabile, interruttori con contorno, transizioni; animazioni e loghi scaricati da questo fork</string>
     <string name="news_v048_1" formatted="false">Barra in basso più vicina al guidatore: fendinebbia e scorciatoie al centro, mini-player a destra (con guida a destra la barra resta specchiata)</string>
     <string name="news_v048_2" formatted="false">Scorciatoie più larghe e distanziate (meno tocchi sul tasto accanto) e divisori tra le sezioni più visibili</string>
+    <string name="news_v049_1" formatted="false">Finestrini: sui firmware SWI69 senza la vecchia funzione carapi i finestrini si comandano tramite il CarService (come MG4Control)</string>
+    <string name="news_v049_2" formatted="false">Stato dei finestrini più chiaro: «non supportato da questo firmware» invece di «in attesa dell’auto»</string>
 </resources>

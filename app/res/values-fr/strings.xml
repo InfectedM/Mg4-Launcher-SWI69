@@ -521,6 +521,7 @@
     <string name="win_auto_sub" formatted="false">Après un trajet, voiture en P : ferme les vitres quand vous sortez</string>
     <string name="win_status_title" formatted="false">État</string>
     <string name="win_status_off" formatted="false">Commande des vitres indisponible (en attente de la voiture)</string>
+    <string name="win_status_unsupported" formatted="false">Contrôle des vitres non pris en charge par ce firmware</string>
     <string name="win_status_ok" formatted="false">Commande des vitres prête</string>
     <string name="win_status_armed" formatted="false">Armé : les vitres se fermeront à votre sortie</string>
     <string name="win_status_not_armed">Pas encore armé : roulez au-dessus de %1$d km/h ou pendant %2$d min</string>
@@ -564,4 +565,6 @@
     <string name="news_v047_4" formatted="false">Réglages et fenêtres plus fluides : ligne entière cliquable, interrupteurs avec contour, transitions ; animations et logos téléchargés depuis ce fork</string>
     <string name="news_v048_1" formatted="false">Barre du bas plus proche du conducteur : antibrouillards et raccourcis au centre, mini-lecteur à droite (en conduite à droite la barre reste inversée)</string>
     <string name="news_v048_2" formatted="false">Raccourcis plus larges et plus espacés (moins de pressions sur le bouton voisin) et séparateurs entre sections plus visibles</string>
+    <string name="news_v049_1" formatted="false">Vitres : sur les firmwares SWI69 sans l’ancienne fonction carapi, les vitres sont commandées via le CarService (comme MG4Control)</string>
+    <string name="news_v049_2" formatted="false">État des vitres plus clair : « non pris en charge par ce firmware » au lieu de « en attente de la voiture »</string>
 </resources>

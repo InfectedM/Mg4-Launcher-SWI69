@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.8.apk"><img alt="Transferir 0.4.8" src="https://img.shields.io/badge/Transferir-0.4.8-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.9.apk"><img alt="Transferir 0.4.9" src="https://img.shields.io/badge/Transferir-0.4.9-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -242,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.8.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.9.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -258,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.8.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.9.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -331,6 +331,14 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 [![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versões
+
+#### 0.4.9 (fork InfectedM)
+- **Vidros no SWI69 sem a função antiga**: em alguns firmwares o `CarVehicleSettingClient` já não tem
+  `setVehicleWindowStatus(int,int)` (o estado ficava em "à espera do carro"). Agora os vidros passam a ser comandados
+  pelas propriedades do CarService (`VEHICLE_DRIVERWINDOW`…), como no [MG4Control](https://github.com/SliDeeN/MG4Control)
+  de SliDeeN. Só o vidro do condutor tem subida automática e sensor de posição; nos outros usa-se o modo Pulso.
+- Estado mais claro ("não suportado por este firmware") e diagnóstica `vidros.carapi.metodos` com as funções do firmware.
+- Janela **Novidades** da 0.4.9.
 
 #### 0.4.8 (fork InfectedM)
 - **Barra de baixo mais perto do condutor**: nevoeiro e atalhos (telefone, rádio, 360°, definições, CarPlay/Android

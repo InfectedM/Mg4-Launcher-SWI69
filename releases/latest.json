@@ -1,6 +1,6 @@
 {
-  "version": "0.4.8",
-  "apk": "releases/MG4Launcher-SWI69-0.4.8.apk",
-  "size": 1125229,
-  "notes": "Barra de baixo mais perto do condutor: nevoeiro e atalhos ao centro, mais largos e espaçados, com divisórias entre secções; mini-player à direita."
+  "version": "0.4.9",
+  "apk": "releases/MG4Launcher-SWI69-0.4.9.apk",
+  "size": 1133421,
+  "notes": "Vidros: nos firmwares SWI69 sem a função antiga da carapi, comando pelas propriedades do CarService (como o MG4Control); estado dos vidros mais claro."
 }

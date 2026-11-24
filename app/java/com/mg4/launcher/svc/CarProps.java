@@ -166,6 +166,30 @@ public final class CarProps {
         }
     }
 
+    /** Float numa área fixa, NaN se não se lê. Sem erros na diagnóstica. */
+    public float getFloatAt(int prop, int area) {
+        try {
+            Object p = pm();
+            if (p == null) return Float.NaN;
+            Method m = p.getClass().getMethod("getFloatProperty", int.class, int.class);
+            return (Float) m.invoke(p, prop, area);
+        } catch (Throwable e) {
+            return Float.NaN;
+        }
+    }
+
+    /** Escreve um float numa área fixa; lança a exceção do carro (quem chama decide se tenta outra área). */
+    public void setFloatAt(int prop, int area, float value) throws Throwable {
+        Object p = pm();
+        if (p == null) throw new IllegalStateException("CarService não ligado");
+        Method m = p.getClass().getMethod("setFloatProperty", int.class, int.class, float.class);
+        try {
+            m.invoke(p, prop, area, value);
+        } catch (java.lang.reflect.InvocationTargetException e) {
+            throw e.getCause() != null ? e.getCause() : e;
+        }
+    }
+
     /** Escreve um inteiro numa área fixa; falso se não foi possível. */
     public boolean setIntAt(int prop, int area, int value) {
         try {

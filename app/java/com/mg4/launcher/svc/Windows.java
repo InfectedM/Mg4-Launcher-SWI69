@@ -87,6 +87,16 @@ public final class Windows {
     private boolean saicScanned;
     private volatile Object vsClient;
     private volatile Method setWin, getWin;
+    /**
+     * 0.4.8: em alguns firmwares SWI69 o CarVehicleSettingClient já não tem setVehicleWindowStatus(int,int)
+     * (NoSuchMethodException no carro). Aí os vidros comandam-se como no MG4Control (SliDeeN): uma propriedade float
+     * por vidro no CarService (VEHICLE_DRIVERWINDOW…), mesmos valores 0 parar, 1 subir, 3 subida automática.
+     */
+    private static final int[] WIN_PROPS = {0x11603801, 0x11603802, 0x11603803, 0x11603804};
+    private static final int AREA_SAIC = 0x1000000;
+    private volatile boolean propMode;
+    private volatile int propArea = AREA_SAIC;
+    private volatile boolean carapiNoMethod;
     private boolean stateCbRegistered;
     private long stateCbRetryAt;
 
@@ -163,12 +173,23 @@ public final class Windows {
 
     /** Há controlo dos vidros (bibliotecas carapi carregadas e serviço do carro ligado). */
     public boolean available() {
+        if (propMode) return propsReady();
         return vsClient != null && setWin != null && hub.isConnected();
+    }
+
+    private static boolean propsReady() {
+        CarProps p = VehicleClient.carProps();
+        return p != null && p.ready();
     }
 
     /** Linha de estado para a secção Vidros. */
     public String statusText() {
-        if (!available()) return L.s(R.string.win_status_off);
+        if (!available()) {
+            // o carro respondeu mas nenhum dos dois caminhos serve: não é "à espera", é falta de suporte
+            if (carapiNoMethod && !propsReady()) return L.s(R.string.win_status_off);
+            if (carapiNoMethod) return L.s(R.string.win_status_unsupported);
+            return L.s(R.string.win_status_off);
+        }
         if (closing) return L.s(R.string.win_closing);
         if (logic.counting()) return L.f(R.string.win_status_counting, logic.secondsLeft(SystemClock.uptimeMillis()));
         if (!prefs.winAuto()) return L.s(R.string.win_status_ok);
@@ -265,6 +286,7 @@ public final class Windows {
     }
 
     private void forgetClients() {
+        propMode = false;
         vsClient = null;
         setWin = null;
         getWin = null;
@@ -278,13 +300,14 @@ public final class Windows {
     // =========================================================================================
 
     private void ensureClients(IBinder h, IBinder st, long now) {
+        if (carapiNoMethod && !propMode) tryPropMode();
         if (saicCl == null) {
             if (now < saicRetryAt) return;
             saicRetryAt = now + 30_000;
             loadSaic();
             if (saicCl == null) return;
         }
-        if (vsClient == null) {
+        if (vsClient == null && !propMode && !carapiNoMethod) {
             IBinder vs = query(h, BIND_VS);
             if (vs != null) {
                 try {
@@ -300,6 +323,12 @@ public final class Windows {
                     StringBuilder pos = new StringBuilder();
                     for (int a = 0; a < 4; a++) pos.append(a == 0 ? "" : " ").append(position(a));
                     Diag.put("vidros.controlo", "pronto (" + saicPkg + ") · posições " + pos);
+                } catch (NoSuchMethodException e) {
+                    // firmware sem a função antiga: passa ao CarService (uma só vez, sem repetir o erro de 2 em 2 s)
+                    carapiNoMethod = true;
+                    Diag.put("vidros.carapi.metodos", windowMethods());
+                    Diag.error("vidros.controlo", "carapi sem " + e.getMessage() + " → propriedades do CarService");
+                    tryPropMode();
                 } catch (Throwable e) {
                     Diag.error("vidros.controlo", e.toString());
                 }
@@ -308,6 +337,37 @@ public final class Windows {
         if (!stateCbRegistered && st != null && now >= stateCbRetryAt) {
             stateCbRetryAt = now + 10_000;
             registerStateCallback(st);
+        }
+    }
+
+    /** Liga o modo CarService se o serviço já estiver pronto (senão volta a tentar no próximo ciclo). */
+    private void tryPropMode() {
+        if (propMode || !propsReady()) return;
+        CarProps p = VehicleClient.carProps();
+        boolean listed = p.has(WIN_PROPS[0]);
+        propMode = true;
+        StringBuilder pos = new StringBuilder();
+        for (int a = 0; a < 4; a++) pos.append(a == 0 ? "" : " ").append(position(a));
+        Diag.put("vidros.controlo", "pronto (CarService, como o MG4Control) · propriedade "
+                + (listed ? "na lista do carro" : "fora da lista do carro") + " · posições " + pos);
+    }
+
+    /** Métodos com "Window" do cliente carapi deste firmware (para a diagnóstica). */
+    private String windowMethods() {
+        try {
+            StringBuilder b = new StringBuilder();
+            for (Method m : saicCl.loadClass(VS_CLIENT).getMethods()) {
+                if (!m.getName().toLowerCase(java.util.Locale.ROOT).contains("window")) continue;
+                if (b.length() > 0) b.append("; ");
+                b.append(m.getName()).append('(');
+                Class<?>[] ps = m.getParameterTypes();
+                for (int i = 0; i < ps.length; i++) b.append(i == 0 ? "" : ",").append(ps[i].getSimpleName());
+                b.append(')');
+                if (b.length() > 400) break;
+            }
+            return b.length() == 0 ? "nenhum" : b.toString();
+        } catch (Throwable e) {
+            return e.toString();
         }
     }
 
@@ -420,6 +480,14 @@ public final class Windows {
 
     /** Posição de um vidro (0 fechado … 255 aberto), -1 se não se lê. */
     private float position(int area) {
+        if (propMode) {
+            // só o vidro do condutor tem sensor (0 fechado … 100 aberto); os outros dão 127,5 / 255 fixos
+            CarProps p = VehicleClient.carProps();
+            if (p == null) return -1f;
+            float v = p.getFloatAt(WIN_PROPS[area], propArea);
+            if (Float.isNaN(v) && propArea != 0) v = p.getFloatAt(WIN_PROPS[area], 0);
+            return v >= 0f && v <= 100f ? v : -1f;
+        }
         if (vsClient == null || getWin == null) return -1f;
         try {
             Object v = getWin.invoke(vsClient, area);
@@ -458,6 +526,27 @@ public final class Windows {
     }
 
     private void cmd(int area, int c) {
+        if (propMode) {
+            CarProps p = VehicleClient.carProps();
+            if (p == null) return;
+            try {
+                p.setFloatAt(WIN_PROPS[area], propArea, c);
+            } catch (Throwable e) {
+                if (propArea == 0) {
+                    Diag.error("vidros.comando", "vidro " + area + " → " + c + ": " + e);
+                    return;
+                }
+                // área dos serviços SAIC recusada: tenta a área 0 (como o MG4Control) e fica com ela se funcionar
+                try {
+                    p.setFloatAt(WIN_PROPS[area], 0, c);
+                    propArea = 0;
+                    Diag.put("vidros.area", "0x1000000 recusada (" + e + ") → área 0");
+                } catch (Throwable e2) {
+                    Diag.error("vidros.comando", "vidro " + area + " → " + c + ": " + e2);
+                }
+            }
+            return;
+        }
         try {
             setWin.invoke(vsClient, area, c);
         } catch (Throwable e) {

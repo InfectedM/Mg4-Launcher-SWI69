@@ -521,6 +521,7 @@
     <string name="win_auto_sub" formatted="false">Nach einer Fahrt, Auto in P: schließt die Fenster, wenn Sie aussteigen</string>
     <string name="win_status_title" formatted="false">Status</string>
     <string name="win_status_off" formatted="false">Fenstersteuerung nicht verfügbar (warte auf das Auto)</string>
+    <string name="win_status_unsupported" formatted="false">Fenstersteuerung von dieser Firmware nicht unterstützt</string>
     <string name="win_status_ok" formatted="false">Fenstersteuerung bereit</string>
     <string name="win_status_armed" formatted="false">Scharf: die Fenster schließen beim Aussteigen</string>
     <string name="win_status_not_armed">Noch nicht scharf: über %1$d km/h oder %2$d min fahren</string>
@@ -564,4 +565,6 @@
     <string name="news_v047_4" formatted="false">Flüssigere Einstellungen und Dialoge: ganze Zeile antippbar, Schalter mit Umriss, Übergänge; Animationen und Logos aus diesem Fork</string>
     <string name="news_v048_1" formatted="false">Untere Leiste näher am Fahrer: Nebelleuchten und Verknüpfungen in der Mitte, Mini-Player rechts (bei Rechtslenkern bleibt die Leiste gespiegelt)</string>
     <string name="news_v048_2" formatted="false">Breitere, weiter auseinander liegende Verknüpfungen (weniger Fehltipps auf die Nachbartaste) und besser sichtbare Trennlinien</string>
+    <string name="news_v049_1" formatted="false">Fenster: auf SWI69-Firmwares ohne die alte carapi-Funktion werden die Fenster über den CarService gesteuert (wie MG4Control)</string>
+    <string name="news_v049_2" formatted="false">Klarerer Fensterstatus: „von dieser Firmware nicht unterstützt“ statt „warte auf das Auto“</string>
 </resources>

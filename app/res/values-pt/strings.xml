@@ -521,6 +521,7 @@
     <string name="win_auto_sub" formatted="false">Depois de uma viagem, com o carro em P: fecha os vidros quando sais</string>
     <string name="win_status_title" formatted="false">Estado</string>
     <string name="win_status_off" formatted="false">Controlo dos vidros indisponível (à espera do carro)</string>
+    <string name="win_status_unsupported" formatted="false">Controlo dos vidros não suportado por este firmware</string>
     <string name="win_status_ok" formatted="false">Controlo dos vidros pronto</string>
     <string name="win_status_armed" formatted="false">Armado: os vidros fecham quando saíres</string>
     <string name="win_status_not_armed">Ainda não armado: conduz acima de %1$d km/h ou durante %2$d min</string>
@@ -564,4 +565,6 @@
     <string name="news_v047_4" formatted="false">Definições e janelas mais suaves: linha inteira tocável, interruptores com contorno, transições; animações e logótipos descarregados deste fork</string>
     <string name="news_v048_1" formatted="false">Barra de baixo mais perto do condutor: nevoeiro e atalhos ao centro, mini-leitor à direita (com volante à direita a barra continua espelhada)</string>
     <string name="news_v048_2" formatted="false">Atalhos mais largos e espaçados (menos toques no botão do lado) e divisórias entre secções mais visíveis</string>
+    <string name="news_v049_1" formatted="false">Vidros: nos firmwares SWI69 sem a função antiga da carapi, os vidros passam a ser comandados pelo CarService (como o MG4Control)</string>
+    <string name="news_v049_2" formatted="false">Estado dos vidros mais claro: «não suportado por este firmware» em vez de «à espera do carro»</string>
 </resources>

@@ -521,6 +521,7 @@
     <string name="win_auto_sub" formatted="false">After a drive, with the car in P: closes the windows when you get out</string>
     <string name="win_status_title" formatted="false">Status</string>
     <string name="win_status_off" formatted="false">Window control unavailable (waiting for the car)</string>
+    <string name="win_status_unsupported" formatted="false">Window control not supported by this firmware</string>
     <string name="win_status_ok" formatted="false">Window control ready</string>
     <string name="win_status_armed" formatted="false">Armed: the windows will close when you get out</string>
     <string name="win_status_not_armed">Not armed yet: drive above %1$d km/h or for %2$d min</string>
@@ -564,4 +565,6 @@
     <string name="news_v047_4" formatted="false">Smoother settings and dialogs: whole row tappable, outlined switches, transitions; animations and logos downloaded from this fork</string>
     <string name="news_v048_1" formatted="false">Bottom bar closer to the driver: fog lights and shortcuts in the middle, mini player on the right (right-hand drive keeps the bar mirrored)</string>
     <string name="news_v048_2" formatted="false">Wider, more spaced-out shortcuts (fewer taps on the next button) and more visible dividers between sections</string>
+    <string name="news_v049_1" formatted="false">Windows: on SWI69 firmwares without the old carapi function, windows are controlled through the CarService (like MG4Control)</string>
+    <string name="news_v049_2" formatted="false">Clearer window status: “not supported by this firmware” instead of “waiting for the car”</string>
 </resources>
