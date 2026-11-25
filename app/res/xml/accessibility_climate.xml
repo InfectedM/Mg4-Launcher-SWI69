@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- built-in climate screen: window changes (which app is in front, to replace the original climate app); no window
+     content is read. canRequestFilterKeyEvents = it can ask for the steering wheel keys, but a key is consumed only with
+     the climate screen in front and the joystick commands on (ClimateGuard.onKeyEvent) -->
+<accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
+    android:accessibilityEventTypes="typeWindowStateChanged"
+    android:accessibilityFeedbackType="feedbackGeneric"
+    android:accessibilityFlags="flagDefault"
+    android:canRequestFilterKeyEvents="true"
+    android:notificationTimeout="50"
+    android:description="@string/cl_a11y_desc" />

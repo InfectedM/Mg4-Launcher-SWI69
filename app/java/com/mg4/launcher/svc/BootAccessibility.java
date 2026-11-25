@@ -39,8 +39,10 @@ public final class BootAccessibility extends AccessibilityService {
                         public void onChange(boolean selfChange) {
                             if (!StartGuard.unlocked(c) || !HomeMode.active(c)) return;
                             String me = new ComponentName(c, BootAccessibility.class).flattenToString();
+                            String climate = new ComponentName(c, com.mg4.launcher.climate.ClimateGuard.class).flattenToString();
                             String cur = Settings.Secure.getString(c.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
-                            if (cur != null && cur.toLowerCase().contains(me.toLowerCase())) return;
+                            if (cur != null && cur.toLowerCase().contains(me.toLowerCase())
+                                    && cur.toLowerCase().contains(climate.toLowerCase())) return;
                             long now = android.os.SystemClock.elapsedRealtime();
                             while (!readds.isEmpty() && now - readds.peekFirst() > 10 * 60_000L) readds.removeFirst();
                             if (readds.size() >= 5) {
@@ -50,6 +52,7 @@ public final class BootAccessibility extends AccessibilityService {
                             readds.addLast(now);
                             Diag.put("startup.accessibilityRemoved", "another app had removed it (list: " + cur + "): restored");
                             ensureEnabled(c);
+                            com.mg4.launcher.climate.ClimateGuard.ensureEnabled(c);   // built-in climate screen
                         }
                     });
         } catch (Throwable e) {
@@ -226,7 +229,8 @@ public final class BootAccessibility extends AccessibilityService {
 
     private void onSystemHomeTouch() {
         String top = StartGuard.topPackage(this);
-        if (getPackageName().equals(top)) return;   // already in front: nothing to do
+        // already in front: nothing to do (the built-in climate screen is the same package but not the home)
+        if (getPackageName().equals(top) && !com.mg4.launcher.climate.ClimateActivity.inFront()) return;
         boolean ok = performGlobalAction(GLOBAL_ACTION_HOME);
         Diag.put("home.touchButton", (top == null ? "unknown" : top) + " · performGlobalAction(HOME) · "
                 + (ok ? "succeeded" : "failed"));

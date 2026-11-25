@@ -10,7 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * 0.4.3 (point 10, from SWI68 0.4.3 adapted to SWI69 R45): Function check, like MG4 Clima's AutoTest and MG4 Voice's check.
+ * 0.4.3 (point 10, from SWI68 0.4.3 adapted to SWI69 R45): Function check, like the climate screen's AutoTest (from MG4 Clima) and MG4 Voice's check.
  * <p>
  * Everything is READ ONLY: it looks at the connected services and the values already read, no command is sent to the car
  * (no climate, radio, play, calls). Each test gives ✓ (works), ✗ (does not work) or — (not present on this car,
@@ -357,8 +357,10 @@ public final class SelfCheck {
                 break;
             }
             case "climateButton": {
-                boolean app = installed(c, com.mg4.launcher.apps.MgApps.HVAC_PKG) || installed(c, "com.mg4.clima");
-                if (app) set(it, OK, "opens " + (installed(c, "com.mg4.clima") ? "MG4 Clima or the Climate app" : "the original Climate app"), "");
+                boolean app = installed(c, com.mg4.launcher.apps.MgApps.HVAC_PKG);
+                boolean builtIn = com.mg4.launcher.climate.ClimateStore.replace(c);
+                if (app) set(it, OK, "opens " + (builtIn ? "the built-in climate screen" : "the original Climate app")
+                        + " · climate accessibility " + com.mg4.launcher.climate.ClimateGuard.enabledState(c), "");
                 else set(it, ABSENT, "Climate app not installed", "");
                 break;
             }

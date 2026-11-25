@@ -1,0 +1,1024 @@
+package com.mg4.launcher.climate;
+
+import android.content.Context;
+import android.content.res.Configuration;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Canvas;
+import android.graphics.DashPathEffect;
+import android.graphics.LinearGradient;
+import android.graphics.Matrix;
+import android.graphics.Paint;
+import android.graphics.Path;
+import android.graphics.RectF;
+import android.graphics.Shader;
+import android.graphics.Typeface;
+import android.graphics.drawable.Drawable;
+import android.view.MotionEvent;
+import android.view.View;
+
+import java.text.SimpleDateFormat;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
+
+import com.mg4.launcher.L;
+import com.mg4.launcher.R;
+
+/**
+ * Tesla-style climate screen (approved design, from MG4 Clima): stylised MG4 2022 dashboard in the middle, controls on
+ * the driver's side (power, temperature, fan), buttons at the bottom. Drawn on a 1920×720 canvas and scaled to the
+ * screen. With right-hand drive everything is mirrored; the texts stay readable.
+ */
+public final class ClimateView extends View {
+    public interface Listener {
+        void onTap(String id);
+    }
+
+    private static final float DW = 1920, DH = 720, W = 1880;
+
+    private HvacClient.State st = new HvacClient.State();
+    private boolean rhd, day;
+    private Listener listener;
+
+    // colours: MG4 PALETTE, same as the launcher; no accent, active = text colour
+    int BG, PANEL, CHIP, TRACK, TEXT, SUB;
+    private int ONTEXT, HEAT, HEATBG, FLOW, FLOW2;
+    /** Active button: ACCENTBG = background (text colour), ACCENT = icon and label in contrast. COLD only for A/C. */
+    int ACCENT, ACCENTBG, COLD;
+    private int GLASS1, GLASS2, TOP1, TOP2, FACE1, FACE2, PILLAR, LINE, DARK, BEZEL, COLUMN, CONSOLE, CONSOLE_LINE;
+
+    private final Paint p = new Paint(Paint.ANTI_ALIAS_FLAG);
+    private final Path path = new Path();
+    private final RectF r = new RectF();
+    private final List<Object[]> hits = new ArrayList<>();   // {id, RectF} in panel coordinates
+    private final Matrix toDesign = new Matrix();
+    private final Typeface light = Typeface.create("sans-serif-light", Typeface.NORMAL);
+    private final Typeface bold = Typeface.create("sans-serif", Typeface.BOLD);
+    private final Typeface regular = Typeface.create("sans-serif", Typeface.NORMAL);
+
+    public ClimateView(Context c) {
+        super(c);
+        setLayerType(LAYER_TYPE_HARDWARE, null);
+        theme();
+    }
+
+    public void setListener(Listener l) {
+        listener = l;
+    }
+
+    // ---- animated air: about 25 redraws per second only with the climate on, one direction active and the
+    // screen visible (with the view hidden Android does not call onDraw and the loop stops by itself)
+    private boolean animated = true;
+    private float phase, warmth = -1;
+    private long animStart;
+
+    public void setAnimated(boolean on) {
+        animated = on;
+        invalidate();
+    }
+
+    private static int mix(int a, int b, float t) {
+        int ar = a >> 16 & 255, ag = a >> 8 & 255, ab = a & 255, br = b >> 16 & 255, bg = b >> 8 & 255, bb = b & 255;
+        return 0xFF000000 | Math.round(ar + (br - ar) * t) << 16 | Math.round(ag + (bg - ag) * t) << 8 | Math.round(ab + (bb - ab) * t);
+    }
+
+    // ---- image dashboard: "Drawn" (vector) or "Realistic" (photo), in layers: base, air, steering wheel
+    private int style = ClimateStore.STYLE_DRAWN;
+    private boolean defrostTiles;
+    private Bitmap imgBase, imgWheel, imgWheelHot;
+    private int loadedStyle = -1;
+    private String loadedPre = "";
+    private boolean imgFailed;
+    private int flowColor;   // current air colour (moves gradually to the new one)
+    private final Paint bp = new Paint(Paint.FILTER_BITMAP_FLAG | Paint.ANTI_ALIAS_FLAG);
+    /** Position of the dashboard (1420×520) in the 1920×720 canvas (panel coordinates). */
+    private static final float IX = 450, IY = 2, IW = 1420, IH = 520;
+
+    public void setDashStyle(int s) {
+        style = s;
+        theme();
+        invalidate();
+    }
+
+    /** Labels under the icons (off = bigger icons only, as in the launcher home). */
+    private boolean labels = true;
+
+    public void setShowLabels(boolean on) {
+        labels = on;
+        invalidate();
+    }
+
+    public void setDefrostTiles(boolean on) {
+        defrostTiles = on;
+        invalidate();
+    }
+
+    private Bitmap asset(String name) {
+        try (java.io.InputStream in = getContext().getAssets().open("dashboard/" + name + ".webp")) {
+            return BitmapFactory.decodeStream(in);
+        } catch (Throwable e) {
+            return null;
+        }
+    }
+
+    /** Loads the layers of the chosen style (only that one: the other is released). */
+    private boolean ensureImages() {
+        String pre = style == ClimateStore.STYLE_PHOTO ? "photo" : day ? "drawn_light" : "drawn";
+        if (loadedStyle == style && loadedPre.equals(pre) && imgBase != null) return true;
+        if (imgFailed && loadedStyle == style && loadedPre.equals(pre)) return false;
+        Bitmap b = asset(pre + "_base"), w = asset(pre + "_wheel"), h = asset(pre + "_wheel_hot");
+        loadedStyle = style;
+        loadedPre = pre;
+        if (b == null || w == null || h == null) {
+            imgFailed = true;
+            ClimateStore.event(getContext(), "dashboard " + pre + ": images not loaded, using the classic drawing");
+            return false;
+        }
+        imgFailed = false;
+        imgBase = b;
+        imgWheel = w;
+        imgWheelHot = h;
+        return true;
+    }
+
+    /** Geometry of each style, in pixels of the 1420×520 image. */
+    private static final class Geo {
+        float[][] face;     // {x0, x1, y, direction}
+        float[][] feet;     // {x, y}
+        float glassY0, glassY1, glassMid, glassSpread, glassSkip0, glassSkip1;
+        float barX, barY, barW, clockX, clockY, clockSize;
+        float tempX, tempY, tempSize, outX, outY, outSize;
+        float dotX, dotY, dotR, l1X, l1Y, l1W, l2Y, l2W;
+    }
+
+    private static final Geo DRAWN = new Geo(), PHOTO = new Geo();
+
+    static {
+        Geo g = DRAWN;
+        g.face = new float[][]{{20, 180, 312, -1}, {520, 900, 312, 0}, {1240, 1400, 312, 1}};
+        g.feet = new float[][]{{300, 400}, {1180, 392}};
+        g.glassY0 = 146; g.glassY1 = 18; g.glassMid = 700; g.glassSpread = 560; g.glassSkip0 = 500; g.glassSkip1 = 920;
+        g.barX = 252; g.barY = 146; g.barW = 56; g.clockX = 330; g.clockY = 180; g.clockSize = 30;
+        g.tempX = 548; g.tempY = 112; g.tempSize = 44; g.outX = 550; g.outY = 150; g.outSize = 18;
+        g.dotX = 760; g.dotY = 96; g.dotR = 20; g.l1X = 794; g.l1Y = 86; g.l1W = 84; g.l2Y = 102; g.l2W = 56;
+        g = PHOTO;
+        g.face = new float[][]{{20, 120, 250, -1}, {565, 830, 262, 0}, {1205, 1370, 262, 1}};
+        g.feet = new float[][]{{270, 330}, {1120, 300}};
+        g.glassY0 = 96; g.glassY1 = 8; g.glassMid = 700; g.glassSpread = 600; g.glassSkip0 = 540; g.glassSkip1 = 860;
+        g.barX = 290; g.barY = 132; g.barW = 50; g.clockX = 352; g.clockY = 196; g.clockSize = 26;
+        g.tempX = 592; g.tempY = 132; g.tempSize = 40; g.outX = 594; g.outY = 164; g.outSize = 16;
+        g.dotX = 735; g.dotY = 118; g.dotR = 17; g.l1X = 760; g.l1Y = 110; g.l1W = 48; g.l2Y = 124; g.l2W = 34;
+    }
+
+    /** Air: heats (set more than 3° above outside), cools (more than 3° below) or holds. */
+    static final int MODE_KEEP = 0, MODE_HEAT = 1, MODE_COOL = 2;
+    static final int C_HEAT = 0xFFFF7A3D, C_COOL = 0xFF4FB3FF, C_KEEP = 0xFFECECEC;   // warm and cold of the palette
+
+    /** Set temperature → colour intensity: -1 full blue (16°), 0 neutral (21°), +1 full orange (26°). Gradual. */
+    static float heatFactor(HvacClient.State s) {
+        if (s.temp < 0) return 0f;
+        float f = (s.temp - 21f) / 5f;
+        return f < -1f ? -1f : f > 1f ? 1f : f;
+    }
+
+    /** Colour of the temperature and the air: goes gradually from blue to neutral to orange. */
+    static int tempColor(HvacClient.State s) {
+        float f = heatFactor(s);
+        return f < 0 ? mix(C_KEEP, C_COOL, -f) : mix(C_KEEP, C_HEAT, f);
+    }
+
+    /** Word (heats / holds / cools), consistent with the colour. */
+    static int thermalMode(HvacClient.State s) {
+        float f = heatFactor(s);
+        return f > .25f ? MODE_HEAT : f < -.25f ? MODE_COOL : MODE_KEEP;
+    }
+
+    private static int modeColor(int m) {
+        return m == MODE_HEAT ? C_HEAT : m == MODE_COOL ? C_COOL : C_KEEP;
+    }
+
+    /** One air stream: faint fixed trace + moving dashes. */
+    private void stream(Canvas c, Path pa, float w, int color, float[] dash, float offset) {
+        stroke(color, w);
+        p.setAlpha(56);
+        c.drawPath(pa, p);
+        stroke(color, w);
+        p.setAlpha(animated ? 242 : 200);
+        p.setPathEffect(new DashPathEffect(dash, animated ? offset : 0));
+        c.drawPath(pa, p);
+        p.setPathEffect(null);
+    }
+
+    /** Image dashboard: everything in image pixels, mirrored with right-hand drive. */
+    private void drawImageDash(Canvas c, boolean on, boolean[] dir, int fan, int col, boolean frontDef, boolean wheelHot) {
+        Geo g = style == ClimateStore.STYLE_PHOTO ? PHOTO : DRAWN;
+        c.save();
+        if (rhd) {
+            c.translate(W, 0);
+            c.scale(-1, 1);
+        }
+        c.translate(IX, IY);
+        r.set(0, 0, IW, IH);
+        path.reset();
+        path.addRoundRect(r, 26, 26, Path.Direction.CW);
+        c.clipPath(path);
+        r.set(0, 0, IW, IH);
+        c.drawBitmap(imgBase, null, r, bp);
+        float sp = 70 + fan * 22;
+        // windscreen: air rising from the dashboard (behind the screens) and warm lines if the defrost is on
+        if (on && dir[0]) for (int k = 0; k < 10; k++) {
+            float t = (k - 4.5f) / 4.5f, x0 = g.glassMid + t * g.glassSpread;
+            if (x0 > g.glassSkip0 && x0 < g.glassSkip1) continue;
+            float x2 = x0 + t * 70;
+            path.reset();
+            path.moveTo(x0, g.glassY0);
+            path.cubicTo(x0, g.glassY0 - (g.glassY0 - g.glassY1) * .28f, x2 - t * 30, g.glassY1 + (g.glassY0 - g.glassY1) * .3f, x2, g.glassY1);
+            stream(c, path, 4, col, new float[]{22, 30}, -(phase * sp * .8f) + k * 17);
+        }
+        if (frontDef) for (int k = 0; k < 9; k++) {
+            float x = 160 + k * 135;
+            if (x > g.glassSkip0 - 20 && x < g.glassSkip1 + 20) continue;
+            path.reset();
+            path.moveTo(x, g.glassY0 - 6);
+            path.rQuadTo(8, -10, 0, -20); path.rQuadTo(-8, -10, 0, -20); path.rQuadTo(8, -10, 0, -20);
+            stroke(HEAT, 3);
+            p.setAlpha(217);
+            c.drawPath(path, p);
+        }
+        // screens: only our indications
+        rr(c, g.barX, g.barY, g.barW, 7, 3.5f, 0xFF34C77B, 0, 0);
+        String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
+        int scr = TEXT;
+        flatText(c, time, g.clockX, g.clockY, g.clockSize, scr, Paint.Align.CENTER);
+        flatText(c, tempText(), g.tempX, g.tempY, g.tempSize, scr, Paint.Align.LEFT);
+        if (!Float.isNaN(st.outTemp)) flatText(c, L.f(R.string.cl_v_out_short, Math.round(st.outTemp)), g.outX, g.outY, g.outSize, 0xFF9BA1A9, Paint.Align.LEFT);
+        fill(0xFF262A30);
+        c.drawCircle(g.dotX, g.dotY, g.dotR, p);
+        rr(c, g.l1X, g.l1Y, g.l1W, 7, 3.5f, 0xFF3A3F47, 0, 0);
+        rr(c, g.l1X, g.l2Y, g.l2W, 6, 3, 0xFF262A30, 0, 0);
+        // face: from the real vents, behind the steering wheel
+        if (on && dir[1]) {
+            int n = 3 + Math.round(fan / 3f);
+            for (float[] v : g.face) for (int k = 0; k < n; k++) {
+                float t = (k - (n - 1) / 2f) / Math.max(1, (n - 1) / 2f);
+                float x = (v[0] + v[1]) / 2 + t * (v[1] - v[0]) / 2 * .85f, y = v[2], len = 90 + fan * 9;
+                float x2 = x + t * 70 + v[3] * 90, y2 = y + len;
+                path.reset();
+                path.moveTo(x, y);
+                path.cubicTo(x, y + len * .35f, x2 - t * 25, y2 - len * .45f, x2, y2);
+                stream(c, path, 3.5f + (1 - Math.abs(t)) * 3, col, new float[]{30, 38}, -(phase * sp) + k * 23 + v[0] * .37f);
+            }
+        }
+        if (on && dir[2]) for (float[] f : g.feet) for (int k = 0; k < 5; k++) {
+            float off = (k - 2) * 28, y0 = f[1];
+            path.reset();
+            path.moveTo(f[0] + off, y0);
+            path.cubicTo(f[0] + off, y0 + 40, f[0] + off * 1.4f, y0 + (IH - y0) * .6f, f[0] + off * 1.9f, IH);
+            stream(c, path, 4.5f, col, new float[]{3, 12}, -(phase * sp * .45f) + k * 5);
+        }
+        // steering wheel (normal or heated) above the air
+        r.set(0, 0, IW, IH);
+        c.drawBitmap(wheelHot ? imgWheelHot : imgWheel, null, r, bp);
+        c.restore();
+    }
+
+    /** Text inside the mirrored dashboard: stays readable (with right-hand drive the alignment is swapped). */
+    private void flatText(Canvas c, String s, float x, float y, float size, int color, Paint.Align a) {
+        if (rhd) {
+            c.save();
+            c.scale(-1, 1, x, 0);
+            if (a == Paint.Align.LEFT) a = Paint.Align.RIGHT;
+            else if (a == Paint.Align.RIGHT) a = Paint.Align.LEFT;
+        }
+        text(c, s, x, y, size, color, a, regular);
+        if (rhd) c.restore();
+    }
+
+    public void setRightHand(boolean on) {
+        rhd = on;
+        invalidate();
+    }
+
+    public void setState(HvacClient.State s) {
+        st = s;
+        invalidate();
+    }
+
+    /**
+     * MG4 PALETTE (same values as the launcher's Theme). Day/night theme as the launcher decides it
+     * ({@link com.mg4.launcher.ui.Theme#wouldBeDay}). No accent colour: an active button has the text colour as
+     * background and icon/label in contrast (ONACCENT). Blue (COLD) stays only for A/C and cold air; warm is FF7A3D in
+     * both themes.
+     */
+    public void theme() {
+        // the realistic style is a dark photo: it always keeps the night palette
+        day = style != ClimateStore.STYLE_PHOTO && com.mg4.launcher.ui.Theme.wouldBeDay(getContext(), new com.mg4.launcher.ui.Prefs(getContext()));
+        if (day) {
+            BG = 0xFFE6E8EB; PANEL = 0xFFFFFFFF; CHIP = 0xFFF1F3F5; TRACK = 0xFFE1E4E8; TEXT = 0xFF111318; SUB = 0xFF555C66;
+            HEAT = 0xFFFF7A3D; HEATBG = 0xFFFFF1EA; COLD = 0xFF0B6BCB; FLOW = 0xFF7D8793; FLOW2 = 0xFFB9C0C8;
+            GLASS1 = 0xFFE9EEF4; GLASS2 = 0xFFD5DCE5; TOP1 = 0xFFD9DDE2; TOP2 = 0xFFC9CED4; FACE1 = 0xFFCDD2D8; FACE2 = 0xFFBFC5CC;
+            PILLAR = 0xFFB8BEC6; LINE = 0xFFB0B6BE; DARK = 0xFF2A2E35; BEZEL = 0xFF8C939C;
+            COLUMN = 0xFF8C939C; CONSOLE = 0xFFB4BAC1; CONSOLE_LINE = 0xFF9AA1A9;
+        } else {
+            BG = 0xFF0A0B0D; PANEL = 0xFF15171B; CHIP = 0xFF1E2126; TRACK = 0xFF262A30; TEXT = 0xFFF2F3F5; SUB = 0xFF9BA1A9;
+            HEAT = 0xFFFF7A3D; HEATBG = 0xFF2E241F; COLD = 0xFF4FB3FF; FLOW = 0xFFE0E0E0; FLOW2 = 0xFF999999;
+            // cabin: neutral greys between bg 0A0B0D and road 2A2E35
+            GLASS1 = 0xFF111316; GLASS2 = 0xFF1A1D21; TOP1 = 0xFF23262C; TOP2 = 0xFF191B20; FACE1 = 0xFF17191D; FACE2 = 0xFF111316;
+            PILLAR = 0xFF202328; LINE = 0xFF24282E; DARK = 0xFF0A0B0D; BEZEL = 0xFF2A2E35;
+            COLUMN = 0xFF16181C; CONSOLE = 0xFF101215; CONSOLE_LINE = 0xFF22252B;
+        }
+        // as the launcher's Theme: accent = text, on it 111318 if the text is light, FFFFFF if it is dark
+        ACCENTBG = TEXT;
+        ACCENT = luminance(TEXT) > 0.6 ? 0xFF111318 : 0xFFFFFFFF;
+        ONTEXT = ACCENT;
+        invalidate();
+    }
+
+    private static double luminance(int c) {
+        return (0.299 * ((c >> 16) & 0xFF) + 0.587 * ((c >> 8) & 0xFF) + 0.114 * (c & 0xFF)) / 255.0;
+    }
+
+    boolean isDayTheme() {
+        return day;
+    }
+
+    @Override
+    protected void onConfigurationChanged(Configuration c) {
+        super.onConfigurationChanged(c);
+        theme();
+    }
+
+    // ======================================================================================== drawing
+
+    @Override
+    protected void onDraw(Canvas c) {
+        float s = Math.min(getWidth() / DW, getHeight() / DH);
+        float ox = (getWidth() - DW * s) / 2, oy = (getHeight() - DH * s) / 2;
+        c.drawColor(BG);
+        c.save();
+        c.translate(ox, oy);
+        c.scale(s, s);
+        c.translate(20, 20);
+        toDesign.reset();
+        toDesign.postTranslate(-ox, -oy);
+        toDesign.postScale(1 / s, 1 / s);
+        toDesign.postTranslate(-20, -20);
+        hits.clear();
+        fill(PANEL);
+        r.set(0, 0, W, 680);
+        c.drawRoundRect(r, 28, 28, p);
+
+        boolean usable = st.usable(), on = st.on();
+        boolean[] dir = st.directions();
+        int fan = st.fan == HvacClient.FAN_AUTO ? Math.max(1, st.fanMax / 2) : Math.max(0, st.fan);
+        boolean warm = st.temp >= 25;
+        float target = warm ? 1f : 0f;
+        if (warmth < 0 || !animated) warmth = target;
+        else if (Math.abs(warmth - target) > .02f) warmth += (target - warmth) * .12f;
+        else warmth = target;
+        int fl = mix(FLOW, 0xFFFFB27A, warmth), fl2 = mix(FLOW2, HEAT, warmth);
+        // colour from the set temperature, with a gradual change
+        int want = tempColor(st);
+        boolean colorMoving = flowColor != want;
+        if (flowColor == 0 || !animated) flowColor = want;
+        else if (colorMoving) {
+            int nc = mix(flowColor, want, .15f);
+            flowColor = nc == flowColor ? want : nc;
+        }
+        long nowMs = android.os.SystemClock.uptimeMillis();
+        if (animStart == 0) animStart = nowMs;
+        phase = (nowMs - animStart) / 1000f;
+        float cx = rhd ? 750 : 1130;
+
+        // ---- dashboard: images; if the images do not load, the classic drawing
+        if (ensureImages()) {
+            drawImageDash(c, on, dir, fan, flowColor, st.frontDefrost == 1, st.wheel == 3);
+        } else {
+            c.save();
+            if (rhd) {
+                c.translate(2 * cx, 0);
+                c.scale(-1, 1);
+            }
+            drawDash(c, cx, on, dir, fan, fl, fl2, st.frontDefrost == 1, st.wheel == 3);
+            c.restore();
+            drawDashTexts(c, cx);
+        }
+
+        // ---- driver-side column
+        drawDriverColumn(c, usable, on);
+
+        // ---- close (in the corner) and settings next to it (passenger side)
+        float xx = rhd ? 40 : W - 40 - 72;
+        float gx = rhd ? 40 + 72 + 16 : W - 40 - 72 - 16 - 72;
+        tile(c, xx, 40, 72, 72, 22, CHIP);
+        icon(c, R.drawable.climate_close, xx + 9, 40 + 16, 54, 40, SUB);
+        hit("close", xx, 40, 72, 72);
+        tile(c, gx, 40, 72, 72, 22, CHIP);
+        icon(c, R.drawable.climate_gear, gx + 9, 40 + 16, 54, 40, SUB);
+        hit("settings", gx, 40, 72, 72);
+        // below the controls column: only the automatic direction
+        if (on && st.blowerMode == 7) text(c, L.s(R.string.cl_v_dir_auto), rhd ? W - 40 : 40, 500, 17, SUB, rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
+
+        // ---- buttons at the bottom
+        drawTiles(c, usable, on, dir);
+        drawFlash(c);
+        c.restore();
+        // animated air: next frame in 40 ms if air is coming out or the colour is still changing
+        if (animated && (on && (dir[0] || dir[1] || dir[2]) || Math.abs(warmth - (warm ? 1f : 0f)) > .001f || colorMoving)) postInvalidateDelayed(40);
+    }
+
+    private void drawDash(Canvas c, float cx, boolean on, boolean[] dir, int fan, int fl, int fl2, boolean frontDef, boolean wheelHot) {
+        // windscreen and pillars
+        path.reset();
+        path.moveTo(cx - 505, 150); path.lineTo(cx - 405, 34); path.lineTo(cx + 405, 34); path.lineTo(cx + 505, 150); path.close();
+        grad(0, 34, 0, 150, GLASS1, GLASS2);
+        c.drawPath(path, p);
+        p.setShader(null);
+        stroke(PILLAR, 18);
+        c.drawLine(cx - 505, 150, cx - 405, 34, p);
+        c.drawLine(cx + 505, 150, cx + 405, 34, p);
+        if (on && dir[0]) for (int k = 0; k < 11; k++) {
+            float x = cx - 420 + k * 84, sp = (k - 5) * 10;
+            path.reset();
+            path.moveTo(x, 146);
+            path.cubicTo(x + sp * .3f, 118, x + sp * .7f, 92, x + sp, 62 + Math.abs(k - 5) * 5);
+            stroke(fl, 5);
+            p.setAlpha(128);
+            c.drawPath(path, p);
+        }
+        if (frontDef) for (int k = 0; k < 9; k++) {
+            float x = cx - 340 + k * 85, y = 132 - Math.abs(k - 4) * 3;
+            path.reset();
+            path.moveTo(x, y);
+            path.rQuadTo(8, -10, 0, -20); path.rQuadTo(-8, -10, 0, -20); path.rQuadTo(8, -10, 0, -20);
+            stroke(HEAT, 3);
+            p.setAlpha(217);
+            c.drawPath(path, p);
+        }
+        // dashboard top and front
+        path.reset();
+        path.moveTo(cx - 520, 205); path.quadTo(cx - 512, 152, cx - 462, 148); path.lineTo(cx + 462, 148);
+        path.quadTo(cx + 512, 152, cx + 520, 205); path.close();
+        grad(0, 148, 0, 205, TOP1, TOP2);
+        c.drawPath(path, p);
+        path.reset();
+        path.moveTo(cx - 520, 205); path.lineTo(cx + 520, 205); path.lineTo(cx + 506, 338);
+        path.quadTo(cx, 352, cx - 506, 338); path.close();
+        grad(0, 205, 0, 345, FACE1, FACE2);
+        c.drawPath(path, p);
+        p.setShader(null);
+        stroke(PILLAR, 2);
+        c.drawPath(path, p);
+        stroke(LINE, 2);
+        c.drawLine(cx - 516, 224, cx + 516, 224, p);
+        // vents as on the MG4: driver side, two in the middle under the screen, passenger side
+        vent(c, cx - 508, cx - 404);
+        vent(c, cx - 140, cx - 14);
+        vent(c, cx + 14, cx + 140);
+        vent(c, cx + 404, cx + 508);
+        // instrument cluster behind the steering wheel
+        // windscreen air: rises from the dashboard to the glass, behind the screens
+        if (on && dir[0]) {
+            float sp = (70 + fan * 22) * .8f;
+            for (int k = 0; k < 9; k++) {
+                float t = (k - 4) / 4f;
+                float x0 = cx - 20 + t * 400, y0 = 176, x2 = x0 + t * 80, y2 = 46;
+                path.reset();
+                path.moveTo(x0, y0);
+                path.cubicTo(x0, y0 - 40, x2 - t * 40, y2 + 40, x2, y2);
+                if (animated) {
+                    stroke(0xFF000000, 4);
+                    p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | 0x33000000, fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                    c.drawPath(path, p);
+                    p.setPathEffect(new DashPathEffect(new float[]{22, 30}, -(phase * sp) + k * 17));
+                }
+                stroke(0xFF000000, 4.5f);
+                p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | (animated ? 0xE6000000 : 0x99000000),
+                        fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                c.drawPath(path, p);
+                p.setPathEffect(null);
+                p.setShader(null);
+            }
+        }
+        float wx = cx - 270, wy = 330;
+        rr(c, wx - 92, 146, 184, 70, 12, DARK, BEZEL, 2);
+        r.set(wx - 85, 153, wx + 85, 209);
+        grad(wx - 85, 153, wx + 85, 209, 0xFF22262D, 0xFF0F1114);
+        c.drawRoundRect(r, 8, 8, p);
+        p.setShader(null);
+        rr(c, wx - 74, 190, 40, 7, 3.5f, 0xFF262A30, 0, 0);
+        rr(c, wx - 74, 190, 30, 7, 3.5f, 0xFF34C77B, 0, 0);
+        rr(c, wx + 44, 168, 28, 28, 6, 0xFF1E2126, 0, 0);
+        // floating central screen with its support
+        float sx = cx - 150, sw = 300;
+        path.reset();
+        path.moveTo(sx + sw / 2 - 26, 214); path.lineTo(sx + sw / 2 + 26, 214); path.lineTo(sx + sw / 2 + 36, 150);
+        path.lineTo(sx + sw / 2 - 36, 150); path.close();
+        fill(0xFF1A1C20);
+        c.drawPath(path, p);
+        rr(c, sx, 84, sw, 132, 14, DARK, BEZEL, 2.5f);
+        r.set(sx + 8, 92, sx + sw - 8, 196);
+        grad(sx + 8, 92, sx + sw - 8, 196, 0xFF22262D, 0xFF0F1114);
+        c.drawRoundRect(r, 8, 8, p);
+        p.setShader(null);
+        float c1 = (sw - 40) * .45f, c2 = (sw - 40) * .55f;
+        rr(c, sx + 16, 100, c1, 88, 6, 0xFF15171B, 0, 0);
+        rr(c, sx + 24 + c1, 100, c2, 88, 6, 0xFF15171B, 0, 0);
+        fill(0xFF262A30);
+        c.drawCircle(sx + 50 + c1, 132, 14, p);
+        rr(c, sx + 72 + c1, 124, 70, 7, 3.5f, 0xFF3A3F47, 0, 0);
+        rr(c, sx + 72 + c1, 137, 46, 6, 3, 0xFF262A30, 0, 0);
+        rr(c, sx + 8, 200, sw - 16, 10, 4, 0xFF15171B, 0, 0);
+        for (int i = 0; i < 8; i++) rr(c, sx + 30 + i * 32, 203, 14, 4, 2, 0xFF3A3F47, 0, 0);
+        // streams to the face (animated: a faint trace and moving streams; speed from the fan)
+        float speed = 70 + fan * 22;
+        if (on && dir[1]) {
+            float[] outlets = {cx - 456, cx - 77, cx + 77, cx + 456};
+            int n = 3 + Math.round(fan / 3f);
+            for (float o : outlets) {
+                float sgn = (o - cx) / 520;
+                for (int k = 0; k < n; k++) {
+                    float t = (k - (n - 1) / 2f) / Math.max(1, (n - 1) / 2f);
+                    float x0 = o + t * 34, y0 = 262, len = 110 + fan * 8;
+                    float x2 = x0 + t * 80 + sgn * 110, y2 = y0 + len;
+                    path.reset();
+                    path.moveTo(x0, y0);
+                    path.cubicTo(x0, y0 + len * .35f, x2 - t * 30, y2 - len * .45f, x2, y2);
+                    float w = 3.5f + (1 - Math.abs(t)) * 3;
+                    if (animated) {
+                        stroke(0xFF000000, w);
+                        p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | 0x40000000, fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                        c.drawPath(path, p);
+                        p.setPathEffect(new DashPathEffect(new float[]{34, 40}, -(phase * speed) + k * 23 + o * .37f));
+                    }
+                    stroke(0xFF000000, w);
+                    p.setShader(new LinearGradient(x0, y0, x2, y2, (fl & 0xFFFFFF) | (animated ? 0xF2000000 : 0xD9000000),
+                            fl2 & 0xFFFFFF, Shader.TileMode.CLAMP));
+                    c.drawPath(path, p);
+                    p.setPathEffect(null);
+                    p.setShader(null);
+                }
+            }
+        }
+        // floating console: chrome rotary knob on the right, buttons, flat top, chrome profile, storage below
+        drawConsole(c, sx + sw / 2);
+        // air to the feet
+        if (on && dir[2]) {
+            float[][] feet = {{wx, 460}, {cx + 330, 350}};
+            for (float[] f : feet) for (int k = 0; k < 5; k++) {
+                float off = (k - 2) * 26, y0 = f[1];
+                path.reset();
+                path.moveTo(f[0] + off, y0);
+                path.cubicTo(f[0] + off, y0 + 20, f[0] + off * 1.4f, y0 + (500 - y0) * .7f, f[0] + off * 1.8f, 500);
+                stroke(fl, 5);
+                p.setAlpha(204);
+                p.setPathEffect(new DashPathEffect(new float[]{3, 11}, animated ? -(phase * speed * .45f) + k * 5 : 0));
+                c.drawPath(path, p);
+                p.setPathEffect(null);
+            }
+        }
+        // steering column and wheel
+        rr(c, wx - 34, wy + 70, 68, 90, 12, COLUMN, 0, 0);
+        drawWheel(c, wx, wy, wheelHot);
+    }
+
+    private void vent(Canvas c, float x1, float x2) {
+        rr(c, x1, 240, x2 - x1, 20, 8, DARK, BEZEL, 1.5f);
+        stroke(0xFF23262B, 3);
+        for (float x = x1 + 12; x < x2 - 8; x += 14) c.drawLine(x, 244, x, 256, p);
+        r.set(x1, 266, x2, 270);
+        grad(0, 266, 0, 270, 0xFFC9CED6, 0xFF6E747D);
+        c.drawRoundRect(r, 2, 2, p);
+        p.setShader(null);
+    }
+
+    private void drawConsole(Canvas c, float mid) {
+        float tw = 104, bw = 126, yT = 346, yP = 430, yB = 508;
+        path.reset();
+        path.moveTo(mid - tw + 14, yT); path.lineTo(mid + tw - 14, yT); path.quadTo(mid + tw, yT, mid + tw + 2, yT + 14);
+        path.lineTo(mid + tw + 10, yP); path.lineTo(mid - tw - 10, yP); path.lineTo(mid - tw - 2, yT + 14);
+        path.quadTo(mid - tw, yT, mid - tw + 14, yT); path.close();
+        fill(0xFF24272C);
+        c.drawPath(path, p);
+        stroke(0xFF3A3F47, 2);
+        c.drawPath(path, p);
+        rr(c, mid - tw + 6, yT + 14, tw - 8, yP - yT - 30, 8, 0xFF1C1F23, 0xFF2E3238, 1.5f);
+        float kx = mid + 34, ky = yT + 46;
+        fill(0xFF14161A);
+        r.set(kx - 28, ky + 17, kx + 28, ky + 35);
+        c.drawOval(r, p);
+        path.reset();
+        path.moveTo(kx - 26, ky); path.lineTo(kx - 26, ky + 22);
+        r.set(kx - 26, ky + 14, kx + 26, ky + 30);
+        path.arcTo(r, 180, -180);
+        path.lineTo(kx + 26, ky); path.close();
+        p.setStyle(Paint.Style.FILL);
+        p.setShader(new LinearGradient(kx - 26, 0, kx + 26, 0, new int[]{0xFF6E747D, 0xFFE3E7EC, 0xFF9AA0A8, 0xFF5E636B},
+                new float[]{0, .35f, .6f, 1}, Shader.TileMode.CLAMP));
+        c.drawPath(path, p);
+        p.setShader(null);
+        stroke(0x33000000, 1);
+        for (int i = -22; i <= 22; i += 4) {
+            float h = (float) Math.sqrt(Math.max(0, 1 - Math.pow(i / 26f, 2))) * 8;
+            c.drawLine(kx + i, ky + 2, kx + i, ky + 20 + h, p);
+        }
+        r.set(kx - 26, ky - 8, kx + 26, ky + 8);
+        fill(0xFF2A2E35);
+        c.drawOval(r, p);
+        stroke(0xFFC9CED6, 2);
+        c.drawOval(r, p);
+        r.set(kx - 17, ky - 5, kx + 17, ky + 5);
+        fill(0xFF1E2126);
+        c.drawOval(r, p);
+        rr(c, kx + 36, ky - 10, 26, 14, 4, 0xFF2E3238, 0xFF3E434B, 1);
+        rr(c, kx + 36, ky + 10, 26, 14, 4, 0xFF2E3238, 0xFF3E434B, 1);
+        path.reset();
+        path.moveTo(mid - tw - 6, yP - 26); path.quadTo(mid - tw - 12, yP, mid - tw + 14, yP + 2); path.lineTo(mid + tw + 8, yP + 2);
+        stroke(0xFF000000, 5);
+        p.setShader(new LinearGradient(0, yP - 26, 0, yP + 4, 0xFFC9CED6, 0xFF6E747D, Shader.TileMode.CLAMP));
+        c.drawPath(path, p);
+        p.setShader(null);
+        path.reset();
+        path.moveTo(mid - tw - 6, yP + 8); path.lineTo(mid + tw + 6, yP + 8); path.lineTo(mid + bw, yB); path.lineTo(mid - bw, yB); path.close();
+        fill(CONSOLE);
+        c.drawPath(path, p);
+        stroke(CONSOLE_LINE, 3);
+        c.drawLine(mid - tw + 4, yP + 44, mid + tw - 4, yP + 44, p);
+        stroke(0xFF2C3036, 3);
+        c.drawLine(mid - tw - 4, yP + 8, mid - bw + 2, yB, p);
+        c.drawLine(mid + tw + 4, yP + 8, mid + bw - 2, yB, p);
+    }
+
+    /** Round rim with a short flat part at the top and bottom (MG4 2022 steering wheel). */
+    private void wheelShape(Path pa, float wx, float wy, float hw, float hh, float f) {
+        pa.moveTo(wx - f, wy - hh);
+        pa.lineTo(wx + f, wy - hh);
+        r.set(wx + f - (hw - f), wy - hh, wx + f + (hw - f), wy + hh);
+        pa.arcTo(r, -90, 180);
+        pa.lineTo(wx - f, wy + hh);
+        r.set(wx - f - (hw - f), wy - hh, wx - f + (hw - f), wy + hh);
+        pa.arcTo(r, 90, 180);
+        pa.close();
+    }
+
+    private void drawWheel(Canvas c, float wx, float wy, boolean hot) {
+        if (hot) {
+            path.reset();
+            wheelShape(path, wx, wy, 121, 106, 34);
+            stroke(HEAT, 34);
+            p.setAlpha(40);
+            c.drawPath(path, p);
+            stroke(HEAT, 22);
+            p.setAlpha(70);
+            c.drawPath(path, p);
+        }
+        path.reset();
+        path.setFillType(Path.FillType.EVEN_ODD);
+        wheelShape(path, wx, wy, 130, 114, 36);
+        wheelShape(path, wx, wy, 111, 96, 30);
+        grad(0, wy - 114, 0, wy + 114, hot ? 0xFFFF8A4C : 0xFF3B4048, hot ? 0xFFB9562A : 0xFF24272C);
+        c.drawPath(path, p);
+        p.setShader(null);
+        stroke(hot ? 0xFF8A4524 : 0xFF454A52, 2);
+        c.drawPath(path, p);
+        path.setFillType(Path.FillType.WINDING);
+        for (int sd = -1; sd <= 1; sd += 2) {
+            path.reset();
+            path.moveTo(wx + sd * 44, wy - 12); path.lineTo(wx + sd * 114, wy - 6); path.lineTo(wx + sd * 114, wy + 22);
+            path.lineTo(wx + sd * 44, wy + 28); path.close();
+            fill(0xFF26292E);
+            c.drawPath(path, p);
+            stroke(0xFF3A3F47, 1.5f);
+            c.drawPath(path, p);
+            rr(c, wx + sd * 78 - 16, wy - 6, 32, 26, 9, 0xFF1A1C20, 0xFF3A3F47, 1.5f);
+            fill(0xFF3A3F47);
+            c.drawCircle(wx + sd * 78, wy + 7, 5, p);
+        }
+        path.reset();
+        path.moveTo(wx - 22, wy + 36); path.lineTo(wx + 22, wy + 36); path.lineTo(wx + 14, wy + 86); path.lineTo(wx - 14, wy + 86); path.close();
+        fill(0xFF26292E);
+        c.drawPath(path, p);
+        stroke(0xFF3A3F47, 1.5f);
+        c.drawPath(path, p);
+        r.set(wx - 4, wy + 46, wx + 4, wy + 80);
+        grad(0, wy + 46, 0, wy + 80, 0xFFC9CED6, 0xFF6E747D);
+        c.drawRoundRect(r, 3, 3, p);
+        p.setShader(null);
+        r.set(wx - 50, wy - 40, wx + 50, wy + 40);
+        grad(0, wy - 40, 0, wy + 40, 0xFF2E3238, 0xFF1D2025);
+        c.drawRoundRect(r, 26, 26, p);
+        p.setShader(null);
+        stroke(0xFF3A3F47, 2);
+        c.drawRoundRect(r, 26, 26, p);
+        rr(c, wx - 18, wy - 9, 36, 18, 8, 0xFF33373E, 0, 0);
+    }
+
+    private void drawDashTexts(Canvas c, float cx) {
+        float wx = cx - 270, sx = cx - 150;
+        String time = new SimpleDateFormat("HH:mm", Locale.ITALY).format(new Date());
+        text(c, time, x(cx, wx), 192, 24, 0xFFE6E9ED, Paint.Align.CENTER, regular);
+        text(c, tempText(), x(cx, sx + 24), 136, 30, 0xFFF2F3F5, rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
+        if (!Float.isNaN(st.outTemp)) {
+            text(c, L.f(R.string.cl_v_out_short, Math.round(st.outTemp)), x(cx, sx + 24), 176, 14, 0xFF9BA1A9,
+                    rhd ? Paint.Align.RIGHT : Paint.Align.LEFT, regular);
+        }
+    }
+
+    static String autoLevelName(int lv) {
+        return L.s(lv == HvacClient.AUTO_LOW ? R.string.cl_v_level_low : lv == HvacClient.AUTO_HIGH ? R.string.cl_v_level_high : R.string.cl_v_level_medium);
+    }
+
+    private float x(float cx, float v) {
+        return rhd ? 2 * cx - v : v;
+    }
+
+    private String tempText() {
+        if (st.temp < 0) return "–";
+        if (st.temp <= st.tempMin) return "LO";
+        if (st.temp >= st.tempMax) return "HI";
+        return st.temp + "°";
+    }
+
+    private void drawDriverColumn(Canvas c, boolean usable, boolean on) {
+        float cx0 = rhd ? W - 40 - 380 : 40, top = 34;
+        // big power button
+        float pcx = cx0 + 52, pcy = top + 52;
+        if (on) {
+            fill((TEXT & 0xFFFFFF) | 0x1F000000);
+            c.drawCircle(pcx, pcy, 58, p);
+        }
+        fill(on ? TEXT : CHIP);
+        c.drawCircle(pcx, pcy, 52, p);
+        icon(c, R.drawable.climate_power, pcx - 24, pcy - 24, 48, 48, on ? ONTEXT : SUB);
+        hit("power", cx0, top, 104, 104);
+        String title = !usable ? L.s(R.string.cl_v_unavailable) : on ? L.s(R.string.cl_v_on) : L.s(R.string.cl_v_off);
+        String sub = !st.connected ? L.s(R.string.cl_v_waiting)
+                : !usable ? L.s(R.string.cl_v_switch_on)
+                : Float.isNaN(st.outTemp) ? "" : L.f(R.string.cl_v_outside, Math.round(st.outTemp));
+        // the dashboard starts at 450: long texts (other languages) shrink to fit
+        text(c, title, cx0 + 122, top + 48, fit(title, 30, 255, bold), TEXT, Paint.Align.LEFT, bold);
+        text(c, sub, cx0 + 122, top + 78, fit(sub, 18, 255, regular), SUB, Paint.Align.LEFT, regular);
+        // temperature
+        float y = top + 104 + 26;
+        String tl = L.s(R.string.cl_v_temperature).toUpperCase(L.locale());
+        text(c, tl, cx0, y + 14, 17, SUB, Paint.Align.LEFT, regular);
+        y += 22;
+        tile(c, cx0, y, 380, 118, 24, CHIP);
+        icon(c, R.drawable.climate_left, cx0 + 26, y + 39, 40, 40, usable ? TEXT : SUB);
+        icon(c, R.drawable.climate_right, cx0 + 380 - 66, y + 39, 40, 40, usable ? TEXT : SUB);
+        hit("temp-", cx0, y, 190, 118);
+        hit("temp+", cx0 + 190, y, 190, 118);
+        String t = st.temp < 0 ? "–" : st.temp <= st.tempMin ? "LO" : st.temp >= st.tempMax ? "HI" : String.valueOf(st.temp);
+        text(c, t, cx0 + 190, y + 92, 92, on ? TEXT : SUB, Paint.Align.CENTER, light);
+        if (Character.isDigit(t.charAt(0))) {
+            p.setTextSize(92);
+            float tw = p.measureText(t);
+            text(c, "°", cx0 + 190 + tw / 2 + 4, y + 40, 28, SUB, Paint.Align.LEFT, regular);
+        }
+        // fan
+        y += 118 + 20;
+        boolean fanAuto = st.fan == HvacClient.FAN_AUTO || st.auto == 1;
+        String fanLabel = L.s(R.string.cl_v_fan);
+        if (fanAuto && on) fanLabel += st.autoLevel >= 0 ? " · AUTO · " + autoLevelName(st.autoLevel) : " · " + L.s(R.string.cl_v_fan_auto);
+        fanLabel = fanLabel.toUpperCase(L.locale());
+        text(c, fanLabel, cx0, y + 14, fit(fanLabel, 17, 380, regular), SUB, Paint.Align.LEFT, regular);
+        y += 22;
+        tile(c, cx0, y, 380, 100, 24, CHIP);
+        hit("fan-", cx0, y, 190, 100);
+        hit("fan+", cx0 + 190, y, 190, 100);
+        icon(c, R.drawable.climate_left, cx0 + 16, y + 30, 40, 40, usable ? TEXT : SUB);
+        icon(c, R.drawable.climate_right, cx0 + 380 - 56, y + 30, 40, 40, usable ? TEXT : SUB);
+        icon(c, R.drawable.climate_fan, cx0 + 72, y + 28, 44, 44, on ? TEXT : SUB);
+        String f = !on ? "–" : st.fan == HvacClient.FAN_AUTO ? "A" : st.fan <= 0 ? "OFF" : String.valueOf(st.fan);
+        text(c, f, cx0 + 122, y + 64, 40, on ? TEXT : SUB, Paint.Align.LEFT, regular);
+        int lv = on && st.fan > 0 && st.fan != HvacClient.FAN_AUTO ? st.fan : 0;
+        int n = Math.max(1, st.fanMax);
+        float bx = cx0 + 176, bw = 380 - 176 - 70, gap = 4, sw = (bw - gap * (n - 1)) / n;
+        for (int i = 0; i < n; i++) {
+            float h = 14 + i * (36f / Math.max(1, n - 1));
+            rr(c, bx + i * (sw + gap), y + 74 - h, sw, h, 4, i < lv ? TEXT : TRACK, 0, 0);
+        }
+    }
+
+    private void drawTiles(Canvas c, boolean usable, boolean on, boolean[] dir) {
+        String[] ids = {"auto", "ac", "eco", "glass", "face", "feet", "recirc", "frontDefrost", "rearDefrost", "wheel",
+                "seatDriver", "seatPassenger"};
+        List<String> order = new ArrayList<>();
+        for (String id : ids) {
+            if (id.startsWith("seat") && !st.hasSeatHeat()) continue;
+            if (id.equals("wheel") && !st.hasWheel) continue;
+            if ((id.equals("frontDefrost") || id.equals("rearDefrost")) && !defrostTiles) continue;
+            order.add(id);
+        }
+        if (rhd) {
+            List<String> lead = new ArrayList<>(order.subList(0, 3));
+            List<String> rest = new ArrayList<>(order.subList(3, order.size()));
+            java.util.Collections.reverse(rest);
+            java.util.Collections.reverse(lead);
+            order.clear();
+            order.addAll(rest);
+            order.addAll(lead);
+        }
+        int count = order.size();
+        float tw = (float) Math.floor((W - 80 - (count - 1) * 12) / count), gap = (W - 80 - tw * count) / (count - 1);
+        float x = 40, top = 530, h = 126;
+        for (String id : order) {
+            boolean active, hot = false;
+            int ic = 0, level = -1;
+            String label;
+            switch (id) {
+                case "auto": active = on && st.auto == 1; ic = R.drawable.climate_auto; label = L.s(R.string.cl_t_auto); break;
+                case "ac": active = on && st.ac == 1; ic = R.drawable.climate_ac; label = L.s(R.string.cl_t_ac); break;
+                case "eco": active = on && st.econ == 1; ic = R.drawable.climate_eco; label = L.s(R.string.cl_t_eco); break;
+                case "glass": active = on && dir[0]; ic = R.drawable.climate_air_windscreen; label = L.s(R.string.cl_t_glass); break;
+                case "face": active = on && dir[1]; ic = R.drawable.climate_air_face; label = L.s(R.string.cl_t_face); break;
+                case "feet": active = on && dir[2]; ic = R.drawable.climate_air_feet; label = L.s(R.string.cl_t_feet); break;
+                case "recirc":
+                    // one icon per state (0 inside, 1 outside, 2 automatic); inside and automatic = on
+                    active = on && (st.loop == 0 || st.loop == 2);
+                    ic = recircIcon(st.loop);
+                    label = L.s(st.loop == 0 ? R.string.cl_t_recirc : st.loop == 2 ? R.string.cl_t_recirc_auto : R.string.cl_t_fresh);
+                    break;
+                case "frontDefrost": hot = st.frontDefrost == 1; active = hot; ic = R.drawable.climate_defrost_front; label = L.s(R.string.cl_t_front); break;
+                case "rearDefrost": hot = st.rearDefrost == 1; active = hot; ic = R.drawable.climate_defrost_rear; label = L.s(R.string.cl_t_rear); break;
+                case "wheel": hot = st.wheel == 3; active = hot; ic = R.drawable.climate_wheel_heat; label = L.s(R.string.cl_t_wheel); break;
+                case "seatDriver":
+                    level = st.seatDrv >= 0 && st.seatDrv <= 3 ? st.seatDrv : 0; hot = level > 0; active = hot;
+                    ic = R.drawable.climate_seat_heat; label = L.s(R.string.cl_t_driver);
+                    break;
+                default:
+                    level = st.seatPsg >= 0 && st.seatPsg <= 3 ? st.seatPsg : 0; hot = level > 0; active = hot;
+                    ic = R.drawable.climate_seat_heat; label = L.s(R.string.cl_t_passenger);
+                    break;
+            }
+            // state at a glance: active as in the launcher (text-coloured background, icon and label in contrast),
+            // bigger icon; A/C on in COLD (icon and border), heating in warm; unavailable (climate not usable) = dimmed
+            boolean na = !usable;
+            boolean cool = active && !hot && id.equals("ac");
+            boolean filled = active && !hot && !cool;
+            int bg = hot ? HEATBG : filled ? ACCENTBG : CHIP;
+            int fg = hot ? HEAT : cool ? COLD : filled ? ACCENT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
+            int lab = filled ? ACCENT : hot || cool ? TEXT : na ? (SUB & 0xFFFFFF) | 0x66000000 : SUB;
+            tile(c, x, top, tw, h, 22, bg);
+            if (hot || cool) {
+                stroke(hot ? HEAT : COLD, 3);
+                r.set(x + 1.5f, top + 1.5f, x + tw - 1.5f, top + h - 1.5f);
+                c.drawRoundRect(r, 21, 21, p);
+                p.setStyle(Paint.Style.FILL);
+            }
+            hit(id, x, top, tw, h);
+            float mx = x + tw / 2;
+            boolean text = ic == R.drawable.climate_auto || ic == R.drawable.climate_ac || ic == R.drawable.climate_eco;
+            boolean seat = level >= 0;
+            boolean dashes = id.equals("auto") && st.autoLevel >= 0;
+            boolean marks = seat || dashes;   // marks under the icon (seat levels, AUTO intensity)
+            // icon size: with labels 52 (text 96×48), without 72 (text 128×64); active +12%
+            float k = active || hot ? 1.12f : 1f;
+            float ih = (labels ? (text ? 44 : 54) : (text ? 58 : 74)) * k, iw = text ? ih * 2 : ih;
+            if (marks && !labels) ih = Math.min(ih, 64 * k);
+            float areaTop = top + 10, areaBot = top + h - (labels ? 38 : 10) - (marks ? 16 : 0);
+            float iy = (areaTop + areaBot) / 2 - ih / 2;
+            if (text) iw = ih * 2;
+            boolean flip = seat && (id.equals("seatPassenger") != rhd);   // seats only: the one on the right faces left
+            if (flip) {
+                c.save();
+                c.scale(-1, 1, mx, 0);
+            }
+            icon(c, ic, mx - iw / 2, iy, iw, ih, fg);
+            if (flip) c.restore();
+            float my = areaBot + 6;
+            if (seat) for (int i = 0; i < 3; i++) rr(c, mx - 33 + i * 26, my, 20, 6, 3, i < level ? HEAT : TRACK, 0, 0);
+            if (dashes) {   // AUTO intensity (low / medium / high), changed by tapping AUTO
+                int lit = 3 - st.autoLevel;
+                for (int i = 0; i < 3; i++)
+                    rr(c, mx - 41 + i * 30, my, 22, 5, 2.5f, i < lit ? fg : (fg & 0xFFFFFF) | 0x40000000, 0, 0);
+            }
+            if (labels) text(c, label, mx, top + h - 16, fit(label, 17, tw - 14, active || hot ? bold : regular), lab,
+                    Paint.Align.CENTER, active || hot ? bold : regular);
+            x += tw + gap;
+        }
+    }
+
+    /** Recirculation icon per state: 0 inside, 1 outside, 2 automatic (as the physical buttons). */
+    static int recircIcon(int loop) {
+        return loop == 0 ? R.drawable.climate_recirc_inside : loop == 2 ? R.drawable.climate_recirc_auto : R.drawable.climate_air_fresh;
+    }
+
+    // ---- feedback of the steering wheel joystick commands: bright border on the button for half a second
+
+    private String flashId;
+    private long flashUntil;
+
+    /** Highlights the button with that id (e.g. "temp+", "fan-", "power") as feedback of a steering wheel command. */
+    public void flash(String id) {
+        flashId = id;
+        flashUntil = android.os.SystemClock.uptimeMillis() + 550;
+        invalidate();
+        postInvalidateDelayed(600);
+    }
+
+    private void drawFlash(Canvas c) {
+        if (flashId == null) return;
+        if (android.os.SystemClock.uptimeMillis() > flashUntil) {
+            flashId = null;
+            return;
+        }
+        for (Object[] h : hits) {
+            if (!flashId.equals(h[0])) continue;
+            RectF b = (RectF) h[1];
+            stroke(TEXT, 5);
+            r.set(b.left + 4, b.top + 4, b.right - 4, b.bottom - 4);
+            c.drawRoundRect(r, 22, 22, p);
+        }
+    }
+
+    // ======================================================================================== touches
+
+    @Override
+    public boolean onTouchEvent(MotionEvent e) {
+        if (e.getAction() == MotionEvent.ACTION_DOWN) return true;
+        if (e.getAction() != MotionEvent.ACTION_UP) return super.onTouchEvent(e);
+        float[] pt = {e.getX(), e.getY()};
+        toDesign.mapPoints(pt);
+        for (Object[] h : hits) {
+            if (((RectF) h[1]).contains(pt[0], pt[1])) {
+                if (listener != null) listener.onTap((String) h[0]);
+                return true;
+            }
+        }
+        // tap outside the panel (border around it) = close
+        if (listener != null && (pt[0] < -4 || pt[0] > W + 4 || pt[1] < -4 || pt[1] > 684)) listener.onTap("outside");
+        return true;
+    }
+
+    // ======================================================================================== helpers
+
+    private void hit(String id, float x, float y, float w, float h) {
+        hits.add(new Object[]{id, new RectF(x, y, x + w, y + h)});
+    }
+
+    private void fill(int color) {
+        p.reset();
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.FILL);
+        p.setColor(color);
+    }
+
+    private void stroke(int color, float w) {
+        p.reset();
+        p.setAntiAlias(true);
+        p.setStyle(Paint.Style.STROKE);
+        p.setStrokeWidth(w);
+        p.setStrokeCap(Paint.Cap.ROUND);
+        p.setStrokeJoin(Paint.Join.ROUND);
+        p.setColor(color);
+    }
+
+    private void grad(float x0, float y0, float x1, float y1, int a, int b) {
+        fill(0xFF000000);
+        p.setShader(new LinearGradient(x0, y0, x1, y1, a, b, Shader.TileMode.CLAMP));
+    }
+
+    private void rr(Canvas c, float x, float y, float w, float h, float rad, int fillColor, int strokeColor, float sw) {
+        r.set(x, y, x + w, y + h);
+        fill(fillColor);
+        c.drawRoundRect(r, rad, rad, p);
+        if (sw > 0) {
+            stroke(strokeColor, sw);
+            c.drawRoundRect(r, rad, rad, p);
+        }
+    }
+
+    private void tile(Canvas c, float x, float y, float w, float h, float rad, int color) {
+        rr(c, x, y, w, h, rad, color, 0, 0);
+    }
+
+    private void text(Canvas c, String s, float x, float y, float size, int color, Paint.Align align, Typeface tf) {
+        if (s == null || s.isEmpty()) return;
+        fill(color);
+        p.setTextSize(size);
+        p.setTypeface(tf);
+        p.setTextAlign(align);
+        c.drawText(s, x, y, p);
+    }
+
+    /** Text size so that it fits in maxW (at least 60%). */
+    private float fit(String s, float size, float maxW, Typeface tf) {
+        if (s == null || s.isEmpty()) return size;
+        p.setTypeface(tf);
+        p.setTextSize(size);
+        float w = p.measureText(s);
+        return w <= maxW ? size : Math.max(size * .6f, size * maxW / w);
+    }
+
+    private void icon(Canvas c, int res, float x, float y, float w, float h, int color) {
+        Drawable d = getContext().getDrawable(res);
+        if (d == null) return;
+        d = d.mutate();
+        d.setTint(color);
+        d.setBounds(Math.round(x), Math.round(y), Math.round(x + w), Math.round(y + h));
+        d.draw(c);
+    }
+}

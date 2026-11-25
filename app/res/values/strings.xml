@@ -562,4 +562,141 @@
     <string name="news_v0410_2" formatted="false">The log now really shows recent app crashes (the section used to stay empty)</string>
     <string name="news_v0411_1" formatted="false">Code cleaned up and translated to English, diagnostic log in English; log upload removed entirely</string>
     <string name="news_v0411_2" formatted="false">Settings are moved automatically to the new internal names: nothing is lost</string>
+    <string name="news_v0412_1" formatted="false">MG4 Clima built into the launcher: the climate screen opens from the climate button and instead of the original climate app, with no separate app</string>
+    <string name="news_v0412_2" formatted="false">If MG4 Clima is installed it is uninstalled automatically; the climate settings are under the gear on the climate screen</string>
+    <string name="cl_app_name" formatted="false">MG4 Climate</string>
+    <string name="cl_a11y_desc" formatted="false">Opens the MG4 Climate screen when the original climate app is opened. It reads which app is in the foreground and closes the panel the system opens when the climate turns on.</string>
+    <string name="cl_v_unavailable" formatted="false">Climate unavailable</string>
+    <string name="cl_v_on" formatted="false">Climate on</string>
+    <string name="cl_v_off" formatted="false">Climate off</string>
+    <string name="cl_v_waiting" formatted="false">Waiting for the vehicle service…</string>
+    <string name="cl_v_switch_on" formatted="false">Switch the car on</string>
+    <string name="cl_v_outside">%1$d° outside</string>
+    <string name="cl_v_out_short">%1$d° out</string>
+    <string name="cl_v_temperature" formatted="false">Temperature</string>
+    <string name="cl_v_fan" formatted="false">Fan</string>
+    <string name="cl_v_fan_auto" formatted="false">Automatic</string>
+    <string name="cl_v_level_low" formatted="false">Low</string>
+    <string name="cl_v_level_medium" formatted="false">Medium</string>
+    <string name="cl_v_level_high" formatted="false">High</string>
+    <string name="cl_v_dir_auto" formatted="false">Automatic air direction</string>
+    <string name="cl_t_auto" formatted="false">Automatic</string>
+    <string name="cl_t_ac" formatted="false">Air cond.</string>
+    <string name="cl_t_eco" formatted="false">Economy</string>
+    <string name="cl_t_glass" formatted="false">Windscreen air</string>
+    <string name="cl_t_face" formatted="false">Face</string>
+    <string name="cl_t_feet" formatted="false">Feet</string>
+    <string name="cl_t_recirc" formatted="false">Recirculation</string>
+    <string name="cl_t_recirc_auto" formatted="false">Auto recirc.</string>
+    <string name="cl_t_fresh" formatted="false">Fresh air</string>
+    <string name="cl_t_front" formatted="false">Windscreen</string>
+    <string name="cl_t_rear" formatted="false">Rear window</string>
+    <string name="cl_t_wheel" formatted="false">Wheel</string>
+    <string name="cl_t_driver" formatted="false">Driver</string>
+    <string name="cl_t_passenger" formatted="false">Passenger</string>
+    <string name="cl_a_original_unverified">Original climate app %1$s not verified yet: MG4 Climate won\'t replace it. Run the check from Settings → Tools → Verify climate app (car stopped, climate off, about 2 minutes).</string>
+    <string name="cl_a_test_running" formatted="false">Automatic test running…</string>
+    <string name="cl_a_not_connected" formatted="false">Climate service not connected yet</string>
+    <string name="cl_a_switch_on" formatted="false">Switch the car on to use the climate</string>
+    <string name="cl_a_cmd_failed">Command failed: %1$s</string>
+    <string name="cl_a_use_button">%1$s: use the physical button</string>
+    <string name="cl_a_original_missing" formatted="false">Original climate not available</string>
+    <string name="cl_a_test_start" formatted="false">Automatic test: starting…</string>
+    <string name="cl_a_test_done">Test finished: %1$s</string>
+    <string name="cl_s_title" formatted="false">Settings</string>
+    <string name="cl_s_screen" formatted="false">Screen</string>
+    <string name="cl_s_dash" formatted="false">Dashboard</string>
+    <string name="cl_s_dash_sub" formatted="false">Drawn or realistic (photo): the air comes out of the real vents</string>
+    <string name="cl_s_dash_drawn" formatted="false">Drawn</string>
+    <string name="cl_s_dash_photo" formatted="false">Realistic</string>
+    <string name="cl_s_anim" formatted="false">Animated air</string>
+    <string name="cl_s_anim_sub" formatted="false">The air flows faster with a higher fan; orange when heating, blue when cooling, white when holding (more than 3° from the outside temperature)</string>
+    <string name="cl_s_defrost_tiles" formatted="false">Windscreen and Rear window buttons</string>
+    <string name="cl_s_defrost_tiles_sub" formatted="false">In the bottom row (the car already has physical buttons)</string>
+    <string name="cl_s_auto_section" formatted="false">Automatic climate</string>
+    <string name="cl_s_auto_level" formatted="false">AUTO intensity</string>
+    <string name="cl_s_auto_level_sub" formatted="false">How much air in automatic mode; also changes by tapping AUTO when it is on</string>
+    <string name="cl_s_econ_link" formatted="false">Follow ECO drive mode</string>
+    <string name="cl_s_econ_link_sub" formatted="false">With ECO driving the climate switches to economy</string>
+    <string name="cl_s_defrost_link" formatted="false">Automatic rear window heating</string>
+    <string name="cl_s_defrost_link_sub" formatted="false">As in the original climate app</string>
+    <string name="cl_s_opening" formatted="false">Opening the climate</string>
+    <string name="cl_s_replace" formatted="false">MG4 Climate instead of the original app</string>
+    <string name="cl_s_replace_sub" formatted="false">When the car\'s climate opens, MG4 Climate appears (also from the launcher)</string>
+    <string name="cl_s_replace_unverified">Original climate app %1$s not verified yet: the original stays</string>
+    <string name="cl_s_shade" formatted="false">No pull-down menu with the climate</string>
+    <string name="cl_s_shade_sub" formatted="false">The system opens it when the climate turns on or off: MG4 Climate closes it at once</string>
+    <string name="cl_s_tools" formatted="false">Tools</string>
+    <string name="cl_s_orig_app" formatted="false">Original climate app</string>
+    <string name="cl_s_orig_app_sub" formatted="false">Opens and is not replaced for 2 minutes</string>
+    <string name="cl_s_test" formatted="false">Automatic command test</string>
+    <string name="cl_s_test_sub" formatted="false">Car stopped only: tries every command, restores everything and writes it to the log</string>
+    <string name="cl_s_diag" formatted="false">Diagnostics</string>
+    <string name="cl_s_diag_sub" formatted="false">State read from the car and events</string>
+    <string name="cl_b_open" formatted="false">Open</string>
+    <string name="cl_b_start" formatted="false">Start</string>
+    <string name="cl_b_show" formatted="false">Show</string>
+    <string name="cl_b_cancel" formatted="false">Cancel</string>
+    <string name="cl_b_activate" formatted="false">Activate</string>
+    <string name="cl_s_verify" formatted="false">Verify climate app</string>
+    <string name="cl_s_verify_sub" formatted="false">A new version of the original climate app isn\'t recognised yet: I test the commands and, if they work, replace it. Car stopped and climate off.</string>
+    <string name="cl_c_verify_msg" formatted="false">I test the climate commands on the original app and, if they work, replace it with MG4 Climate. It takes about two minutes. The test puts everything back as it was.</string>
+    <string name="cl_a_verify_ok">Verification passed: climate app %1$s recognised</string>
+    <string name="cl_a_verify_fail">Verification failed for %1$s: keeping the original app</string>
+    <string name="cl_s_workshop" formatted="false">Workshop mode</string>
+    <string name="cl_s_workshop_sub" formatted="false">Pauses the MG4 Climate replacement for a few days, so the workshop sees the original climate app. Then everything returns automatically.</string>
+    <string name="cl_s_workshop_1" formatted="false">1 day</string>
+    <string name="cl_s_workshop_3" formatted="false">3 days</string>
+    <string name="cl_s_workshop_7" formatted="false">7 days</string>
+    <string name="cl_s_workshop_on">Active until %1$s</string>
+    <string name="cl_c_workshop_msg">For %1$d days MG4 Climate won\'t replace the original climate app. You can cancel any time from this screen.</string>
+    <string name="cl_s_swipe" formatted="false">Close with swipe</string>
+    <string name="cl_s_swipe_sub" formatted="false">Swipe vertically on the panel or from the screen edge to return home</string>
+    <string name="cl_s_swipe_off" formatted="false">Off</string>
+    <string name="cl_s_swipe_auto" formatted="false">Automatic</string>
+    <string name="cl_s_swipe_bottom" formatted="false">From bottom</string>
+    <string name="cl_s_swipe_top" formatted="false">From top</string>
+    <string name="cl_s_joy" formatted="false">Steering-wheel joystick</string>
+    <string name="cl_s_joy_sub" formatted="false">With MG4 Climate open: OK on/off, up/down temperature, left/right fan</string>
+    <string name="cl_s_joy_right" formatted="false">Right joystick</string>
+    <string name="cl_s_joy_left" formatted="false">Left joystick</string>
+    <string name="cl_s_keys" formatted="false">Test steering-wheel keys</string>
+    <string name="cl_s_keys_sub" formatted="false">Shows the code of each key pressed and assigns the joystick</string>
+    <string name="cl_s_keys_hint" formatted="false">Press the steering-wheel keys: the codes also go into the log</string>
+    <string name="cl_k_press">%1$s: press %2$s</string>
+    <string name="cl_k_idle" formatted="false">Last keys pressed</string>
+    <string name="cl_k_none" formatted="false">No key yet</string>
+    <string name="cl_k_up" formatted="false">UP</string>
+    <string name="cl_k_down" formatted="false">DOWN</string>
+    <string name="cl_k_left" formatted="false">LEFT</string>
+    <string name="cl_k_right" formatted="false">RIGHT</string>
+    <string name="cl_k_ok" formatted="false">OK</string>
+    <string name="cl_b_assign" formatted="false">Assign</string>
+    <string name="cl_b_resume" formatted="false">Resume</string>
+    <string name="cl_a_test_moving" formatted="false">Run the check with the car stopped and the parking brake on. You can resume it where it stopped (Tools → Resume).</string>
+    <string name="cl_a_a11y_off" formatted="false">The MG4 Climate accessibility service is not active: no replacement of the original app, no panel closing and no edge swipe. Restart the car or reinstall MG4 Launcher; if that\'s not enough, enable it in Android Settings → Accessibility → MG4 Climate.</string>
+    <string name="cl_c_test_msg" formatted="false">With the car STOPPED and on, MG4 Climate tries the commands one at a time like the original app\'s buttons: power, temperature, fan, air direction, A/C, ECO, recirculation, AUTO, seats and wheel (where fitted). It takes about 2 minutes, then restores everything and writes the result to the log.
+
+It stops by itself if the car moves or you leave this screen. Don\'t touch the climate during the test.</string>
+    <string name="cl_s_joy_on" formatted="false">On</string>
+    <string name="cl_s_joy_shared" formatted="false">On this software the keys also reach the music: the controls work, but volume and track may change together with the climate</string>
+    <string name="cl_s_joy_excl" formatted="false">With MG4 Climate open the keys control only the climate (OK, up/down temperature, left/right fan)</string>
+    <string name="cl_a_joy_shared" formatted="false">On this car the steering-wheel keys also reach the music: while you adjust the climate with the joystick the volume or track may change.</string>
+    <string name="cl_s_quick" formatted="false">Quick opening</string>
+    <string name="cl_s_quick_sub" formatted="false">Instantly covers the original climate app with a ready screen while MG4 Climate opens</string>
+    <string name="cl_s_labels" formatted="false">Show labels on buttons</string>
+    <string name="cl_s_labels_sub" formatted="false">Off: larger icons only, like the launcher home</string>
+    <string name="cl_k_factory" formatted="false">factory</string>
+    <string name="cl_k_left_try" formatted="false">Check whether it sends its own codes (usually not)</string>
+    <string name="cl_k_left_none" formatted="false">The left joystick is not available on this car (it sends the same keys as the right one)</string>
+    <string name="cl_b_try" formatted="false">Try</string>
+    <string name="cl_s_joy_conflict" formatted="false">Another app uses the joystick</string>
+    <string name="cl_s_joy_conflict_sub">%1$s can take the same steering-wheel keys: turn the joystick off in the other app to use it with MG4 Climate</string>
+    <string name="cl_s_proj" formatted="false">Climate during Android Auto and CarPlay</string>
+    <string name="cl_s_proj_sub" formatted="false">With Android Auto or CarPlay in front, tap the centre of the top bar to open MG4 Climate</string>
+    <string name="cl_s_autoclose" formatted="false">Close automatically after</string>
+    <string name="cl_s_autoclose_sub" formatted="false">Seconds without touches or joystick keys; then it goes back to where you opened it</string>
+    <string name="cl_s_never" formatted="false">Never</string>
+    <string name="cl_p_settings_later" formatted="false">Settings open from MG4 Climate in full screen</string>
+    <string name="cl_b_ok" formatted="false">OK</string>
 </resources>

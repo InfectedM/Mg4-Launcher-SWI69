@@ -562,4 +562,141 @@
     <string name="news_v0410_2" formatted="false">Le journal affiche vraiment les plantages récents des apps (avant, la section restait vide)</string>
     <string name="news_v0411_1" formatted="false">Code nettoyé et traduit en anglais, journal de diagnostic en anglais ; envoi des journaux supprimé</string>
     <string name="news_v0411_2" formatted="false">Les réglages sont transférés automatiquement vers les nouveaux noms internes : rien n’est perdu</string>
+    <string name="news_v0412_1" formatted="false">MG4 Climat intégrée au launcher : l’écran climat s’ouvre depuis le bouton climat et à la place de l’appli climat d’origine, sans appli séparée</string>
+    <string name="news_v0412_2" formatted="false">Si MG4 Climat est installée, elle est désinstallée automatiquement ; les réglages du climat sont sous l’engrenage de l’écran climat</string>
+    <string name="cl_app_name" formatted="false">MG4 Climat</string>
+    <string name="cl_a11y_desc" formatted="false">Ouvre l\'écran MG4 Climat quand l\'appli climat d\'origine s\'ouvre. Détecte l\'appli au premier plan et ferme le panneau que le système ouvre quand la climatisation s\'allume.</string>
+    <string name="cl_v_unavailable" formatted="false">Climatisation indisponible</string>
+    <string name="cl_v_on" formatted="false">Climatisation allumée</string>
+    <string name="cl_v_off" formatted="false">Climatisation éteinte</string>
+    <string name="cl_v_waiting" formatted="false">En attente du service du véhicule…</string>
+    <string name="cl_v_switch_on" formatted="false">Allume la voiture</string>
+    <string name="cl_v_outside">%1$d° extérieur</string>
+    <string name="cl_v_out_short">%1$d° ext.</string>
+    <string name="cl_v_temperature" formatted="false">Température</string>
+    <string name="cl_v_fan" formatted="false">Ventilation</string>
+    <string name="cl_v_fan_auto" formatted="false">Automatique</string>
+    <string name="cl_v_level_low" formatted="false">Faible</string>
+    <string name="cl_v_level_medium" formatted="false">Moyenne</string>
+    <string name="cl_v_level_high" formatted="false">Élevée</string>
+    <string name="cl_v_dir_auto" formatted="false">Répartition de l\'air automatique</string>
+    <string name="cl_t_auto" formatted="false">Automatique</string>
+    <string name="cl_t_ac" formatted="false">Clim</string>
+    <string name="cl_t_eco" formatted="false">Économie</string>
+    <string name="cl_t_glass" formatted="false">Air pare-brise</string>
+    <string name="cl_t_face" formatted="false">Visage</string>
+    <string name="cl_t_feet" formatted="false">Pieds</string>
+    <string name="cl_t_recirc" formatted="false">Recyclage</string>
+    <string name="cl_t_recirc_auto" formatted="false">Recyclage auto</string>
+    <string name="cl_t_fresh" formatted="false">Air extérieur</string>
+    <string name="cl_t_front" formatted="false">Pare-brise</string>
+    <string name="cl_t_rear" formatted="false">Lunette</string>
+    <string name="cl_t_wheel" formatted="false">Volant</string>
+    <string name="cl_t_driver" formatted="false">Conducteur</string>
+    <string name="cl_t_passenger" formatted="false">Passager</string>
+    <string name="cl_a_original_unverified">Appli climat d\'origine %1$s pas encore vérifiée : MG4 Climat ne la remplace pas. Lance la vérification dans Réglages → Outils → Vérifier l\'appli climat (voiture à l\'arrêt, climatisation éteinte, environ 2 minutes).</string>
+    <string name="cl_a_test_running" formatted="false">Test automatique en cours…</string>
+    <string name="cl_a_not_connected" formatted="false">Service climat pas encore connecté</string>
+    <string name="cl_a_switch_on" formatted="false">Allume la voiture pour utiliser la climatisation</string>
+    <string name="cl_a_cmd_failed">Commande échouée : %1$s</string>
+    <string name="cl_a_use_button">%1$s : utilise le bouton physique</string>
+    <string name="cl_a_original_missing" formatted="false">Climat d\'origine indisponible</string>
+    <string name="cl_a_test_start" formatted="false">Test automatique : démarrage…</string>
+    <string name="cl_a_test_done">Test terminé : %1$s</string>
+    <string name="cl_s_title" formatted="false">Réglages</string>
+    <string name="cl_s_screen" formatted="false">Écran</string>
+    <string name="cl_s_dash" formatted="false">Tableau de bord</string>
+    <string name="cl_s_dash_sub" formatted="false">Dessiné ou réaliste (photo) : l\'air sort des vraies bouches</string>
+    <string name="cl_s_dash_drawn" formatted="false">Dessiné</string>
+    <string name="cl_s_dash_photo" formatted="false">Réaliste</string>
+    <string name="cl_s_anim" formatted="false">Air animé</string>
+    <string name="cl_s_anim_sub" formatted="false">L\'air circule plus vite avec une ventilation élevée ; orange s\'il chauffe, bleu s\'il refroidit, blanc s\'il maintient (plus de 3° d\'écart avec l\'extérieur)</string>
+    <string name="cl_s_defrost_tiles" formatted="false">Boutons Pare-brise et Lunette</string>
+    <string name="cl_s_defrost_tiles_sub" formatted="false">Dans la rangée du bas (la voiture a déjà des boutons physiques)</string>
+    <string name="cl_s_auto_section" formatted="false">Climatisation automatique</string>
+    <string name="cl_s_auto_level" formatted="false">Intensité AUTO</string>
+    <string name="cl_s_auto_level_sub" formatted="false">Quantité d\'air en automatique ; change aussi en touchant AUTO quand il est actif</string>
+    <string name="cl_s_econ_link" formatted="false">Suivre le mode de conduite ECO</string>
+    <string name="cl_s_econ_link_sub" formatted="false">En conduite ECO la climatisation passe en économie</string>
+    <string name="cl_s_defrost_link" formatted="false">Dégivrage automatique de la lunette</string>
+    <string name="cl_s_defrost_link_sub" formatted="false">Comme dans l\'appli climat d\'origine</string>
+    <string name="cl_s_opening" formatted="false">Ouverture du climat</string>
+    <string name="cl_s_replace" formatted="false">MG4 Climat à la place de l\'appli d\'origine</string>
+    <string name="cl_s_replace_sub" formatted="false">Quand le climat de la voiture s\'ouvre, MG4 Climat apparaît (aussi depuis le launcher)</string>
+    <string name="cl_s_replace_unverified">Appli climat d\'origine %1$s pas encore vérifiée : l\'originale reste</string>
+    <string name="cl_s_shade" formatted="false">Pas de menu déroulant avec le climat</string>
+    <string name="cl_s_shade_sub" formatted="false">Le système l\'ouvre quand la climatisation s\'allume ou s\'éteint : MG4 Climat le referme aussitôt</string>
+    <string name="cl_s_tools" formatted="false">Outils</string>
+    <string name="cl_s_orig_app" formatted="false">Appli climat d\'origine</string>
+    <string name="cl_s_orig_app_sub" formatted="false">S\'ouvre et n\'est pas remplacée pendant 2 minutes</string>
+    <string name="cl_s_test" formatted="false">Test automatique des commandes</string>
+    <string name="cl_s_test_sub" formatted="false">Voiture à l\'arrêt uniquement : essaie toutes les commandes, remet tout en place et l\'écrit dans le journal</string>
+    <string name="cl_s_diag" formatted="false">Diagnostic</string>
+    <string name="cl_s_diag_sub" formatted="false">État lu depuis la voiture et événements</string>
+    <string name="cl_b_open" formatted="false">Ouvrir</string>
+    <string name="cl_b_start" formatted="false">Lancer</string>
+    <string name="cl_b_show" formatted="false">Afficher</string>
+    <string name="cl_b_cancel" formatted="false">Annuler</string>
+    <string name="cl_b_activate" formatted="false">Activer</string>
+    <string name="cl_s_verify" formatted="false">Vérifier l\'appli climat</string>
+    <string name="cl_s_verify_sub" formatted="false">Une nouvelle version de l\'appli climat d\'origine n\'est pas encore reconnue : je teste les commandes et, si elles marchent, je la remplace. Voiture à l\'arrêt, climatisation éteinte.</string>
+    <string name="cl_c_verify_msg" formatted="false">Je teste les commandes du climat sur l\'appli d\'origine et, si elles marchent, je la remplace par MG4 Climat. Environ deux minutes. Le test remet tout comme avant.</string>
+    <string name="cl_a_verify_ok">Vérification réussie : appli climat %1$s reconnue</string>
+    <string name="cl_a_verify_fail">Vérification échouée pour %1$s : l\'appli d\'origine reste</string>
+    <string name="cl_s_workshop" formatted="false">Mode atelier</string>
+    <string name="cl_s_workshop_sub" formatted="false">Suspend le remplacement par MG4 Climat quelques jours, pour que l\'atelier voie l\'appli climat d\'origine. Ensuite tout revient seul.</string>
+    <string name="cl_s_workshop_1" formatted="false">1 jour</string>
+    <string name="cl_s_workshop_3" formatted="false">3 jours</string>
+    <string name="cl_s_workshop_7" formatted="false">7 jours</string>
+    <string name="cl_s_workshop_on">Active jusqu\'au %1$s</string>
+    <string name="cl_c_workshop_msg">Pendant %1$d jours, MG4 Climat ne remplace pas l\'appli climat d\'origine. Tu peux annuler à tout moment depuis cet écran.</string>
+    <string name="cl_s_swipe" formatted="false">Fermer par glissement</string>
+    <string name="cl_s_swipe_sub" formatted="false">Glisse verticalement sur le panneau ou depuis le bord de l\'écran pour revenir à l\'accueil</string>
+    <string name="cl_s_swipe_off" formatted="false">Désactivé</string>
+    <string name="cl_s_swipe_auto" formatted="false">Automatique</string>
+    <string name="cl_s_swipe_bottom" formatted="false">Du bas</string>
+    <string name="cl_s_swipe_top" formatted="false">Du haut</string>
+    <string name="cl_s_joy" formatted="false">Commandes au joystick</string>
+    <string name="cl_s_joy_sub" formatted="false">MG4 Climat ouvert : OK allume/éteint, haut/bas température, gauche/droite ventilation</string>
+    <string name="cl_s_joy_right" formatted="false">Joystick droit</string>
+    <string name="cl_s_joy_left" formatted="false">Joystick gauche</string>
+    <string name="cl_s_keys" formatted="false">Tester les touches du volant</string>
+    <string name="cl_s_keys_sub" formatted="false">Affiche le code de chaque touche appuyée et associe le joystick</string>
+    <string name="cl_s_keys_hint" formatted="false">Appuie sur les touches du volant : les codes vont aussi dans le journal</string>
+    <string name="cl_k_press">%1$s : appuie sur %2$s</string>
+    <string name="cl_k_idle" formatted="false">Dernières touches appuyées</string>
+    <string name="cl_k_none" formatted="false">Aucune touche pour l\'instant</string>
+    <string name="cl_k_up" formatted="false">HAUT</string>
+    <string name="cl_k_down" formatted="false">BAS</string>
+    <string name="cl_k_left" formatted="false">GAUCHE</string>
+    <string name="cl_k_right" formatted="false">DROITE</string>
+    <string name="cl_k_ok" formatted="false">OK</string>
+    <string name="cl_b_assign" formatted="false">Associer</string>
+    <string name="cl_b_resume" formatted="false">Reprendre</string>
+    <string name="cl_a_test_moving" formatted="false">Fais la vérification voiture à l\'arrêt, frein de stationnement serré. Tu peux la reprendre là où elle s\'est arrêtée (Outils → Reprendre).</string>
+    <string name="cl_a_a11y_off" formatted="false">Le service d\'accessibilité de MG4 Climat n\'est pas actif : pas de remplacement de l\'appli d\'origine, pas de fermeture du panneau ni de glissement depuis le bord. Redémarre la voiture ou réinstalle MG4 Launcher ; sinon active-le dans Paramètres Android → Accessibilité → MG4 Climat.</string>
+    <string name="cl_c_test_msg" formatted="false">Voiture À L\'ARRÊT et allumée, MG4 Climat essaie les commandes une à une comme les boutons de l\'appli d\'origine : marche, température, ventilation, répartition de l\'air, A/C, ECO, recyclage, AUTO, sièges et volant (si présents). Cela dure environ 2 minutes, puis tout est remis en place et le résultat est écrit dans le journal.
+
+S\'arrête tout seul si la voiture roule ou si tu quittes cet écran. Ne touche pas au climat pendant le test.</string>
+    <string name="cl_s_joy_on" formatted="false">Activé</string>
+    <string name="cl_s_joy_shared" formatted="false">Sur ce logiciel les touches arrivent aussi à la musique : les commandes marchent, mais le volume et le titre peuvent changer avec la climatisation</string>
+    <string name="cl_s_joy_excl" formatted="false">MG4 Climat ouvert, les touches ne commandent que la climatisation (OK, haut/bas température, gauche/droite ventilation)</string>
+    <string name="cl_a_joy_shared" formatted="false">Sur cette voiture les touches du volant arrivent aussi à la musique : en réglant la climatisation au joystick, le volume ou le titre peuvent changer.</string>
+    <string name="cl_s_quick" formatted="false">Ouverture rapide</string>
+    <string name="cl_s_quick_sub" formatted="false">Couvre aussitôt l\'appli climat d\'origine avec un écran déjà prêt pendant l\'ouverture de MG4 Climat</string>
+    <string name="cl_s_labels" formatted="false">Afficher les libellés des boutons</string>
+    <string name="cl_s_labels_sub" formatted="false">Désactivé : icônes plus grandes seules, comme sur l\'accueil du launcher</string>
+    <string name="cl_k_factory" formatted="false">d\'usine</string>
+    <string name="cl_k_left_try" formatted="false">Vérifie s\'il envoie ses propres codes (en général non)</string>
+    <string name="cl_k_left_none" formatted="false">Le joystick gauche n\'est pas disponible sur cette voiture (il envoie les mêmes touches que le droit)</string>
+    <string name="cl_b_try" formatted="false">Tester</string>
+    <string name="cl_s_joy_conflict" formatted="false">Une autre appli utilise le joystick</string>
+    <string name="cl_s_joy_conflict_sub">%1$s peut prendre les mêmes touches du volant : désactive le joystick dans l\'autre appli pour l\'utiliser avec MG4 Climat</string>
+    <string name="cl_s_proj" formatted="false">Climat pendant Android Auto et CarPlay</string>
+    <string name="cl_s_proj_sub" formatted="false">Avec Android Auto ou CarPlay devant, touche le centre de la barre du haut pour ouvrir MG4 Climat</string>
+    <string name="cl_s_autoclose" formatted="false">Fermer automatiquement après</string>
+    <string name="cl_s_autoclose_sub" formatted="false">Secondes sans toucher ni touche du joystick ; puis retour là où tu l\'as ouvert</string>
+    <string name="cl_s_never" formatted="false">Jamais</string>
+    <string name="cl_p_settings_later" formatted="false">Les réglages s\'ouvrent depuis MG4 Climat en plein écran</string>
+    <string name="cl_b_ok" formatted="false">OK</string>
 </resources>

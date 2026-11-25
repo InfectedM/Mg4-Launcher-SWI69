@@ -13,4 +13,13 @@
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:windowActionBar">false</item>
     </style>
+
+    <!-- built-in climate screen: the window starts with the dark background and no animation, so it covers the original
+         climate app at once (no white flash or fade while the screen draws) -->
+    <style name="ClimateTheme" parent="@android:style/Theme.DeviceDefault.NoActionBar.Fullscreen">
+        <item name="android:windowBackground">@color/climate_screen_bg</item>
+        <item name="android:windowAnimationStyle">@null</item>
+        <item name="android:windowDisablePreview">false</item>
+    </style>
+    <color name="climate_screen_bg">#FF0A0B0D</color>
 </resources>

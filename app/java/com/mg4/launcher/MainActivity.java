@@ -186,6 +186,9 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
         com.mg4.launcher.svc.HomeMode.diag(getApplicationContext());
         new Thread(() -> {
             com.mg4.launcher.svc.BootAccessibility.ensureEnabled(getApplicationContext());
+            // built-in climate screen: its accessibility service, and the separate MG4 Clima app is removed (not needed)
+            com.mg4.launcher.climate.ClimateGuard.ensureEnabled(getApplicationContext());
+            com.mg4.launcher.climate.OldClimateApp.removeIfInstalled(getApplicationContext());
             com.mg4.launcher.svc.HomeLock.apply(getApplicationContext(), "launcher start");
             com.mg4.launcher.svc.StartGuard.resolvedHome(getApplicationContext());
             com.mg4.launcher.svc.StartGuard.reportKeyApps(getApplicationContext());
@@ -495,6 +498,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     /** What's new in each version (texts in all languages in strings.xml). */
     private static int[] newsFor(String ver) {
         switch (ver) {
+            case "0.4.12":  // fork InfectedM
+                return new int[]{R.string.news_v0412_1, R.string.news_v0412_2};
             case "0.4.11":  // fork InfectedM
                 return new int[]{R.string.news_v0411_1, R.string.news_v0411_2};
             case "0.4.10":  // fork InfectedM

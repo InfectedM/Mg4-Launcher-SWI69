@@ -280,6 +280,14 @@ public final class Diag {
         return sb.toString();
     }
 
+    private static String climate(Context c) {
+        try {
+            return com.mg4.launcher.climate.ClimateStore.text(c);
+        } catch (Throwable t) {
+            return "unavailable: " + t;
+        }
+    }
+
     /** Full log text: version, current values, recent events, launcher logcat (same format as the SWI69). */
     public static String buildLog(Context c) {
         StringBuilder sb = new StringBuilder();
@@ -297,6 +305,7 @@ public final class Diag {
         sb.append("===== RECENT EVENTS =====\n").append(events()).append('\n');
         sb.append("===== RECENT CRASHES (all apps) =====\n").append(crashes()).append('\n');
         sb.append("===== ANDROID AUTO / CARPLAY / USB (system) =====\n").append(projectionLog(c)).append('\n');
+        sb.append("===== CLIMATE SCREEN (built-in MG4 Clima) =====\n").append(climate(c)).append('\n');
         sb.append("===== RadioFix =====\n").append(radioFix(c)).append('\n');
         sb.append("===== LAUNCHER LOGCAT =====\n").append(logcat());
         return sb.toString();

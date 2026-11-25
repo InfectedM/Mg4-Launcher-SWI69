@@ -585,4 +585,6 @@ PL = {
     'news_v0410_2': 'Log naprawdę pokazuje ostatnie awarie aplikacji (wcześniej sekcja była pusta)',
     'news_v0411_1': 'Kod uporządkowany i przetłumaczony na angielski, dziennik diagnostyczny po angielsku; wysyłanie logów całkowicie usunięte',
     'news_v0411_2': 'Ustawienia są automatycznie przenoszone na nowe nazwy wewnętrzne: nic nie ginie',
+    'news_v0412_1': 'MG4 Klimatyzacja wbudowana w launcher: ekran klimatyzacji otwiera się przyciskiem klimatyzacji i zamiast oryginalnej aplikacji, bez osobnej aplikacji',
+    'news_v0412_2': 'Jeśli MG4 Klimatyzacja jest zainstalowana, zostanie odinstalowana automatycznie; ustawienia klimatyzacji są pod kołem zębatym na ekranie klimatyzacji',
 }

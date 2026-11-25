@@ -89,7 +89,7 @@ public final class AppCatalog {
     public AppCatalog(Context c) {
         ctx = c.getApplicationContext();
         pm = ctx.getPackageManager();
-        spm = pm;
+        sctx = ctx.getApplicationContext();
     }
 
     public static int iconFor(Context c, String name) {
@@ -333,17 +333,18 @@ public final class AppCatalog {
      * (on some SWI68 firmwares HvacActivity and ChargeManagementActivity are missing). Null if that is missing too:
      * written only once to the diagnostics.
      */
-    private static volatile PackageManager spm;
+    private static volatile Context sctx;
 
     /**
-     * MG4 Clima installed: the climate opens directly there (without briefly showing the original app).
-     * MG4 Clima forwards to the original if the replacement is turned off.
+     * Climate button: with the replacement on, the climate opens directly on the built-in climate screen (without
+     * briefly showing the original app). With the replacement off, the original climate app opens.
      */
     static Intent climateOverride(String pkg) {
-        if (!MgApps.HVAC_PKG.equals(pkg) || spm == null) return null;
-        Intent i = new Intent("com.mg4.clima.APRI").setPackage("com.mg4.clima").addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        Context c = sctx;
+        if (!MgApps.HVAC_PKG.equals(pkg) || c == null) return null;
         try {
-            return spm.resolveActivity(i, 0) != null ? i : null;
+            if (!com.mg4.launcher.climate.ClimateStore.replace(c)) return null;
+            return new Intent(c, com.mg4.launcher.climate.ClimateActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         } catch (Exception e) {
             return null;
         }
@@ -354,7 +355,7 @@ public final class AppCatalog {
     }
 
     public Intent resolveLaunch(String pkg, String cls) {
-        spm = pm;
+        sctx = ctx.getApplicationContext();
         // 0.4.3: without a package there is nothing to open (button disabled, no crash)
         if (empty(pkg)) return null;
         Intent mg4 = climateOverride(pkg);

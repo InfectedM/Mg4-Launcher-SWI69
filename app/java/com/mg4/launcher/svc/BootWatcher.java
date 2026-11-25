@@ -40,6 +40,7 @@ public final class BootWatcher extends BroadcastReceiver {
         StartGuard.markBoot();
         CrashGuard.install(c);
         BootAccessibility.ensureEnabled(c);
+        com.mg4.launcher.climate.ClimateGuard.ensureEnabled(c);   // built-in climate screen (replacement of the original app)
         // 0.3.4: settings are not readable before unlock; the work is done on BOOT_COMPLETED
         if (!StartGuard.unlocked(c)) {
             Diag.put("startup.homeResumed", "waiting for unlock");

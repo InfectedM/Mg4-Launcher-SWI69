@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.11.apk"><img alt="Transferir 0.4.11" src="https://img.shields.io/badge/Transferir-0.4.11-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.12.apk"><img alt="Transferir 0.4.12" src="https://img.shields.io/badge/Transferir-0.4.12-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -97,8 +97,8 @@ As atualizações automáticas desta versão vêm **deste fork** (não da versã
 <sub><b>Definições</b>: cor, jantes e tejadilho do carro</sub></td>
 </tr>
 <tr>
-<td width="50%" valign="top"><img src="screenshots/mg4clima.png" alt="MG4 Clima aberto a partir do botão da climatização" width="100%"><br>
-<sub><a href="https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4">MG4 Clima</a> aberto a partir do botão da climatização</sub></td>
+<td width="50%" valign="top"><img src="screenshots/mg4clima.png" alt="Ecrã de clima integrado aberto a partir do botão da climatização" width="100%"><br>
+<sub><b>Ecrã de clima</b> integrado (0.4.12, vindo do <a href="https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4">MG4 Clima</a>), aberto a partir do botão da climatização</sub></td>
 <td width="50%" valign="top"><img src="screenshots/MG4Launcher-SWI69-0.4.6-vidros.png" alt="Definições, secção Vidros: fecho automático ao sair do carro" width="100%"><br>
 <sub><b>Vidros</b> (0.4.6, fork): fecho automático ao sair do carro, baseado no <a href="https://github.com/Skittle6938/winclose">WinClose</a></sub></td>
 </tr>
@@ -111,7 +111,7 @@ As atualizações automáticas desta versão vêm **deste fork** (não da versã
 
 <sub>Simulações do grafismo: valores, estações e logótipos são exemplos.</sub>
 
-> 🌡️ **Novo: [MG4 Clima](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4)** — o ecrã da climatização em estilo Tesla, para SWI68, SWI69, SWI132 e SWI133. Com o MG4 Clima instalado, o botão da climatização do launcher abre-o diretamente.
+> 🌡️ **Novo na 0.4.12: ecrã de clima integrado** — o ecrã da climatização em estilo Tesla do [MG4 Clima](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4) faz agora parte do launcher: abre no botão da climatização e em vez da app de climatização original, sem instalar nada à parte.
 
 ---
 
@@ -242,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.11.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.12.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -258,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.11.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.12.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -331,6 +331,20 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 [![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versões
+
+#### 0.4.12 (fork InfectedM)
+- **Ecrã de clima integrado** (vindo do [MG4 Clima](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4) 1.4.5,
+  só a parte da SWI69): o ecrã em estilo Tesla abre no botão da climatização e, quando a app de climatização original
+  abre (tecla física, barra do sistema), aparece por cima dela. Inclui a janela pronta contra o "piscar" da original,
+  o fecho do menu que o sistema abre ao ligar o clima, o fecho com deslize, o fecho automático, os comandos do joystick
+  do volante (com a prova de teclas), a zona e o painel por cima do Android Auto/CarPlay, o regresso ao Android
+  Auto/CarPlay ao fechar, a verificação de uma versão nova da app de climatização, o teste automático e o modo oficina.
+  As definições estão na roda dentada do próprio ecrã; o lado de condução vem das definições do launcher.
+- O estado e os eventos do clima entram no **Guardar registo** do launcher (secção `CLIMATE SCREEN`); nada é enviado.
+- Se a app **MG4 Clima** separada estiver instalada, é **desinstalada sozinha** no primeiro arranque (as duas a
+  substituir o clima ao mesmo tempo dariam conflito). As versões verificadas e o intervalo de temperatura medido
+  voltam a ser medidos pela verificação.
+- Janela **Novidades** da 0.4.12.
 
 #### 0.4.11 (fork InfectedM)
 - **Fork independente**: deixa de haver ligação ao repositório original (os créditos mantêm-se em "Sobre este fork").

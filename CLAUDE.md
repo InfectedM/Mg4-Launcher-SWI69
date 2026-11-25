@@ -28,7 +28,7 @@ credits stay in the README ("Sobre este fork").
   The in-car updater reads `releases/latest.json` from this fork.
 
 ## Compatibility
-- SWI69 (Color Radio MY23). Must stay compatible with the original HVAC app (`ICarHvacService`) and MG4 Clima.
+- SWI69 (Color Radio MY23). Must stay compatible with the original HVAC app (`ICarHvacService`). The MG4 Clima screen is built in (package `climate`, from MG4 Clima 1.4.5, SWI69 only); the separate `com.mg4.clima` app is uninstalled at start.
 - Preference keys stored in SharedPreferences are persistent data: renaming one needs a one-time migration.
 
 ## Build

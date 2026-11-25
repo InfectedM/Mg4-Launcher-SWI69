@@ -85,6 +85,7 @@ public final class SelfUninstall {
         Diag.put("uninstall", "result: not uninstalled (" + why + ") · mark removed, launcher as before");
         new Thread(() -> HomeLock.apply(app, "uninstall cancelled"), "mg4-homelock").start();
         BootAccessibility.ensureEnabled(app);
+        com.mg4.launcher.climate.ClimateGuard.ensureEnabled(app);
         if (result != null) result.onFailed(why);
     }
 
@@ -92,11 +93,12 @@ public final class SelfUninstall {
         // 2) launcher's accessibility service removed from the list (the others stay)
         try {
             String me = new ComponentName(app, BootAccessibility.class).flattenToString();
+            String climate = new ComponentName(app, com.mg4.launcher.climate.ClimateGuard.class).flattenToString();
             String cur = Settings.Secure.getString(app.getContentResolver(), Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES);
             if (!TextUtils.isEmpty(cur)) {
                 StringBuilder keep = new StringBuilder();
                 for (String s : cur.split(":")) {
-                    if (s.isEmpty() || s.equalsIgnoreCase(me)) continue;
+                    if (s.isEmpty() || s.equalsIgnoreCase(me) || s.equalsIgnoreCase(climate)) continue;
                     if (keep.length() > 0) keep.append(':');
                     keep.append(s);
                 }
