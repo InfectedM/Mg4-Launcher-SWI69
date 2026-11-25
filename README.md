@@ -1,59 +1,33 @@
 > [!WARNING]
-> **Para remover o launcher usa sempre Definições → Desinstalar do launcher**, não o menu Apps do Android. Se o carro ficar em "Smartphone starting", instala o [MG4 Ripristino Home](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68/raw/main/releases/MG4HomeRescue-1.0.apk) a partir de uma pen USB e abre-o: volta a ligar o ecrã inicial original.
+> **Para remover o launcher usa sempre Definições → Sistema → Desinstalar MG4 Launcher**, não o menu Apps do Android. Se o carro ficar em "Smartphone starting", instala o [MG4 Ripristino Home](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68/raw/main/releases/MG4HomeRescue-1.0.apk) a partir de uma pen USB e abre-o: volta a ligar o ecrã inicial original.
 
 # MG4 Launcher — SWI69 Color Radio
 
 <p align="center"><img src="screenshots/MG4Launcher-SWI69-0.4.4-ricarica.gif" alt="Ecrã inicial do MG4 Launcher SWI69 Color Radio com a animação de carregamento (simulação)" width="100%"></p>
 
 <p align="center">
-<b>Launcher em estilo Tesla para o sistema de infoentretenimento MG4 SWI69 Color Radio</b>
+<b>Launcher em estilo Tesla para o infoentretenimento MG4 SWI69 Color Radio, com ecrã de clima integrado</b>
 </p>
 
 <p align="center">
 <a href="releases/MG4Launcher-SWI69-0.4.13.apk"><img alt="Transferir 0.4.13" src="https://img.shields.io/badge/Transferir-0.4.13-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
-<a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
 <p align="center">
-<a href="#que-versão-instalar">Que versão instalar?</a> ·
 <a href="#o-que-faz">O que faz</a> ·
+<a href="#ecrã-de-clima-mg4-clima-integrado">Ecrã de clima</a> ·
 <a href="#instalação">Instalação</a> ·
+<a href="#atualizações">Atualizações</a> ·
 <a href="#sobre-este-fork">Sobre este fork</a> ·
-<a href="#versões">Novidades</a>
+<a href="#versões">Versões</a>
 </p>
 
-> ⚠️ **Compatibilidade:** apenas infoentretenimento **SWI69 Color Radio**.
-> De momento garantido no **MG4 standard MY23 R45**; como usa os dados da FICM original, deverá funcionar em todas
-> as versões com **Color Radio**.
-> Para os outros softwares usa a versão dedicada:
-> **SWI68 SAIC 1.0+** → [Mg4-Launcher-SWI68](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68) ·
+> ⚠️ **Compatibilidade:** apenas infoentretenimento **SWI69 Color Radio** (MG4 MY23, EH32, Android Automotive 9).
+> Testado no **MG4 standard MY23 R45** (`SWI69-29958-1100R45`); como usa os serviços da FICM original, deverá
+> funcionar em todas as versões com **Color Radio**. Para outros softwares há launchers dedicados do autor original:
+> **SWI68** → [Mg4-Launcher-SWI68](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68) ·
 > **SWI132 (MG4 MY24)** → [Mg4-Launcher-SWI132](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI132) ·
 > **SWI133 (MG4 Luxury MY24)** → [Mg4-Launcher-SWI133](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI133)
-
----
-
-## Sobre este fork
-
-Este repositório é um **fork** do [MG4 Launcher SWI69](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69) de
-**Ernesto Micco** ([ernestomicco2026-cell](https://github.com/ernestomicco2026-cell)), autor do launcher original.
-A partir da **0.4.6** acrescenta funções novas, baseadas no trabalho de outros projetos da comunidade MG4:
-
-| Função | Onde fica no launcher | Proveniente de |
-|---|---|---|
-| **Vidros**: fecho automático ao sair do carro (velocidade/tempo para armar, atraso, bip, modo por vidro) e fecho manual | Definições → **Vidros** | [**WinClose**](https://github.com/Skittle6938/winclose), de [Skittle6938](https://github.com/Skittle6938) |
-| **Aquecimento inteligente da bateria** (ligar/desligar) | Barra de baixo → grupo **Condução** | [**MG4Control**](https://github.com/SliDeeN/MG4Control), de [SliDeeN](https://github.com/SliDeeN) |
-| Atalho **Definições do launcher** | Separador **Apps** → secção Carro | este fork |
-
-As funções foram **reescritas em Java** para o launcher, com o grafismo do launcher: não incluem código copiado desses
-projetos. O mérito da descoberta de como o carro funciona (serviços SAIC, comandos dos vidros, sensor da porta,
-propriedade do aquecimento da bateria) é dos respetivos criadores. Se gostas destas funções, visita e apoia os
-repositórios originais.
-
-> ⚠️ As funções novas foram testadas no emulador (interface e lógica); o comando dos vidros e o aquecimento da bateria
-> precisam de confirmação no carro. Se algo não funcionar, abre um *issue* neste repositório com o texto de
-> **Definições → Sistema → Diagnóstico** (linhas `vidros.*` e `bateria.aquecimento`).
-
-As atualizações automáticas desta versão vêm **deste fork** (não da versão original).
 
 ---
 
@@ -109,136 +83,132 @@ As atualizações automáticas desta versão vêm **deste fork** (não da versã
 </tr>
 </table>
 
-<sub>Simulações do grafismo: valores, estações e logótipos são exemplos.</sub>
-
-> 🌡️ **Novo na 0.4.12: ecrã de clima integrado** — o ecrã da climatização em estilo Tesla do [MG4 Clima](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4) faz agora parte do launcher: abre no botão da climatização e em vez da app de climatização original, sem instalar nada à parte.
+<sub>Simulações do grafismo: valores, estações e logótipos são exemplos. A captura do ecrã de clima é anterior à 0.4.13 (ainda com o botão de ligar).</sub>
 
 ---
 
-## Que versão instalar?
+## O que faz
 
-Há **um launcher diferente para cada software** do infoentretenimento MG4. Não são intercambiáveis:
-os serviços do carro, rádio, multimédia e climatização são diferentes e, com a versão errada, o launcher abre mas não lê
-nada do carro ("Serviço do veículo indisponível").
+Substitui o ecrã inicial original MG mantendo as suas funções. Tudo o que está abaixo vem num único APK.
 
-| Software do carro | Carro | Repositório | Ficheiro APK |
-|---|---|---|---|
-| **SWI68 SAIC 1.0+** | MG4 | [Mg4-Launcher-SWI68](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68) | `MG4Launcher-X.Y.Z.apk` |
-| **SWI69 Color Radio** | MG4 MY23 | **este repositório** | `MG4Launcher-SWI69-X.Y.Z.apk` |
-| **SWI132** | MG4 MY24 | [Mg4-Launcher-SWI132](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI132) | `MG4Launcher-SWI132-X.Y.Z.apk` |
-| **SWI133** | MG4 Luxury MY24 | [Mg4-Launcher-SWI133](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI133) | `MG4Launcher-SWI133-X.Y.Z.apk` |
+### Ecrã inicial
 
-**Como saber que software tens:** com o computador ligado ao carro,
-`adb shell getprop ro.build.mt2712.version` → começa por `SWI68-`, `SWI69-`, `SWI132-` ou `SWI133-`: é o software do teu carro.
-Se o launcher já estiver instalado: definições → linha **MG4 Launcher X.Y.Z · repositório** em *Atualizações*;
-o nome do repositório diz que versão tens. Se no *Diagnóstico* aparecerem `veicolo.bind = fallito` e
-`media.usb.bind = fallito`, instalaste a versão SWI68 num carro SWI69 (ou vice-versa).
-
----
-
-## Vídeo de análise
-
-<a href="https://youtu.be/JKZ0N3Lr7FI"><img width="640" alt="Vídeo de análise do MG4 Launcher no YouTube" src="https://img.youtube.com/vi/JKZ0N3Lr7FI/hqdefault.jpg" /></a>
-
-Vê o [vídeo de análise no YouTube](https://youtu.be/JKZ0N3Lr7FI).
-
----
-
-## Português
-
-Launcher em estilo Tesla para o infoentretenimento do **MG4** com o software **SWI69 Color Radio**
-(EH32, Android Automotive 9, build `SWI69-29958-1100R45`).
-
-**Compatibilidade:** funciona **apenas com o software SWI69 Color Radio**. O SWI69 Color Radio não é uma atualização
-do SWI68: é um software diferente, com outros serviços do carro. No SWI68 usa a [versão SWI68](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI68).
-Substitui o ecrã inicial original mantendo as suas funções, com o mesmo grafismo da versão SWI68.
-
-**Versões do carro:** de momento a compatibilidade está **garantida no MG4 standard MY23 com software R45**
-(`SWI69-29958-1100R45`), onde o launcher foi testado. Como usa os mesmos dados e serviços da **FICM**
-original (a unidade de infoentretenimento), deverá funcionar em **todas as versões com o rádio Color Radio**.
-Se o experimentares noutra versão, os relatos são bem-vindos: abre um *issue* com o registo guardado (ver [Reportar um problema](#reportar-um-problema)).
-
-**Índice:** [O que faz](#o-que-faz) · [Instalação](#instalação) · [Atualizações](#atualizações) · [Voltar ao ecrã inicial MG original](#voltar-ao-ecrã-inicial-mg-original) · [Comandos úteis](#comandos-úteis) · [Reportar um problema](#reportar-um-problema) · [Apoiar o projeto](#apoiar-o-projeto) · [Versões](#versões)
-
-### O que faz
-
-- **Vidros** (0.4.6, fork, baseado no [WinClose](https://github.com/Skittle6938/winclose)): depois de uma viagem, com o
-  carro em P, fecha os vidros quando o condutor sai (ao abrir ou ao fechar a porta, com atraso e bip configuráveis);
-  arma-se acima de uma velocidade ou depois de um tempo de condução; cada vidro em Auto, Pulso ou Desligado; botão
-  **Fechar os vidros agora**. A contagem cancela-se ao reabrir a porta, sair de P, ligar o carro ou mexer num vidro.
-  Vem desligado: ativa-se em Definições → Vidros.
-- **Aquecimento inteligente da bateria** (0.4.6, fork, baseado no [MG4Control](https://github.com/SliDeeN/MG4Control)):
-  botão no grupo **Condução** da barra. Melhora o carregamento rápido mas reduz a autonomia e não se desliga sozinho.
-- **Atalho Definições do launcher** (0.4.6, fork) no separador Apps, além da pressão longa sobre o carro.
-- **Carro e bateria** (à esquerda): autonomia e **relógio** em grande, barra da bateria com a percentagem ao lado e
-  marca do limite de carga, temperatura exterior; o estado só aparece durante o carregamento ou com V2L (tipo, potência,
-  tempo restante). Nas definições ativam-se a **data** ao lado da hora, a percentagem com uma casa decimal, a pressão
-  dos pneus (TPMS) com escolha da unidade (como no quadrante, bar, kPa ou psi) e os **botões de carregamento**
-  (limite de carga, corrente AC e iniciar/parar o carregamento ou o V2L, com confirmação). O teu MG4, que pode ser
-  pintado com as 8 cores de fábrica, com tejadilho preto opcional.
-  Toca no carro ou no V2L → app Energia. Toque longo no carro → definições do launcher.
+- **Carro e bateria** (à esquerda): autonomia e **relógio** em grande (com **data** opcional), barra da bateria com a
+  percentagem (opcionalmente com uma casa decimal ou em grande) e a marca do **limite de carga**, temperatura exterior e,
+  se o carro a fornecer, interior. O carro aparece com a tua **cor** (as 8 cores de fábrica), **jantes** e **tejadilho
+  preto** opcional, com faróis acesos quando estão ligados.
+- **Pressão dos pneus (TPMS)** opcional, em bar, kPa ou psi (ou como no quadrante), com aviso de pressão baixa.
+- **Unidade de distância** automática (segue o carro), km ou milhas.
+- **Carregamento e V2L**: tipo, potência e tempo restante só aparecem enquanto carrega ou com V2L.
+  - **Animação de carregamento** quando ligas o cabo (a ligar, a carregar, carga completa, a desligar), feita a partir
+    do modelo 3D, na cor do teu carro. O pacote transfere-se sozinho e pode ser desligado.
+  - **Botões de carregamento** opcionais: limite de carga, corrente AC, iniciar/parar o carregamento ou o V2L (com
+    confirmação), **carregamento programado** (como na app Energia) e **desbloquear a tomada**.
+- Toque no carro ou no V2L → app Energia. **Toque longo no carro → definições do launcher.**
 - **Mapa / Multimédia / CarPlay** (à direita):
-  - **Mapa**: o SWI69 não tem navegador MG, a navegação faz-se com **CarPlay / Android Auto**. Sem navegação ativa, um
-    cartão mostra o estado do telemóvel com um botão **Abrir CarPlay / Android Auto** (ou um lembrete para ligares o
-    telemóvel); durante a navegação, o painel mostra as indicações do telemóvel.
-  - **Multimédia**: abre na fonte que está a tocar, caso contrário no rádio; um botão por fonte em cima
-    (Rádio, USB, Bluetooth, Online quando disponível, mais CarPlay/Android Auto quando há um telemóvel ligado);
-    com mais de 4 fontes, as não selecionadas mostram só o ícone.
-    Rádio: o **logótipo** da estação na capa (o nome só quando não há logótipo), **favoritos** e, à direita,
-    **FM / DAB** com a **lista de estações** (DAB a partir do serviço de rádio, FM a partir de uma pesquisa e das estações
-    que ouviste). Toca numa estação para a sintonizar, toque longo para a adicionar/remover dos favoritos.
-    **Logótipos de rádio**: os teus na pasta **MG4Launcher/logos** (ex. `MG4Launcher/logos/NOME.png`, na memória ou
-    numa pen USB: têm prioridade; a pasta antiga `MG4Launcher/loghi` continua a ser lida), os enviados pelas estações DAB e os transferidos quando há ligação, guardados para
-    sempre e reutilizados sem ligação.
-  - **CarPlay / Android Auto**: o separador aparece sozinho quando ligas um telemóvel.
-  - Em cima à direita, antes dos separadores, uma pastilha com **Bluetooth** (cheio = telemóvel ligado, esbatido = ligado
-    mas sem telemóvel) e **Wi-Fi** com 4 barras de sinal (só quando ligado).
-- **Barra inferior**, com comandos grandes para usar durante a condução: temperatura ‹ › (LO, 16…30, HI) e ventilação ‹ ›
-  (OFF / 1…11 / A = automático; toque no número = app Climatização, toque longo = climatização ligada/desligada),
-  botões **A/C** e **AUTO** (ligado = cores invertidas), **recirculação** de 3 estados (Interior / Exterior / Auto, só se o
-  carro o suportar), grupo **Condução** (LKA, One Pedal, assistente Off/ACC/TJA e pedal do travão, só os comandos que o
-  carro tem), mini leitor compacto, **farol de nevoeiro traseiro** (âmbar quando ligado; Automático = escondido se a barra
-  do sistema já mostrar o seu indicador, ou Mostrar / Esconder) e **faróis de nevoeiro dianteiros** (verde, só se
-  existirem), Telefone, Rádio, **360°** (câmaras), Definições. Com a **barra grande** (opção), os botões da climatização
-  ficam maiores e o mini leitor dá lugar (a música fica no painel Multimédia).
-- **Apps**: desliza o ecrã inicial para a esquerda para ver as apps do carro e as que instalares; desliza para a direita
-  para voltar. Usa **Editar** para escolher que apps mostrar, incluindo as do carro. No fim das apps do carro estão também
-  as **Definições Android** e os **Ficheiros Android** (só se existirem no carro).
-- **Tamanho dos comandos** (Normal / Grande / Muito grande): aumenta botões, ícones e textos dos botões
-  proporcionalmente, para facilitar o uso durante a condução.
-- **Volante à direita ou à esquerda**: automático a partir da configuração do carro ou escolhido nas definições; com
-  volante à direita o ecrã inicial fica espelhado, com o carro e a climatização do lado do condutor. Nos carros que
-  mostram sempre o indicador de luzes do sistema no canto superior esquerdo, esse canto fica livre.
-- **Definições** (toque longo no carro), divididas em secções com um menu lateral: **Carro** (cor, tejadilho preto),
-  **Início** (casas decimais, pressão dos pneus), **Aspeto** (tema, tamanho dos comandos, idioma),
-  **Condução** (lado de condução, ecrã inicial MG original), **Sistema** (atualizações, gravação de registos,
-  diagnóstico). A versão e, quando disponível, uma nova versão com **Instalar** aparecem sempre no fundo do menu.
-  Também acessíveis pela roda dentada em cima à direita da página Apps.
-- **Ecrã inteiro**: barra de estado e dock MG escondidas (desliza a partir da margem para as fazer voltar).
-- **Atualizações**: as novas versões transferem-se e instalam-se a partir das definições, sem computador. Quando sai uma,
-  aparece em baixo à direita um pequeno aviso com **Atualizar** / **Mais tarde** (esconde-se sozinho; "Mais tarde"
-  espera um dia).
-- **Música que retoma sozinha**: se uma notificação do telemóvel fizer a música Bluetooth (ou USB / online) passar para
-  o rádio, o launcher retoma a tua música após alguns segundos. Não faz nada se foste tu a escolher o rádio.
-- **Sem envio de registos**: o código de envio de registos foi removido; "Guardar registo" grava só no carro.
-  O launcher não envia diagnósticos para nenhum servidor; **Guardar registo** grava o registo apenas no carro, em
-  `Download/MG4Launcher/`, e na pen USB, em `MG4Launcher/logs/`, para o anexares tu a um *issue* se quiseres.
-- **Arranque ao ligar**: o launcher volta sozinho para a frente se o sistema abrir o ecrã inicial MG; além disso, a opção
-  **Premir Início sozinho após ligar** (desligada, 5, 10, 15, 20 ou 30 segundos), apenas uma vez e só por cima do ecrã
-  inicial MG.
-- **Novidades**: no primeiro arranque após uma atualização, uma janela mostra brevemente as novidades (uma vez por versão).
+  - **Mapa**: a navegação faz-se com CarPlay / Android Auto ou com a app de navegação que escolheres (Google Maps,
+    Waze, ABRP…). Durante a navegação mostra as indicações do telemóvel; sem navegação, um cartão para abrir o CarPlay /
+    Android Auto.
+  - **Multimédia**: abre na fonte que está a tocar; um botão por fonte (Rádio, USB 1, USB 2, Bluetooth, Online,
+    CarPlay/Android Auto), podendo escolher quais aparecem. Rádio com **FM / DAB**, **lista de estações**, **favoritos**
+    (toque longo para adicionar/remover) e **logótipos** das estações.
+  - **Logótipos de rádio**: os teus (pasta `MG4Launcher/logos` na memória ou numa pen USB, com prioridade), os
+    enviados pelo DAB e **pacotes por país** transferidos uma vez e guardados (podes escolher um ou mais países).
+  - Ao lado do clima, um painel à escolha: **música**, **favoritos do telemóvel** (chamada com um toque) ou **atalhos
+    de apps**.
+  - Pastilha com **Bluetooth** e **Wi-Fi** (sinal em 4 barras) em cima à direita, e um botão à escolha ao lado de
+    Mapa/Multimédia (CarPlay/Android Auto, uma app ou nenhum).
+- **Barra inferior**, com comandos grandes para usar a conduzir:
+  - **Climatização**: temperatura ‹ › (LO, 16…30, HI), ventilação ‹ › (OFF / 1…11 / A), **A/C**, **AUTO**,
+    **recirculação** de 3 estados; toque no número abre o ecrã de clima. Opcionalmente **bancos e volante aquecidos**.
+  - Grupo **Condução**: LKA, One Pedal, assistente Off/ACC/TJA, pedal do travão e **aquecimento inteligente da
+    bateria** (só os comandos que o carro tem).
+  - **Faróis de nevoeiro** traseiro (Automático / Mostrar / Esconder) e dianteiros (se existirem).
+  - Atalhos: Telefone, Rádio, **360°** (original, MG4 360, outra app ou escondido), Definições, CarPlay/Android Auto.
+  - Mini leitor; **barra grande** e **botões agrupados** opcionais.
+- **Apps**: desliza o ecrã inicial para a esquerda para ver as apps do carro e as que instalaste; **Editar** escolhe as
+  que aparecem. Toque longo numa app instalada → **Desinstalar**. Inclui atalhos para as Definições Android, os Ficheiros
+  Android e as definições do launcher.
 
-**Idiomas:** italiano, inglês, espanhol, alemão, português, francês, turco e polaco. **Como o carro** (predefinido) segue
-o idioma do sistema e atualiza-se sozinho quando o mudas no carro; em alternativa escolhe um idioma nas definições.
-Os outros idiomas do sistema passam para inglês.
+### Ecrã de clima (MG4 Clima integrado)
 
-### Instalação
+O ecrã de climatização em estilo Tesla do [MG4 Clima](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4) faz parte
+do launcher (desde a 0.4.12): não é preciso instalar nada à parte, e a app MG4 Clima separada é desinstalada sozinha.
 
-Apenas para o infoentretenimento **SWI69 Color Radio**. Transfere o APK da pasta [`releases/`](releases/).
-Há duas formas de o instalar: a partir de uma pen USB, se conseguires abrir um gestor de ficheiros no carro, ou com adb
-a partir de um computador.
+- **Abre** no botão do clima do launcher e, se quiseres, **em vez da app de climatização original** (tecla física,
+  barra do sistema). A **abertura rápida** tapa logo a app original para não se ver o "piscar".
+- **Comandos**: temperatura, ventilador, AUTO (com intensidade), A/C, ECO, recirculação, saídas de ar (para-brisas,
+  cara, pés), desembaciamento dianteiro e traseiro, bancos e volante aquecidos. Não há botão de ligar/desligar: usa o
+  botão físico do carro.
+- **Tablier** desenhado ou realista (foto), com **ar animado** (laranja a aquecer, azul a arrefecer) e textos nos
+  botões opcionais. Segue o tema dia/noite e o lado de condução do launcher; o **✕ fica do lado do condutor**.
+- **Fechar**: ✕, deslizar na vertical (a partir de cima, de baixo ou automático), ou sozinho após alguns segundos sem
+  toques; volta para onde estavas.
+- **Joystick do volante** (opcional, só com o ecrã aberto): cima/baixo temperatura, esquerda/direita ventilador, OK.
+- **Durante o Android Auto / CarPlay**: um **botão redondo flutuante** abre o clima; arrasta-o para onde não tape os
+  botões do Waze ou do Maps (a posição fica guardada). Se o Android Auto retomar o ecrã, o clima aparece como painel por
+  cima dele. Ao fechar volta ao Android Auto / CarPlay.
+- Fecha sozinho o **menu deslizante** que o sistema abre quando o clima liga ou desliga.
+- **Ferramentas**: abrir a app original sem substituição durante 2 minutos, **verificar** uma versão nova da app de
+  climatização original (as versões `A9_Hvac_V1.0.1.120` e `.87` já são conhecidas), **testar as teclas do volante**,
+  **teste automático** dos comandos (só parado), **modo oficina** (1, 3 ou 7 dias com a app original) e diagnóstico.
+- As definições estão na **roda dentada** do próprio ecrã de clima.
 
-#### Método 1 — A partir de uma pen USB (sem computador)
+### Vidros
+
+Baseado no [WinClose](https://github.com/Skittle6938/winclose). Depois de uma viagem, com o carro em P, **fecha os
+vidros quando o condutor sai**: arma-se acima de uma velocidade (5–40 km/h) ou de um tempo de condução (1–15 min); a
+contagem começa ao abrir ou ao fechar a porta, com atraso (0–30 s) e bip configuráveis; cada vidro em Auto, Pulso ou
+Desligado. A contagem cancela-se ao reabrir a porta, sair de P, ligar o carro ou mexer num vidro. Botão **Fechar os
+vidros agora**. Funciona com o launcher em segundo plano. Vem desligado (Definições → Vidros).
+
+### Sistema e arranque
+
+- **Arranque ao ligar**: o launcher é o ecrã inicial e volta sozinho para a frente se o sistema abrir o ecrã MG.
+  Opção **Premir Início sozinho após ligar** (5–30 s).
+- **Arranque seguro**: se o launcher fechar várias vezes seguidas, o ecrã inicial MG é reativado sozinho.
+- **Modo oficina** do launcher: o carro usa o ecrã inicial MG durante 1, 3 ou 7 dias (para a oficina) e depois volta.
+- **Depois da marcha-atrás** volta à app que estava aberta (CarPlay, Android Auto, outra app).
+- **Reiniciar o dongle** CarPlay/Android Auto sem fios se não ligar (automático ou com um botão).
+- **Música que retoma sozinha** se uma notificação do telemóvel a trocar pelo rádio; ao arrancar retoma a última fonte.
+  Seguinte/anterior do volante funcionam também na USB 2.
+- **Tema dia/noite** automático (sinal do carro, faróis, nascer/pôr do sol) ou manual, aplicado a todo o sistema (apps
+  MG, painel deslizante, ecrã de clima).
+- **Volante à direita ou à esquerda**: automático ou escolhido; à direita tudo fica espelhado.
+- **Tamanho dos comandos** (Normal / Grande / Muito grande) e **tamanho das apps** separados.
+- **Ecrã inteiro**: barra de estado e dock MG escondidas.
+- **Idiomas**: português, inglês, italiano, espanhol, alemão, francês, turco e polaco; **Como o carro** segue o idioma do
+  sistema.
+- **MG4 Store** opcional (só se o APK a incluir): instala-se sozinha uma vez.
+- **Novidades** numa janela, uma vez após cada atualização.
+
+### Definições
+
+Toque longo no carro (ou roda dentada da página Apps). Secções: **Carro** (cor, jantes, tejadilho, lado de condução,
+animação de carregamento) · **Vidros** · **Início** (data, bateria, distância, pneus, temperatura interior, limite,
+navegador, fontes de áudio, botão ao lado de Mapa/Multimédia) · **Barra e botões** · **Rádio e logótipos** ·
+**Aspeto** (tema, tamanhos, idioma) · **Início e apps** (início predefinido, arranque seguro, modo oficina, marcha-atrás,
+dongle, ecrã inicial original) · **Sistema** (atualizações, verificação de funções, diagnóstico, guardar registo,
+desinstalar).
+
+### Privacidade
+
+Nada é enviado: o envio de registos foi removido por completo. **Guardar registo** grava só no carro
+(`Download/MG4Launcher/`) e na pen USB (`MG4Launcher/logs/`). O launcher só se liga à internet para ler atualizações,
+avisos, logótipos e a animação de carregamento **deste repositório** (e os logótipos FM do radio-browser.info).
+
+---
+
+## Instalação
+
+Apenas para o infoentretenimento **SWI69 Color Radio**. Transfere o APK da pasta [`releases/`](releases/) ou da
+[última release](https://github.com/InfectedM/Mg4-Launcher-SWI69/releases/latest).
+
+**Como saber que software tens:** com o computador ligado ao carro, `adb shell getprop ro.build.mt2712.version` tem de
+começar por `SWI69-`. Se no *Diagnóstico* aparecerem `vehicle.bind = failed` e `radio.bind = failed`, o carro não é
+SWI69.
+
+### Método 1 — A partir de uma pen USB (sem computador)
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
@@ -249,88 +219,92 @@ Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 4. Toca em **Instalar**.
 5. Prime o botão **Início**: o Android pergunta que app de ecrã inicial usar. Escolhe **MG4 Launcher** e depois **Sempre**.
 
-Se **Definições** não fizer nada ou a instalação falhar, usa o método 2 (e, se puderes, reporta a mensagem de erro).
+Se **Definições** não fizer nada ou a instalação falhar, usa o método 2.
 
-#### Método 2 — Com adb a partir de um computador
+### Método 2 — Com adb a partir de um computador
 
 Precisas de um computador com o [adb](https://developer.android.com/tools/releases/platform-tools) ligado ao carro.
 O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permite-a.
 
-1. Instala:
-   ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.13.apk
-   ```
-2. Define-o como ecrã inicial predefinido:
-   ```bash
-   adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity
-   ```
-   Ou prime o botão Início: o Android pergunta que app de ecrã inicial usar.
+```bash
+adb install -r -f MG4Launcher-SWI69-0.4.13.apk
+adb shell cmd package set-home-activity com.mg4.launcher/.MainActivity
+```
 
 > **Se ao premir Início não te perguntar que ecrã inicial usar** (nalguns SWI69 o botão abre diretamente o ecrã
-> inicial MG): não é preciso fazer mais nada, o launcher passa a substituir sozinho o ecrã inicial MG sempre que este
-> aparece. Se tiveres uma app que remapeia os botões (ex. **MG4 Control**), confirma que o botão Início não está
-> atribuído ao ecrã inicial MG.
+> inicial MG): o launcher passa a substituir sozinho o ecrã inicial MG sempre que este aparece. Se tiveres uma app que
+> remapeia os botões (ex. **MG4 Control**), confirma que o botão Início não está atribuído ao ecrã inicial MG.
 
-Em ambos os casos, o launcher passa a arrancar sozinho quando o carro liga, tal como o ecrã inicial original,
-e as atualizações seguintes instalam-se a partir das definições do launcher, sem pen USB nem computador.
+Depois da primeira instalação o launcher arranca sozinho quando o carro liga, e as atualizações seguintes instalam-se a
+partir das definições, sem pen USB nem computador.
 
-### Atualizações
+Para o **ecrã de clima** substituir a app de climatização original, o launcher liga sozinho o seu serviço de
+acessibilidade. Numa versão da app original ainda não conhecida, o ecrã de clima pede uma **verificação** (roda dentada →
+Ferramentas) antes de a substituir.
 
-Definições do launcher → **Sistema** → **Atualizações** → **Verificar**.
-Se existir uma versão mais recente aparece **Instalar** (também no fundo do menu das definições): o launcher instala-a e
-reinicia. O carro precisa de ligação à internet (conectividade do carro ou hotspot do telemóvel). As atualizações vêm
-apenas deste repositório: nunca é proposta uma versão SWI68. Quem tiver uma versão anterior à 0.1.3 tem de instalar
-manualmente uma mais recente uma vez (pen USB ou adb).
+## Atualizações
 
-A partir da 0.4.2 o launcher **procura atualizações sozinho**: 2 minutos após o arranque e depois a cada 6 horas. Quando
-existe uma nova versão aparece um aviso discreto com um botão **Atualizar**. Para correções importantes a atualização
-pode começar sozinha, mas só com o carro parado. O launcher pode também mostrar **avisos importantes** (por exemplo, um
-problema conhecido e como o resolver). Só lê ficheiros deste repositório.
+O launcher procura atualizações sozinho (2 minutos após o arranque e depois a cada 6 horas) e mostra um aviso discreto
+com **Atualizar** / **Mais tarde**. Também em Definições → **Sistema** → **Atualizações** → **Verificar**. O carro
+precisa de internet (conectividade do carro ou hotspot do telemóvel). As atualizações vêm apenas **deste fork**
+(`releases/latest.json`). Correções importantes podem instalar-se sozinhas, mas só com o carro parado.
 
-### Voltar ao ecrã inicial MG original
+## Voltar ao ecrã inicial MG original
 
-A partir do launcher: definições → **Abrir o ecrã inicial original MG**. Para voltar a defini-lo como predefinido:
+Definições → **Início e apps** → **Abrir o ecrã inicial original MG**, ou desliga **Usar como início predefinido**.
+Para remover o launcher: Definições → **Sistema** → **Desinstalar MG4 Launcher** (repõe o ecrã inicial MG e remove o
+launcher). A partir de um computador:
 
 ```bash
 adb shell cmd package set-home-activity com.saicmotor.launcher/.view.MainActivity
+adb uninstall com.mg4.launcher
 ```
 
-Para remover completamente o launcher, mesmo sem computador (desde a 0.3.3): definições → **Desinstalar MG4 Launcher**.
-Repõe o ecrã inicial MG original e remove o launcher do carro. A partir de um computador: `adb uninstall com.mg4.launcher`.
 A app original nunca é modificada.
 
-### Comandos úteis
+## Comandos úteis
 
 ```bash
 # reiniciar o launcher sem desligar o carro
 adb shell am force-stop com.mg4.launcher
 adb shell am start -n com.mg4.launcher/.MainActivity
 
-# ver os valores lidos do carro (Ctrl+C para parar)
-adb logcat -s MG4L MG4L.Link
+# ver o que o launcher lê do carro e os eventos do ecrã de clima (Ctrl+C para parar)
+adb logcat -s MG4L MG4Climate
 
 # transferir o diagnóstico guardado pelo launcher (atualizado a cada 15 s)
 adb pull /sdcard/Android/data/com.mg4.launcher/files/diagnostics.txt
 ```
 
-### Reportar um problema
+## Reportar um problema
 
-Definições → **Diagnóstico dos serviços do carro** mostra os valores em bruto lidos de cada serviço do carro e os erros
-recentes; **Guardar registo** escreve um registo completo em **`Download/MG4Launcher/`** (memória do carro, visível no
-gestor de ficheiros) e, com uma pen USB ligada, em **`MG4Launcher/logs/`** na raiz da pen: é a forma mais
-rápida de corrigir aquilo que não funciona.
+Definições → **Sistema** → **Diagnóstico dos serviços do carro** mostra os valores lidos de cada serviço e os erros
+recentes; **Verificação de funções** testa, só em leitura, o que funciona neste carro. **Guardar registo** escreve um
+registo completo (com a secção `CLIMATE SCREEN` do ecrã de clima) em **`Download/MG4Launcher/`** e, com uma pen USB
+ligada, em **`MG4Launcher/logs/`**. Abre um *issue* neste repositório com esse ficheiro.
 
-### Apoiar o projeto
+---
 
-O MG4 Launcher é e continuará a ser **gratuito**. Se te for útil e quiseres contribuir para as horas passadas a
-desenvolvê-lo e a testá-lo no carro, podes deixar um donativo: é totalmente **voluntário** e **não há valor mínimo**,
-podes dar o que quiseres. Uma estrela no repositório ou um relato de erro também ajudam muito. Obrigado!
+## Sobre este fork
 
-Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar novas versões no carro.
+Este repositório é um **fork independente** do [MG4 Launcher SWI69](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69)
+de **Ernesto Micco** ([ernestomicco2026-cell](https://github.com/ernestomicco2026-cell)), autor do launcher original.
+Desde a 0.4.11 já não recebe alterações do repositório original; as atualizações automáticas vêm deste fork.
 
-[![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
+| Função | Onde fica | Baseada em |
+|---|---|---|
+| Launcher base | — | [**MG4 Launcher SWI69**](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69), de Ernesto Micco |
+| **Ecrã de clima** | Botão do clima, app de climatização original | [**MG4 Clima**](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4) 1.4.5, de Ernesto Micco |
+| **Vidros** (fecho automático) | Definições → Vidros | [**WinClose**](https://github.com/Skittle6938/winclose), de [Skittle6938](https://github.com/Skittle6938) |
+| **Vidros** no firmware sem a função antiga, **aquecimento da bateria** | Vidros; barra → Condução | [**MG4Control**](https://github.com/SliDeeN/MG4Control), de [SliDeeN](https://github.com/SliDeeN) |
+| Sem envio de registos, código em inglês, botão flutuante do clima, etc. | — | este fork |
 
-### Versões
+Os Vidros e o aquecimento da bateria foram **reescritos em Java** para o launcher (sem código copiado desses projetos);
+o mérito da descoberta de como o carro funciona é dos respetivos criadores. Se gostas destas funções, visita e apoia os
+repositórios originais — o autor do launcher original aceita donativos em
+[PayPal](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT).
+
+## Versões
 
 #### 0.4.13 (fork InfectedM)
 - **Clima com o Android Auto/CarPlay**: a zona invisível no meio da barra de cima passa a ser um **botão redondo
@@ -825,6 +799,9 @@ antes de compilar (não edites os `strings.xml` à mão). Os APK publicados est�
 O launcher usa os mesmos serviços de sistema do ecrã inicial original **SWI69 Color Radio**: veículo e bateria,
 climatização, luzes, multimédia, rádio e CarPlay / Android Auto. Lê os dados e envia ao carro apenas os comandos em que
 tocas (climatização, faróis de nevoeiro, fontes e faixas, vidros, aquecimento da bateria); não altera nada no sistema.
+O ecrã de clima (pacote `com.mg4.launcher.climate`) fala com o serviço `com.saicmotor.caradapter` (`ICarHvacService`),
+como a app de climatização original, e usa um serviço de acessibilidade próprio (`ClimateGuard`) para aparecer em vez
+dela, fechar o menu deslizante, ler o joystick e mostrar o botão flutuante sobre o Android Auto / CarPlay.
 Os Vidros usam as bibliotecas carapi da SAIC presentes no carro (CarVehicleSettingClient e CarStateClient, como o
 [WinClose](https://github.com/Skittle6938/winclose)); o aquecimento da bateria usa a propriedade `DRVNG_PTC_HEAT`
 (`0x2140F429`), documentada pelo [MG4Control](https://github.com/SliDeeN/MG4Control).
@@ -835,7 +812,7 @@ o painel Mapa mostra as indicações do telemóvel e abre o CarPlay / Android Au
 #### Notas
 
 - A imagem do carro deriva de uma fotografia oficial MG; as marcas e imagens pertencem aos respetivos proprietários.
-- Launcher original: [Ernesto Micco](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69). Vidros: baseado no
+- Launcher original e MG4 Clima: [Ernesto Micco](https://github.com/ernestomicco2026-cell/Mg4-Launcher-SWI69). Vidros: baseado no
   [WinClose](https://github.com/Skittle6938/winclose) (Skittle6938). Aquecimento da bateria: baseado no
   [MG4Control](https://github.com/SliDeeN/MG4Control) (SliDeeN).
 - Os logótipos das estações FM vêm de [radio-browser.info](https://www.radio-browser.info), uma base de dados pública
