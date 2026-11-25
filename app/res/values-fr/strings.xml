@@ -562,6 +562,8 @@
     <string name="news_v0410_2" formatted="false">Le journal affiche vraiment les plantages récents des apps (avant, la section restait vide)</string>
     <string name="news_v0411_1" formatted="false">Code nettoyé et traduit en anglais, journal de diagnostic en anglais ; envoi des journaux supprimé</string>
     <string name="news_v0411_2" formatted="false">Les réglages sont transférés automatiquement vers les nouveaux noms internes : rien n’est perdu</string>
+    <string name="news_v0413_1" formatted="false">Climat avec Android Auto et CarPlay : un bouton rond flottant ouvre le climat ; fais-le glisser là où il ne cache pas les boutons de Waze ou Maps</string>
+    <string name="news_v0413_2" formatted="false">Écran climat : le bouton de fermeture est côté conducteur et le bouton marche/arrêt a été retiré (il y a le bouton physique)</string>
     <string name="news_v0412_1" formatted="false">MG4 Climat intégrée au launcher : l’écran climat s’ouvre depuis le bouton climat et à la place de l’appli climat d’origine, sans appli séparée</string>
     <string name="news_v0412_2" formatted="false">Si MG4 Climat est installée, elle est désinstallée automatiquement ; les réglages du climat sont sous l’engrenage de l’écran climat</string>
     <string name="cl_app_name" formatted="false">MG4 Climat</string>
@@ -693,7 +695,7 @@ S\'arrête tout seul si la voiture roule ou si tu quittes cet écran. Ne touche 
     <string name="cl_s_joy_conflict" formatted="false">Une autre appli utilise le joystick</string>
     <string name="cl_s_joy_conflict_sub">%1$s peut prendre les mêmes touches du volant : désactive le joystick dans l\'autre appli pour l\'utiliser avec MG4 Climat</string>
     <string name="cl_s_proj" formatted="false">Climat pendant Android Auto et CarPlay</string>
-    <string name="cl_s_proj_sub" formatted="false">Avec Android Auto ou CarPlay devant, touche le centre de la barre du haut pour ouvrir MG4 Climat</string>
+    <string name="cl_s_proj_sub" formatted="false">Avec Android Auto ou CarPlay devant, un bouton rond ouvre MG4 Climat ; fais-le glisser là où il ne gêne pas</string>
     <string name="cl_s_autoclose" formatted="false">Fermer automatiquement après</string>
     <string name="cl_s_autoclose_sub" formatted="false">Secondes sans toucher ni touche du joystick ; puis retour là où tu l\'as ouvert</string>
     <string name="cl_s_never" formatted="false">Jamais</string>

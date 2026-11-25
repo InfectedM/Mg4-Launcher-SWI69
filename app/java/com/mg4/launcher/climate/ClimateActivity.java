@@ -100,10 +100,10 @@ public final class ClimateActivity extends Activity {
         opened(getIntent());
     }
 
-    /** Where it was opened from (zone over the bar, or the app that was in front): it goes back there on closing. */
+    /** Where it was opened from (floating button over the projection, or the app that was in front): it goes back there on closing. */
     private void opened(Intent i) {
         String z = i == null ? null : i.getStringExtra(ReturnTo.EXTRA_FROM);
-        if (z != null) ReturnTo.onOpen(z, "zone over the bar");
+        if (z != null) ReturnTo.onOpen(z, "floating button");
         else ReturnTo.onOpen(ClimateGuard.lastOther, originalAt > 0 ? "instead of the original climate" : "opening");
     }
 

@@ -498,6 +498,8 @@ public final class MainActivity extends Activity implements HomeView.Host, AppsV
     /** What's new in each version (texts in all languages in strings.xml). */
     private static int[] newsFor(String ver) {
         switch (ver) {
+            case "0.4.13":  // fork InfectedM
+                return new int[]{R.string.news_v0413_1, R.string.news_v0413_2};
             case "0.4.12":  // fork InfectedM
                 return new int[]{R.string.news_v0412_1, R.string.news_v0412_2};
             case "0.4.11":  // fork InfectedM

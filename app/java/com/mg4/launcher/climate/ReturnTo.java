@@ -14,7 +14,7 @@ import java.util.List;
 /**
  * On closing, the climate screen goes back to where it was opened from.
  * <ul>
- *   <li>opened while Android Auto or CarPlay was in front (also from the zone over the bar): if the AllGo service says
+ *   <li>opened while Android Auto or CarPlay was in front (also from the floating button): if the AllGo service says
  *       the session is still active, the task that was there is brought back to the front (moveTaskToFront), without
  *       restarting the app;</li>
  *   <li>otherwise (from the home, no session, task not found): home.</li>

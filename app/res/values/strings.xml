@@ -562,6 +562,8 @@
     <string name="news_v0410_2" formatted="false">The log now really shows recent app crashes (the section used to stay empty)</string>
     <string name="news_v0411_1" formatted="false">Code cleaned up and translated to English, diagnostic log in English; log upload removed entirely</string>
     <string name="news_v0411_2" formatted="false">Settings are moved automatically to the new internal names: nothing is lost</string>
+    <string name="news_v0413_1" formatted="false">Climate with Android Auto and CarPlay: a round floating button opens the climate; drag it where it does not cover Waze or Maps buttons</string>
+    <string name="news_v0413_2" formatted="false">Climate screen: the close button is on the driver side and the power button was removed (the car has a physical one)</string>
     <string name="news_v0412_1" formatted="false">MG4 Clima built into the launcher: the climate screen opens from the climate button and instead of the original climate app, with no separate app</string>
     <string name="news_v0412_2" formatted="false">If MG4 Clima is installed it is uninstalled automatically; the climate settings are under the gear on the climate screen</string>
     <string name="cl_app_name" formatted="false">MG4 Climate</string>
@@ -693,7 +695,7 @@ It stops by itself if the car moves or you leave this screen. Don\'t touch the c
     <string name="cl_s_joy_conflict" formatted="false">Another app uses the joystick</string>
     <string name="cl_s_joy_conflict_sub">%1$s can take the same steering-wheel keys: turn the joystick off in the other app to use it with MG4 Climate</string>
     <string name="cl_s_proj" formatted="false">Climate during Android Auto and CarPlay</string>
-    <string name="cl_s_proj_sub" formatted="false">With Android Auto or CarPlay in front, tap the centre of the top bar to open MG4 Climate</string>
+    <string name="cl_s_proj_sub" formatted="false">With Android Auto or CarPlay in front a round button opens MG4 Climate; drag it where it does not get in the way</string>
     <string name="cl_s_autoclose" formatted="false">Close automatically after</string>
     <string name="cl_s_autoclose_sub" formatted="false">Seconds without touches or joystick keys; then it goes back to where you opened it</string>
     <string name="cl_s_never" formatted="false">Never</string>

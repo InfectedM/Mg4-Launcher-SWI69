@@ -1,6 +1,6 @@
 {
-  "version": "0.4.12",
-  "apk": "releases/MG4Launcher-SWI69-0.4.12.apk",
-  "size": 1544114,
-  "notes": "Ecrã de clima MG4 Clima integrado no launcher (botão do clima e em vez da app original); a app MG4 Clima separada é desinstalada sozinha."
+  "version": "0.4.13",
+  "apk": "releases/MG4Launcher-SWI69-0.4.13.apk",
+  "size": 1548210,
+  "notes": "Botão flutuante (arrastável) para abrir o clima com o Android Auto/CarPlay; no ecrã de clima o fechar fica do lado do condutor e o botão de desligar foi retirado."
 }

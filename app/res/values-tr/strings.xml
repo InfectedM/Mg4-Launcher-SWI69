@@ -562,6 +562,8 @@
     <string name="news_v0410_2" formatted="false">Günlük artık son uygulama çökmelerini gerçekten gösteriyor (önceden bölüm boş kalıyordu)</string>
     <string name="news_v0411_1" formatted="false">Kod temizlendi ve İngilizceye çevrildi, tanılama günlüğü İngilizce; günlük gönderimi tamamen kaldırıldı</string>
     <string name="news_v0411_2" formatted="false">Ayarlar yeni dahili adlara otomatik olarak aktarılır: hiçbir şey kaybolmaz</string>
+    <string name="news_v0413_1" formatted="false">Android Auto ve CarPlay ile klima: yuvarlak yüzen bir düğme klimayı açar; Waze veya Maps düğmelerini kapatmayacağı yere sürükle</string>
+    <string name="news_v0413_2" formatted="false">Klima ekranı: kapatma düğmesi sürücü tarafında ve açma/kapama düğmesi kaldırıldı (fiziksel düğme var)</string>
     <string name="news_v0412_1" formatted="false">MG4 Klima launcher’a entegre edildi: klima ekranı klima düğmesinden ve orijinal klima uygulamasının yerine açılır, ayrı uygulama gerekmez</string>
     <string name="news_v0412_2" formatted="false">MG4 Klima yüklüyse otomatik olarak kaldırılır; klima ayarları klima ekranındaki dişli simgesindedir</string>
     <string name="cl_app_name" formatted="false">MG4 Klima</string>
@@ -693,7 +695,7 @@ Araç hareket ederse veya bu ekrandan çıkarsan kendiliğinden durur. Test sır
     <string name="cl_s_joy_conflict" formatted="false">Başka bir uygulama joysticki kullanıyor</string>
     <string name="cl_s_joy_conflict_sub">%1$s aynı direksiyon tuşlarını alabilir: MG4 Klima ile kullanmak için diğer uygulamada joysticki kapat</string>
     <string name="cl_s_proj" formatted="false">Android Auto ve CarPlay sırasında klima</string>
-    <string name="cl_s_proj_sub" formatted="false">Android Auto veya CarPlay öndeyken MG4 Klima\'yı açmak için üst çubuğun ortasına dokun</string>
+    <string name="cl_s_proj_sub" formatted="false">Android Auto veya CarPlay öndeyken yuvarlak bir düğme MG4 Klima\'yı açar; onu rahatsız etmeyeceği yere sürükle</string>
     <string name="cl_s_autoclose" formatted="false">Şu süreden sonra kendiliğinden kapat</string>
     <string name="cl_s_autoclose_sub" formatted="false">Dokunma veya joystick tuşu olmadan geçen saniye; sonra açtığın yere döner</string>
     <string name="cl_s_never" formatted="false">Asla</string>

@@ -562,6 +562,8 @@
     <string name="news_v0410_2" formatted="false">Log naprawdę pokazuje ostatnie awarie aplikacji (wcześniej sekcja była pusta)</string>
     <string name="news_v0411_1" formatted="false">Kod uporządkowany i przetłumaczony na angielski, dziennik diagnostyczny po angielsku; wysyłanie logów całkowicie usunięte</string>
     <string name="news_v0411_2" formatted="false">Ustawienia są automatycznie przenoszone na nowe nazwy wewnętrzne: nic nie ginie</string>
+    <string name="news_v0413_1" formatted="false">Klimatyzacja z Android Auto i CarPlay: okrągły pływający przycisk otwiera klimatyzację; przeciągnij go tam, gdzie nie zasłania przycisków Waze ani Map</string>
+    <string name="news_v0413_2" formatted="false">Ekran klimatyzacji: przycisk zamykania jest po stronie kierowcy, a przycisk wyłączania usunięto (jest przycisk fizyczny)</string>
     <string name="news_v0412_1" formatted="false">MG4 Klimatyzacja wbudowana w launcher: ekran klimatyzacji otwiera się przyciskiem klimatyzacji i zamiast oryginalnej aplikacji, bez osobnej aplikacji</string>
     <string name="news_v0412_2" formatted="false">Jeśli MG4 Klimatyzacja jest zainstalowana, zostanie odinstalowana automatycznie; ustawienia klimatyzacji są pod kołem zębatym na ekranie klimatyzacji</string>
     <string name="cl_app_name" formatted="false">MG4 Klimatyzacja</string>
@@ -693,7 +695,7 @@ Zatrzymuje się sam, gdy samochód ruszy lub opuścisz ten ekran. Nie dotykaj kl
     <string name="cl_s_joy_conflict" formatted="false">Inna aplikacja używa joysticka</string>
     <string name="cl_s_joy_conflict_sub">%1$s może przejmować te same klawisze kierownicy: wyłącz joystick w drugiej aplikacji, aby używać go z MG4 Klimatyzacją</string>
     <string name="cl_s_proj" formatted="false">Klimatyzacja podczas Android Auto i CarPlay</string>
-    <string name="cl_s_proj_sub" formatted="false">Gdy z przodu jest Android Auto lub CarPlay, dotknij środka górnego paska, aby otworzyć MG4 Klimatyzację</string>
+    <string name="cl_s_proj_sub" formatted="false">Gdy z przodu jest Android Auto lub CarPlay, okrągły przycisk otwiera MG4 Klimatyzację; przeciągnij go tam, gdzie nie przeszkadza</string>
     <string name="cl_s_autoclose" formatted="false">Zamknij samoczynnie po</string>
     <string name="cl_s_autoclose_sub" formatted="false">Sekundy bez dotyku i klawiszy joysticka; potem wraca tam, skąd został otwarty</string>
     <string name="cl_s_never" formatted="false">Nigdy</string>

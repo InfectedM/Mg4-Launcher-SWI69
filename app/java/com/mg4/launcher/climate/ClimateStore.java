@@ -281,6 +281,15 @@ public final class ClimateStore {
         sp(c).edit().putBoolean("projectionZone", on).apply();
     }
 
+    /** Position of the floating climate button during Android Auto / CarPlay (x, y in px; -1 = default). */
+    public static int[] projectionButton(Context c) {
+        return new int[]{sp(c).getInt("projectionButtonX", -1), sp(c).getInt("projectionButtonY", -1)};
+    }
+
+    public static void setProjectionButton(Context c, int x, int y) {
+        sp(c).edit().putInt("projectionButtonX", x).putInt("projectionButtonY", y).apply();
+    }
+
     /** Position and size of the screen on the display (for the ready window that covers the flash). */
     public static int[] screenRect(Context c) {
         String v = sp(c).getString("screenRect", "");

@@ -562,6 +562,8 @@
     <string name="news_v0410_2" formatted="false">O registo passa a mostrar mesmo os crashes recentes das apps (antes a secção ficava sempre vazia)</string>
     <string name="news_v0411_1" formatted="false">Código limpo e traduzido para inglês, registo de diagnóstico em inglês; envio de registos removido por completo</string>
     <string name="news_v0411_2" formatted="false">As definições passam automaticamente para os novos nomes internos: não se perde nada</string>
+    <string name="news_v0413_1" formatted="false">Clima com o Android Auto e o CarPlay: um botão redondo flutuante abre o clima; arrasta-o para onde não tape botões do Waze ou do Maps</string>
+    <string name="news_v0413_2" formatted="false">Ecrã de clima: o botão de fechar está do lado do condutor e o botão de desligar foi retirado (há o botão físico)</string>
     <string name="news_v0412_1" formatted="false">MG4 Clima integrada no launcher: o ecrã de clima abre no botão do clima e em vez da app de climatização original, sem app separada</string>
     <string name="news_v0412_2" formatted="false">Se a MG4 Clima estiver instalada é desinstalada sozinha; as definições do clima estão na roda dentada do ecrã de clima</string>
     <string name="cl_app_name" formatted="false">MG4 Clima</string>
@@ -693,7 +695,7 @@ Para sozinho se o carro andar ou se saíres deste ecrã. Não mexas na climatiza
     <string name="cl_s_joy_conflict" formatted="false">Outra app usa o joystick</string>
     <string name="cl_s_joy_conflict_sub">%1$s pode ficar com as mesmas teclas do volante: desative o joystick na outra app para o usar com o MG4 Clima</string>
     <string name="cl_s_proj" formatted="false">Clima durante o Android Auto e o CarPlay</string>
-    <string name="cl_s_proj_sub" formatted="false">Com o Android Auto ou o CarPlay à frente, toque no centro da barra superior para abrir o MG4 Clima</string>
+    <string name="cl_s_proj_sub" formatted="false">Com o Android Auto ou o CarPlay à frente aparece um botão redondo que abre o MG4 Clima; arrasta-o para onde não estorve</string>
     <string name="cl_s_autoclose" formatted="false">Fechar sozinho depois de</string>
     <string name="cl_s_autoclose_sub" formatted="false">Segundos sem toques nem teclas do joystick; depois volta onde o abriste</string>
     <string name="cl_s_never" formatted="false">Nunca</string>

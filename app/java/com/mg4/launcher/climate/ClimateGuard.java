@@ -33,7 +33,7 @@ import java.util.Set;
 public final class ClimateGuard extends AccessibilityService {
     /** Original climate app of the SWI69 (R45; also SWI132 R43): package, main screen, analysed versions. */
     public static final String HVAC_PKG = "com.saicmotor.hvac", HVAC_MAIN = "com.saicmotor.hvac.ui.activity.MainActivity";
-    private static final String[] KNOWN_VERSIONS = {"A9_Hvac_V1.0.1.120"};
+    private static final String[] KNOWN_VERSIONS = {"A9_Hvac_V1.0.1.120", "A9_Hvac_V1.0.1.87"};
 
     private static final long LOOP_WINDOW_MS = 30_000, LOOP_PAUSE_MS = 2 * 60_000L;
     private static final int LOOP_MAX = 3;
@@ -305,7 +305,7 @@ public final class ClimateGuard extends AccessibilityService {
         }
         CharSequence pk = e.getPackageName(), cls = e.getClassName();
         if (pk == null) return;
-        // our windows that are not an activity (zone over the bar, ready window, overlay panel, dialogs) do not count
+        // our windows that are not an activity (floating button, ready window, overlay panel, dialogs) do not count
         // as "in front"; the climate screen and the launcher's own activities do (same package)
         if (getPackageName().contentEquals(pk)) {
             String c = cls == null ? "" : cls.toString();

@@ -409,12 +409,8 @@ public final class ClimateView extends View {
         // ---- driver-side column
         drawDriverColumn(c, usable, on);
 
-        // ---- close (in the corner) and settings next to it (passenger side)
-        float xx = rhd ? 40 : W - 40 - 72;
-        float gx = rhd ? 40 + 72 + 16 : W - 40 - 72 - 16 - 72;
-        tile(c, xx, 40, 72, 72, 22, CHIP);
-        icon(c, R.drawable.climate_close, xx + 9, 40 + 16, 54, 40, SUB);
-        hit("close", xx, 40, 72, 72);
+        // ---- settings in the passenger-side corner (close is at the top of the driver column)
+        float gx = rhd ? 40 : W - 40 - 72;
         tile(c, gx, 40, 72, 72, 22, CHIP);
         icon(c, R.drawable.climate_gear, gx + 9, 40 + 16, 54, 40, SUB);
         hit("settings", gx, 40, 72, 72);
@@ -743,16 +739,10 @@ public final class ClimateView extends View {
 
     private void drawDriverColumn(Canvas c, boolean usable, boolean on) {
         float cx0 = rhd ? W - 40 - 380 : 40, top = 34;
-        // big power button
-        float pcx = cx0 + 52, pcy = top + 52;
-        if (on) {
-            fill((TEXT & 0xFFFFFF) | 0x1F000000);
-            c.drawCircle(pcx, pcy, 58, p);
-        }
-        fill(on ? TEXT : CHIP);
-        c.drawCircle(pcx, pcy, 52, p);
-        icon(c, R.drawable.climate_power, pcx - 24, pcy - 24, 48, 48, on ? ONTEXT : SUB);
-        hit("power", cx0, top, 104, 104);
+        // big close button on the driver side (no power button: the car has a physical one)
+        tile(c, cx0, top, 104, 104, 28, CHIP);
+        icon(c, R.drawable.climate_close, cx0 + 26, top + 26, 52, 52, TEXT);
+        hit("close", cx0, top, 104, 104);
         String title = !usable ? L.s(R.string.cl_v_unavailable) : on ? L.s(R.string.cl_v_on) : L.s(R.string.cl_v_off);
         String sub = !st.connected ? L.s(R.string.cl_v_waiting)
                 : !usable ? L.s(R.string.cl_v_switch_on)

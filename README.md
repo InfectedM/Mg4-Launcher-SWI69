@@ -10,7 +10,7 @@
 </p>
 
 <p align="center">
-<a href="releases/MG4Launcher-SWI69-0.4.12.apk"><img alt="Transferir 0.4.12" src="https://img.shields.io/badge/Transferir-0.4.12-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
+<a href="releases/MG4Launcher-SWI69-0.4.13.apk"><img alt="Transferir 0.4.13" src="https://img.shields.io/badge/Transferir-0.4.13-2ea44f?style=for-the-badge&logo=android&logoColor=white"></a>
 <a href="https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT"><img alt="Apoiar o projeto com PayPal" src="https://img.shields.io/badge/Apoiar-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white"></a>
 </p>
 
@@ -242,7 +242,7 @@ a partir de um computador.
 
 Tens de conseguir abrir um gestor de ficheiros no infoentretenimento.
 
-1. Copia `MG4Launcher-SWI69-0.4.12.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
+1. Copia `MG4Launcher-SWI69-0.4.13.apk` para uma pen USB formatada em **FAT32** ou **exFAT**.
 2. Liga-a ao carro, abre o gestor de ficheiros e toca no APK.
 3. Se o Android disser que não pode instalar apps desta origem: toca em **Definições**, ativa
    **Permitir desta origem** para o gestor de ficheiros e volta atrás.
@@ -258,7 +258,7 @@ O firmware MG pode bloquear a instalação normal de apps; a opção `-f` permit
 
 1. Instala:
    ```bash
-   adb install -r -f MG4Launcher-SWI69-0.4.12.apk
+   adb install -r -f MG4Launcher-SWI69-0.4.13.apk
    ```
 2. Define-o como ecrã inicial predefinido:
    ```bash
@@ -331,6 +331,15 @@ Mesmo só **2 €** são uma grande ajuda para continuar a desenvolver e testar 
 [![Paga-me um café com PayPal](https://img.shields.io/badge/Paga--me%20um%20caf%C3%A9-PayPal-0070BA?style=for-the-badge&logo=paypal&logoColor=white)](https://paypal.me/ErnestoMicco?locale.x=it_IT&country.x=IT)
 
 ### Versões
+
+#### 0.4.13 (fork InfectedM)
+- **Clima com o Android Auto/CarPlay**: a zona invisível no meio da barra de cima passa a ser um **botão redondo
+  flutuante** que abre o clima. Pode ser arrastado para onde não tape botões do Waze ou do Maps; a posição fica
+  guardada (começa do lado do condutor).
+- **Ecrã de clima**: o botão de fechar passa para o lado do condutor (no sítio do antigo botão de ligar, maior); o
+  botão de ligar/desligar foi retirado, porque o carro tem o botão físico. A roda dentada fica no canto do passageiro.
+- Versão `A9_Hvac_V1.0.1.87` da app de climatização original junta-se às versões conhecidas (não pede verificação).
+- Janela **Novidades** da 0.4.13.
 
 #### 0.4.12 (fork InfectedM)
 - **Ecrã de clima integrado** (vindo do [MG4 Clima](https://github.com/ernestomicco2026-cell/HVAC-Clima-MG4) 1.4.5,
